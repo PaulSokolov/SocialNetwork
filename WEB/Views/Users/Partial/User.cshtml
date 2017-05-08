@@ -1,0 +1,36 @@
+﻿@model SocialNetwork.Models.UserSearchModel
+
+<div class="row">
+    <div class="dialog">
+        <div class="media">
+            <div class="media-left media-top">
+                <a href="../Home/User/@Model.PublicId" style="position: relative;">
+                    <img class="media-object dialog_image_user" src="@Model.Avatar" alt="...">
+                </a>
+            </div>
+            <div class="media-body">
+                <a href="../Home/Profile/@Model.PublicId">
+                    <h5 class="media-heading">@string.Format("{0} {1}", Model.Name, Model.Surname)</h5>
+                    <span>@Model.Address</span>
+                </a>
+                @if (Model.IsFriend)
+                {
+                    <div id="@string.Format("delete_{0}", Model.PublicId)" class="btn btn-danger" style="float: right;top: 0px" onclick="FriendRequest(@Model.PublicId,'Delete','delete','result')">Delete</div>
+                }
+                else if (Model.IsFollower)
+                {
+                    <div id="@string.Format("follower_{0}", Model.PublicId)" class="btn btn-default" style="float: right;top: 0px " onclick="FriendRequest(@Model.PublicId,'Confirm','result')">Add to friends</div>
+                }
+                else if (Model.IsFollowed)
+                {
+                    <div id="@string.Format("followed_{0}", Model.PublicId)" class="btn btn-danger" style="float: right;top: 0px " onclick="FriendRequest(@Model.PublicId,'Unsubscribe','result')">Unsubscribe</div>
+                }
+                else if (ViewBag.MyPublicId == Model.PublicId) { }
+                else
+                {
+                    <div id="@string.Format("friend_{0}", Model.PublicId)" class="btn btn-default" style="float: right;" onclick="FriendRequest(@Model.PublicId,'Add','friend')">Add Friend</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

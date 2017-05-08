@@ -1,0 +1,34 @@
+﻿
+@model SocialNetwork.Models.MessageModel
+
+@{string style = null; }
+@{ 
+    if (!Model.IsRead)
+    { style = "background-color: rgba(128, 128, 128, 0.15);"; }
+}
+
+<div class="message dialog_last_message" style="@style">
+    <div class="media">
+        <div class="media-left media-top">
+            <a href="../../Home/User/@Model.PublicId">
+                <img class="media-object dialog_image_user" src="@Model.Avatar" alt="...">
+            </a>
+        </div>
+        @*@if (!Model.IsRead)
+        {*@
+            <div class="media-body">
+                <h6 class="media-heading dialog_message_header">@string.Format("{0} {1}", Model.Name, Model.Surname)<span class="dialog_message_time">@Model.PostedTime.ToString("HH:mm")</span></h6>
+
+                <span>@Model.Body</span>
+            </div>
+        @*}
+        else
+        {
+            <div class="media-body">
+                <h6 class="media-heading dialog_message_header">@string.Format("{0} {1}", Model.Name, Model.Surname)<span class="dialog_message_time">@Model.PostedTime.ToString("HH:mm")</span></h6>
+
+                <span>@Model.Body</span>
+            </div>
+        }*@
+    </div>
+</div>

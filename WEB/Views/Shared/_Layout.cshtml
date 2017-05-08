@@ -1,0 +1,112 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title – приложение ASP.NET</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    @Styles.Render("~/Content/css")
+    <link href="@Url.Content("~/Content/themes/base/all.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/loading/waitMe.min.css")" rel="stylesheet" type="text/css" />
+
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="@Url.Content("~/Scripts/jquery-ui-1.12.1.min.js")" type="text/javascript"></script>
+    @Scripts.Render("~/bundles/bootstrap")
+    @* <script src="~/Scripts/SignalR/events.js"></script>*@
+
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#">Brand</a>
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        using (Html.BeginForm("Index", "Users", FormMethod.Get, new { @class = "navbar-form navbar-left" }))
+                        {
+
+                            <div class="form-group ">
+                                <input id="search" type="text" name="search" class="form-control" placeholder="Search" source='/Users/AutocompleteSearch'>
+                            </div>
+                            <button id="searchButton" type="submit" class="btn btn-default">Search</button>
+                        }
+                    }
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <div class="nav navbar-nav navbar-right">
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                    <div class="media navbar_drop_down">
+
+                                        <p style="line-height: 37px; float: left;">@User.Identity.Name</p>
+
+                                        <div class="media-right media-middle">
+                                            <img class="media-object navbar_user_image" src="@ViewBag.Avatar" alt="...">
+                                        </div>
+                                    </div>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#">My profile</a></li>
+                                    <li><a href="#">Edit</a></li>
+                                    @if (User.IsInRole("admin"))
+                                    {
+                                    <li><a href="/Admin/Index">Admin panel</a></li>
+                                    <li><a href="/Moderator/Index">Moderator panel</a></li>
+                                    }
+                                    else if (User.IsInRole("moderator"))
+                                    {
+                                        <li><a href="/Moderator/Index">Moderator panel</a></li>
+                                    }
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="/Account/Logout">Logout</a></li>
+                                </ul>
+                            </li>
+                        </div>
+                    }
+                </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+        </nav>
+    </header>
+    <div class="container body-content">
+        @RenderBody()
+        @{Html.RenderPartial("MessageNotification", new SocialNetwork.Models.MessageModel { Body = "", Avatar = "", Name = "asdas", PublicId = 0, Surname = "asdasd", PostedTime = DateTime.Now }); }
+        @{Html.RenderPartial("FriendNotification", new SocialNetwork.Models.FriendNotificationModel { Avatar = "", Name = "asdas", PublicId = 0, Surname = "asdasd" }); }
+    </div>
+    <div class="row" style="display:none">
+        <div class="col-md-8 col-md-offset-2">
+            <hr />
+            <footer>
+                <p>&copy; @DateTime.Now.Year – приложение ASP.NET</p>
+            </footer>
+        </div>
+    </div>
+    <!--Ссылка на библиотеку SignalR -->
+    <script src="~/Scripts/jquery.signalR-2.2.2.min.js"></script>
+    <!--Ссылка на автоматически сгенерированный скрипт хаба SignalR -->
+    <script src="~/signalr/hubs"></script>
+    <script src="~/Scripts/loading/waitMe.min.js"></script>
+    <script src="~/Scripts/loading/loading.js"></script>
+    @RenderSection("Scripts", false)
+    @if (User.Identity.IsAuthenticated)
+    {
+        <script src="~/Scripts/SignalR/notification.js"></script>
+        <script src="~/Scripts/SignalR/autocomplete.js"></script>
+    }
+</body>
+</html>

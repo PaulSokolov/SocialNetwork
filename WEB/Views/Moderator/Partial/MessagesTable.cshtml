@@ -1,0 +1,19 @@
+﻿@model System.Collections.Generic.IEnumerable<SocialNetwork.Models.ModeratorModels.MessageModeratorModel>
+
+<table id="messageTable" class="table table-striped table-hover" style="margin-top:20px;">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>User</th>
+            <th>Body</th>
+            <th>Posted Date</th>
+            <th>Last Modified</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var message in Model)
+            {
+                Html.RenderPartial("Partial/MessageRow", message);
+            }
+    </tbody>
+</table>

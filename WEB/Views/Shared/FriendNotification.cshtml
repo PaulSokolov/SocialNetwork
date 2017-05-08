@@ -1,0 +1,25 @@
+﻿@model SocialNetwork.Models.FriendNotificationModel
+<div id="friendNotification" style="display:none;">
+    <div class="modal-dialog notification">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button id="closeFriendNotification" class="close" type="button" data-dismiss="modal">×</button>
+                <h6 class="modal-title">@string.Format("{0} {1} {2}", Model.Name, Model.Surname, Model.Status)</h6>
+            </div>
+            <div class="modal-body">
+
+                <a href="/Messages/Dialog/@Model.PublicId">
+                    <div class="media">
+                        <div class="media-left media-top">
+                            <img class="media-object dialog_image_user" src="@Model.Avatar" alt="...">
+                        </div>
+                        <div class="media-body">
+                            <h5 class="media-heading">@string.Format("{0} {1}", Model.Name, Model.Surname) <span class="dialog_message_time">@DateTime.Now.ToString("HH:mm")</span></h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+

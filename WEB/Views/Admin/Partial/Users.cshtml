@@ -1,0 +1,26 @@
+﻿@model System.Collections.Generic.IEnumerable<SocialNetwork.Models.AdminViewModels.UserDeleteModel>
+@foreach (var user in Model)
+{
+    <div class="row" id="@user.PublicId">
+        <div class="dialog">
+            <div class="media">
+                <div class="media-left media-top">
+                    <a href="../Home/User/@user.PublicId" style="position: relative;">
+                        <img class="media-object dialog_image_user" src="@user.Avatar" alt="...">
+                    </a>
+                </div>
+                <div class="media-body">
+                    <a href="../Home/Profile/@user.PublicId">
+                        <h5 class="media-heading">@string.Format("{0} {1}", user.Name, user.Surname)</h5>
+                    </a>
+                    @*<div id="@user.PublicId.ToString()" class="btn btn-default" style="float: right;top: 0px" onclick="UserDelete(user.PublicId)">@Ajax.ActionLink("Delete", "DeleteUser", new AjaxOptions { HttpMethod = "Post", Confirm="Are you sure?", UpdateTargetId=user.PublicId.ToString(),  })</div>*@
+                    @using (Ajax.BeginForm("DeleteUser", new AjaxOptions { UpdateTargetId = user.PublicId.ToString(), OnBegin = "beforeSend('searchResult')", OnComplete = "complete('searchResult')", Confirm = "Are you sure?", HttpMethod = "Post" }))
+                    {
+                        <input type="hidden" name="publicId" value="@user.PublicId" class="form-control">
+                        <button type="submit" class="btn btn-default" style="float: right;top: 0px">Delete</button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}

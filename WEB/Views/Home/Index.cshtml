@@ -1,0 +1,31 @@
+﻿@using SocialNetwork.Models;
+
+@{
+    ViewBag.Title = "Login";
+}
+<section class="params_s">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9 col-sm-6">
+                <div class="param_block">
+                    <i class="fa fa-desktop"></i>
+                    <h3>Easily castomised</h3>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus culpa veritatis dicta inventore, vitae voluptatum. Rerum, sunt. Alias obcaecati ut ipsum quod, fugit maxime assumenda cum, quisquam cumque quidem voluptatem ad at inventore dolorem. Vitae, accusamus dignissimos amet, impedit odio suscipit eveniet et voluptatibus magnam porro modi adipisci aliquid repellat harum ea id accusantium. Expedita numquam fugiat incidunt a rem facilis, labore harum odit reprehenderit sequi saepe dicta vitae libero tempora ipsum. Pariatur, nostrum iure vel sint, amet quibusdam consectetur cum alias, placeat odit at explicabo cumque impedit voluptatibus minus rerum veritatis dolor praesentium repellendus facere est, fugit ut. Culpa aspernatur, repudiandae qui doloribus ipsam, totam fugit blanditiis dolorum eaque hic odio et magni, possimus quisquam modi earum, illum iusto a sequi perferendis. Deserunt sapiente corporis quasi distinctio doloremque temporibus, repellendus aliquid non, fugit dolorum excepturi natus nemo ullam maxime ratione veniam laudantium maiores delectus. Iusto earum id maxime deleniti aliquam esse quo suscipit minus nesciunt ab. Reiciendis porro maiores expedita nihil in minima autem temporibus quidem modi consequatur accusantium, perspiciatis ab. Fuga placeat error quisquam itaque rem perspiciatis excepturi officia odio, ipsum. Odit ullam laborum temporibus, soluta dolorem harum iure nesciunt veniam nobis, aspernatur similique ut voluptatem incidunt molestiae.</p>
+                </div>
+            </div>
+            @{
+                Html.RenderPartial("Partial/Login", new LoginModel());
+                Html.RenderPartial("Partial/Registration", new RegisterModel());
+            }
+
+
+        </div>
+
+    </div>
+</section>
+@section Scripts
+{
+
+    
+    <script src="~/Scripts/SignalR/notification.js"></script>
+}

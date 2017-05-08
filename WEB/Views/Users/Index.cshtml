@@ -1,0 +1,28 @@
+﻿@model SocialNetwork.Models.SearchPageModel
+
+
+<div class="row">
+    <div class="col-md-3">
+        @{ Html.RenderPartial("BorderMenu");}
+    </div>
+
+    <div id="result" class="col-md-6">
+        @{
+            foreach (var user in Model.Users)
+            {
+                Html.RenderPartial("Partial/User", user);
+            }
+        }
+    </div>
+    <div class="col-md-3">
+        @{ Html.RenderPartial("Partial/Search");}
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="~/Scripts/SignalR/counters.js"></script>
+
+    <script src="~/Scripts/SignalR/search.js"></script>
+    <script src="~/Scripts/SignalR/friends.js"></script>
+}

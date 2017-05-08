@@ -1,0 +1,30 @@
+﻿@model SocialNetwork.Models.FriendModel
+<div class="row">
+    <div class="friends">
+        <div class="media">
+            <div class="media-left media-top">
+                <a href="#" style="position: relative;">
+                    <img class="media-object dialog_image_user" src="@Model.Avatar" alt="...">
+                </a>
+            </div>
+            <div class="media-body">
+                @if (Model.IsFriend)
+                {
+                    <div id="@string.Format("delete_{0}", Model.PublicId)" class="btn btn-default" style="float: right;top: 0px" onclick="Delete(@Model.PublicId)">Delete</div>
+                }
+                else if (Model.IsFollower)
+                {
+                    <div id="@string.Format("follower_{0}", Model.PublicId)" class="btn btn-default" style="float: right;top: 0px " onclick="AddToFriends(@Model.PublicId)">Add to friends</div>
+                }
+                else if (Model.IsRequested)
+                {
+                    <div id="@string.Format("followed_{0}", Model.PublicId)" class="btn btn-default" style="float: right;top: 0px " onclick="Unsubscribe(@Model.PublicId)">Unsubscribe</div>
+                }
+                <h5 class="media-heading">@string.Format("{0} {1}", Model.Name, Model.Surname)</h5>
+                <span>@Model.Address</span>
+                <br />
+                <a href="#">Write message</a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,28 @@
+﻿
+
+<h2 align="center">Admin panel</h2>
+
+<div class="row">
+    <div id="adminPanel" class="col-md-12 border" style="height:400px">
+        <div class="col-md-4">
+            <ul class="nav nav-pills nav-stacked">
+                <li>@Ajax.ActionLink("Create user", "CreateUser", new AjaxOptions { UpdateTargetId = "result", OnBegin = "beforeSend('adminPanel')", OnComplete = "complete('adminPanel')", HttpMethod = "Get" })</li>
+                <li>@Ajax.ActionLink("Delete user", "DeleteUser", new AjaxOptions { UpdateTargetId = "result", OnBegin = "beforeSend('adminPanel')", OnComplete = "complete('adminPanel')", OnSuccess= "autocomplete()", HttpMethod = "Get" })</li>
+                <li>@Ajax.ActionLink("Add role", "CreateRole", new AjaxOptions { UpdateTargetId = "result", OnBegin = "beforeSend('adminPanel')", OnComplete = "complete('adminPanel')", HttpMethod = "Get" })</li>
+                <li>@Ajax.ActionLink("Delete role", "DeleteRole", new AjaxOptions { UpdateTargetId = "result", OnBegin = "beforeSend('adminPanel')", OnComplete = "complete('adminPanel')", HttpMethod = "Get" })</li>
+                <li>@Ajax.ActionLink("Manage user`s roles", "ManageRoles", new AjaxOptions { UpdateTargetId = "result", OnBegin = "beforeSend('adminPanel')", OnComplete = "complete('adminPanel')", OnSuccess = "autocomplete()", HttpMethod = "Get" })</li>
+            </ul>
+        </div>
+        <div class="col-md-8">
+            <div id="result">
+            </div>
+            <div class="row">
+                <div class="col-md-12" id="wait" @*style="height:180px"*@>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+

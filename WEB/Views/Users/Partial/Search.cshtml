@@ -1,0 +1,68 @@
+﻿
+
+<div class="border">
+    <div class="row">
+        <div class="col-md-12">
+            <label for="">Sort</label>
+            <select id="sort" class="form-control">
+                <option value="0">Latest</option>
+                <option value="1">Newest</option>
+            </select>
+        </div>
+    </div>
+    <div class="row">
+
+        <div class="col-md-12">
+            <label for="">Country</label>
+            <select name="" id="countries" class="form-control">
+                <option value="default">Choose country</option>
+                @foreach (var country in Model.Countries)
+                {
+                    <option value="@country.Id">@country.Name</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <label id="cityLabel" for="">City</label>
+            <select name="" id="cities" class="form-control">
+                <option value="default">Choose city</option>
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <label for="">Age</label>
+        </div>
+        <div class="col-md-6">
+            <select name="" id="from" class="form-control">
+                <option value="default">from</option>
+                @for (int yearsOldFrom = 14; yearsOldFrom < 100; yearsOldFrom++)
+                {
+                    <option value="@yearsOldFrom">from @yearsOldFrom</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-6">
+            <select name="" id="to" class="form-control">
+                <option value="default">to</option>
+                @for (int yearsOldFrom = 14; yearsOldFrom < 100; yearsOldFrom++)
+                {
+                    <option value="@yearsOldFrom">to @yearsOldFrom</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <label for="">Sex</label>
+            <select name="" id="gender" class="form-control">
+                <option value="default">Any</option>
+                <option value="0">Male</option>
+                <option value="1">Female</option>
+                <option value="">Any</option>
+            </select>
+        </div>
+    </div>
+</div>

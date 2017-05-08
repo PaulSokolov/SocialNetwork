@@ -1,0 +1,57 @@
+﻿@model SocialNetwork.Models.ModeratorModels.MessageModeratorModel
+
+<tr id="@Model.Id">
+    <td>@Model.Id</td>
+    <td style="width:150px">
+        <div class="row">
+            <div @*class="dialog"*@>
+                <p>From:</p>
+                <div class="media">
+                    <div class="media-left media-top">
+                        <a href="../Home/User/@Model.UserPublicId" style="position: relative;">
+                            <img class="media-object moderator_image_user" src="@Model.UserAvatar" alt="...">
+                        </a>
+                    </div>
+                    <div class="media-body">
+                        <a href="../Home/Profile/@Model.UserPublicId">
+                            <p style="font-size:12px" class="media-heading">@string.Format("{0}\n{1}", Model.UserName, Model.UserSurname)</p>
+                        </a>
+                        @*<div id="@user.PublicId.ToString()" class="btn btn-default" style="float: right;top: 0px" onclick="UserDelete(user.PublicId)">@Ajax.ActionLink("Delete", "DeleteUser", new AjaxOptions { HttpMethod = "Post", Confirm="Are you sure?", UpdateTargetId=user.PublicId.ToString(),  })</div>*@
+
+                    </div>
+                </div>
+                <p>To:</p>
+                <div class="media">
+                    <div class="media-left media-top">
+                        <a href="../Home/User/@Model.RecipientPublicId" style="position: relative;">
+                            <img class="media-object moderator_image_user" src="@Model.RecipientAvatar" alt="...">
+                        </a>
+                    </div>
+                    <div class="media-body">
+                        <a href="../Home/Profile/@Model.RecipientPublicId">
+                            <span style="font-size:12px" class="media-heading">@string.Format("{0} {1}", Model.RecipientName, Model.RecipientSurname)</span>
+                        </a>
+                        @*<div id="@user.PublicId.ToString()" class="btn btn-default" style="float: right;top: 0px" onclick="UserDelete(user.PublicId)">@Ajax.ActionLink("Delete", "DeleteUser", new AjaxOptions { HttpMethod = "Post", Confirm="Are you sure?", UpdateTargetId=user.PublicId.ToString(),  })</div>*@
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </td>
+    <td>
+        @using (Ajax.BeginForm("UpdateMessage", new AjaxOptions { UpdateTargetId = Model.Id.ToString(), OnBegin = "beforeSend('messageTable')", OnComplete = "complete('messageTable')", HttpMethod = "Post", InsertionMode = InsertionMode.ReplaceWith }))
+        {
+            <input hidden name="id" value="@Model.Id" />
+            <textarea name="body" class="form-control" rows="4" id="message_@Model.Id" @*style="width:150px"*@>@Model.Body</textarea>
+           
+            <button class="btn btn-default right_btn" onclick="$(this.form).submit()">Update</button>
+        }
+        @Ajax.ActionLink("Delete", "DeleteMessage", new { id = Model.Id }, new AjaxOptions { UpdateTargetId = Model.Id.ToString(), OnBegin = "beforeSend('messageTable')", OnComplete = "complete('messageTable')", HttpMethod = "Get", InsertionMode = InsertionMode.ReplaceWith }, new { @class = "btn btn-danger right_btn" })
+    </td>
+    <td width="80px">
+        @Model.PostedDate
+    </td>
+    <td width="80px">
+        @Model.LastModifiedDate
+    </td>
+</tr>

@@ -1,0 +1,20 @@
+﻿using BusinessLayer.DTO;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace SocialNetwork.Models
+{
+    public class UserSearchModel
+    {
+        public string Name { get; set; }
+        public string Surname { get; set; }
+        public string Address { get; set; }
+        public long PublicId { get; set; }
+        public string Avatar { get; set; }
+        public bool IsFriend { get; set; }
+        public bool IsFollower { get; set; }
+        public bool IsFollowed { get; set; }
+    }
+}

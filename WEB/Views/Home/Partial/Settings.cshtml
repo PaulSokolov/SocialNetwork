@@ -1,0 +1,130 @@
+﻿@model SocialNetwork.Models.SettingsViewModel
+<div class="row border">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    @using (Ajax.BeginForm("Settings", new AjaxOptions { }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row my_form">
+            <div class="col-md-6 col-md-offset-3">
+                @Html.LabelFor(model => model.Name)
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @placeholder = "Name", @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="row my_form">
+            <div class="col-md-12">
+                @Html.LabelFor(model => model.Surname)
+                @Html.EditorFor(model => model.Surname, new { htmlAttributes = new { @placeholder = "Surname", @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Surname, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="row my_form">
+            <div class="col-md-12">
+                @Html.LabelFor(model => model.Email)
+                @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @placeholder = "Email", @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="row my_form">
+            <div class="col-md-12">
+                @Html.LabelFor(model=>model.EmailIsHidden)
+                @Html.EditorFor(model => model.EmailIsHidden, new { htmlAttributes = new { @placeholder = "EmailIsHidden", @class = "form-control checkbox" } })
+                @Html.ValidationMessageFor(model => model.EmailIsHidden, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="row my_form">
+            <div class="col-md-12">
+                @Html.LabelFor(model => model.About)
+                @Html.EditorFor(model => model.About, new { htmlAttributes = new { @placeholder = "About", @class = "form-control", rows="3" } })
+                @Html.ValidationMessageFor(model => model.About, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="row my_form">
+            <div class="col-md-12">
+                @Html.LabelFor(model => model.AboutIsHidden)
+                @Html.EditorFor(model => model.AboutIsHidden, new { htmlAttributes = new { @placeholder = "AboutIsHidden", @class = "form-control checkbox" } })
+                @Html.ValidationMessageFor(model => model.AboutIsHidden, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="row my_form">
+            <div class="col-md-12">
+                @Html.LabelFor(model => model.Activity)
+                @Html.EditorFor(model => model.Activity, new { htmlAttributes = new { @placeholder = "Activity", @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Activity, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="row my_form">
+            <div class="col-md-12">
+                @Html.LabelFor(model => model.ActivityIsHidden)
+                @Html.EditorFor(model => model.ActivityIsHidden, new { htmlAttributes = new { @placeholder = "ActivityIsHidden", @class = "form-control checkbox" } })
+                @Html.ValidationMessageFor(model => model.ActivityIsHidden, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="row my_form">
+            <div class="col-md-12">
+                @Html.LabelFor(model => model.BirthDate)
+                @Html.EditorFor(model => model.BirthDate, new { htmlAttributes = new { @placeholder = "Birthdate", @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.BirthDate, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="row my_form">
+            <div class="col-md-12">
+                @Html.LabelFor(model => model.BirthDateIsHidden)
+                @Html.EditorFor(model => model.BirthDateIsHidden, new { htmlAttributes = new { @placeholder = "BirthDateIsHidden", @class = "form-control checkbox" } })
+                @Html.ValidationMessageFor(model => model.BirthDateIsHidden, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="row my_form">
+            <div class="col-md-12">
+                @Html.LabelFor(model => model.Address)
+                @Html.EditorFor(model => model.Address, new { htmlAttributes = new { @placeholder = "Address", @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="row my_form">
+            <div class="col-md-12">
+                @Html.LabelFor(model => model.CountryId)
+                @Html.DropDownListFor(model=> model.CountryId, new SelectList(Model.Countries,"Id", "Name"), new { @placeholder = "Countries", @class = "form-control select" } )
+               
+            </div>
+        </div>
+        <div class="row my_form">
+            <div class="col-md-12">
+                @Html.LabelFor(model => model.CityId)
+                @Html.DropDownListFor(model => model.CityId, new SelectList(Model.Cities, "Id", "Name"), new { @placeholder = "Cities", @class = "form-control select" } )
+
+            </div>
+        </div>
+        @*<div class="row my_form">
+            <div class="col-md-12">
+                @Html.LabelFor(model => model.CityId)
+                @Html.DropDownList("cities", new SelectList(ViewBag.Cities), new { htmlAttributes = new { @placeholder = "CityId", @class = "form-control select" } })
+                @Html.ValidationMessageFor(model => model.CityId, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+        <div class="row my_form">
+            <button type="submit" class="btn btn-default col-md-12 my_register_btn">Register</button>
+        </div>
+    }
+</div>
+<script>
+    $(function () {
+        $("#CountryId").change(function () {
+            $.ajax({
+                type: "GET",
+                url: "/Home/Cities",
+                data: { countryId: $('#CountryId option:selected' ).val() },
+                dataType: "html",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $("#CityId").empty().prepend(data);
+                },
+                beforeSend: function () { beforeSend('result') },
+                complete: function () { complete('result') },
+                failure: function () {
+                    alert("error");
+                }
+            });
+        });
+    })
+</script>

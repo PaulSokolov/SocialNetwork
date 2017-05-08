@@ -1,0 +1,19 @@
+﻿<div class="border menu">
+    <ul>
+        <li><span class="fa fa-home icons"></span> <span><a href="/Home/Profile">My profile</a></span></li>
+        <li>
+            <span class="fa fa-envelope icons"></span> <span><a href="/Messages/Index">Messages</a></span>@if (ViewBag.UnRead != 0)
+            {<span id="messageCounter" class="counter">@ViewBag.Unread</span>}
+            else
+            {<span id="messageCounter" class="counter" style="display:none">@ViewBag.Unread</span> }
+        </li>
+        <li>
+            <span class="fa fa-user icons"></span> <span><a href="/Friend/Index">Friends</a></span> @if (ViewBag.NewFriends != 0)
+            {<span id="friendsCounter" class="counter">@ViewBag.NewFriends</span>}
+            else
+            { <span id="friendsCounter" class="counter" style="display:none">@ViewBag.NewFriends</span>}
+        </li>
+        <li><span class="fa fa-cog icons"></span> <span><a href="#">Settings</a></span></li>
+    </ul>
+</div>
+

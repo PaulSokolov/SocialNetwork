@@ -1,0 +1,23 @@
+﻿@model SocialNetwork.Models.LoginModel
+<div class="col-md-3 col-sm-6">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <form class="form-group" action="/Account/Login" method="post">
+        @Html.AntiForgeryToken()
+        <div class="row my_form">
+            <div class="col-md-12">
+                @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @placeholder="Email",@class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="row my_form">
+            <div class="col-md-12">
+                @Html.EditorFor(model => model.Password, new { htmlAttributes = new { @placeholder = "Password", @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="row my_form">
+            <button type="submit" class="btn btn-default col-md-6 my_login_btn">Login</button>
+            <a class="col-md-6 forget_pas" href="#">Forgot password?</a>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,38 @@
+﻿@model SocialNetwork.Models.DialogModel
+<div class="row">
+    <div class="dialog">
+        <div class="media">
+            <div class="media-left media-top">
+                <a href="#">
+                    <img class="media-object dialog_image_user" src="@Model.SenderAvatar" alt="...">
+                </a>
+            </div>
+            <div class="media-body">
+                <a href="/Messages/Dialog/@Model.PublicId">
+                    <h5 class="media-heading">@string.Format("{0} {1}", Model.Name, Model.Surname) <span class="dialog_message_time">@Model.LastMessageTime.ToString("HH:mm")</span></h5>
+
+                    <div class="media dialog_message">
+                        @if (Model.MyAvatar != null)
+                        {
+                            <div class="media-left media-middle">
+                                <img class="media-object dialog_image_from_user" src="@Model.MyAvatar" alt="...">
+                            </div>
+                        }
+                        @if (!Model.IsRead)
+                        {
+                        <div class="media-body dialog_last_message" style="background-color: rgba(128, 128, 128, 0.15);">
+                            <span class="">@Model.Body</span>
+                        </div>
+                        }
+                        else
+                        {
+                            <div class="media-body dialog_last_message">
+                                <span class="">@Model.Body</span>
+                            </div>
+                        }
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,54 @@
+﻿@model System.Collections.Generic.IEnumerable<SocialNetwork.Models.AdminViewModels.ManageUserRolesModel>
+<div class="row">
+    @using (Ajax.BeginForm("Search", "Admin", null, new AjaxOptions { UpdateTargetId = "searchResult", OnBegin = "beforeSend('searchResult')", OnComplete = "complete('searchResult')", HttpMethod = "Post" }, new { @class = "navbar-form navbar-left" }))
+    {
+
+        <div class="form-group ">
+            <input id="searchUser" type="text" name="search" class="form-control" placeholder="Search" source='/Users/AutocompleteSearch'>
+        </div>
+        <button id="searchButton" type="submit" class="btn btn-default">Search</button>
+    }
+</div>
+<script>
+    function autocomplete() {
+        $("[source]").each(function () {
+            var target = $(this);
+            target.autocomplete({
+                source: target.attr("source"),
+                focus: function (event, ui) {
+                    $("#searchUser").val(ui.item.name + " " + lastName);
+                    return false;
+                },
+                select: function (event, ui) {
+                    $("#searchUser").val(ui.item.name + " " + ui.item.lastName);
+                    return false;
+                }
+            }).autocomplete("instance")._renderItem = function (ul, item) {
+                return $("<li>")
+                    .append("<a href=\"/Home/User/" + item.publicId + "\"> <div class=\"media autocomplete\"><div class=\"media-left media-top\"><img class=\"media-object autocomplete\" src=\"" + item.avatar + "\"></div><div class=\"media-body\"><h5 class=\"media-heading autocomplete\">" + item.name + " " + item.lastName + "</h5><div class=\"media\"><div class=\"media-body\"><span>" + item.address + "</span></div></div></div></div>")
+                    .appendTo(ul);
+            };
+        });
+    }
+</script>
+<div class="row" style="overflow:auto; height:320px">
+    <div id="searchResult" style="padding:20px;">
+        <table id="rolesTable" class="table table-striped table-hover" style="margin-top:20px;">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>User</th>
+                    <th>Roles</th>
+                    <th>Add to role</th>
+                    <th>Remove from role</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    Html.RenderPartial("Partial/ManageRoleRow", user);
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

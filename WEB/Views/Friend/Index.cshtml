@@ -1,0 +1,40 @@
+﻿@model IEnumerable<SocialNetwork.Models.FriendModel>
+<div class="row">
+    <div class="col-md-3">
+
+        @{ Html.RenderPartial("BorderMenu");}
+    </div>
+
+    <div class="col-md-6">
+        <div id="result">
+            @foreach (var friend in Model)
+            {
+                Html.RenderPartial("Partial/Friend", friend);
+            }
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="border menu">
+            <ul style="cursor: context-menu;">
+                <li> <span id="getFriends"><a  @*href="../Friend/Index"*@>My friends</a></span></li>
+                <li> <span id="followers"><a  @*href="../Friend/Followers"*@>Followers</a></span> @if (ViewBag.Followers != 0)
+                {<span id="followersCounter" class="counter">@ViewBag.Followers</span>}
+                else
+                { <span id="followersCounter" class="counter" style="display:none">@ViewBag.Followers</span>}</li>
+                <li> <span id="followed"><a @*href="../Friend/Followed"*@>Followed</a></span> @if (ViewBag.Followed != 0)
+                {<span id="followedCounter" class="counter">@ViewBag.Followed</span>}
+                else
+                {<span id="followedCounter" class="counter" style="display:none">@ViewBag.Followed</span>}</li>
+            </ul>
+        </div>
+    </div>
+</div>
+@section Scripts
+{
+    <!--Ссылка на библиотеку SignalR -->
+    <script src="~/Scripts/jquery.signalR-2.2.2.min.js"></script>
+    <!--Ссылка на автоматически сгенерированный скрипт хаба SignalR -->
+    <script src="~/signalr/hubs"></script>
+    <script src="~/Scripts/SignalR/counters.js"></script>
+    <script src="~/Scripts/SignalR/friends.js"></script>
+}

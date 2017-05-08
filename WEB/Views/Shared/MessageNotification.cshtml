@@ -1,0 +1,32 @@
+﻿@model SocialNetwork.Models.MessageModel
+<div id="messageNotification" style="display:none;">
+    <div class="modal-dialog notification">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button id="closeMessageNotification" class="close" type="button" data-dismiss="modal">×</button>
+                <h6 class="modal-title">New message</h6>
+            </div>
+            <div class="modal-body">
+
+                <a href="/Messages/Dialog/@Model.PublicId">
+                    <div class="media">
+                        <div class="media-left media-top">
+                            <img class="media-object dialog_image_user" src="@Model.Avatar" alt="...">
+                        </div>
+                        <div class="media-body">
+                            <h5 class="media-heading">@string.Format("{0} {1}", Model.Name, Model.Surname) <span class="dialog_message_time">@Model.PostedTime.ToString("HH:mm")</span></h5>
+
+                            <div class="media dialog_message">                                
+                                <div class="media-body ">
+                                    <span class="">@Model.Body</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+

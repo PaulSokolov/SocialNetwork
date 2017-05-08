@@ -1,0 +1,14 @@
+﻿@model System.Collections.Generic.IEnumerable<SocialNetwork.Models.ModeratorModels.MessageModeratorModel>
+<div class="row">
+    @using (Ajax.BeginForm("SearchMessages", "Moderator", null, new AjaxOptions { UpdateTargetId = "messageTable", OnBegin = "beforeSend('messageTable')", OnComplete = "complete('messageTable')", HttpMethod = "Post" }, new { @class = "navbar-form navbar-left" }))
+    {
+        <input hidden name="publicId" value="@ViewBag.PublicId" />
+        <div class="form-group ">
+            <input id="searchDelete" type="text" name="body" class="form-control" />
+        </div>
+        <button id="searchButton" type="submit" class="btn btn-default">Search</button>
+    }
+</div>
+<div class="row" style="overflow:auto; height:300px">
+    @{ Html.RenderPartial("Partial/MessagesTable", Model);}
+</div>

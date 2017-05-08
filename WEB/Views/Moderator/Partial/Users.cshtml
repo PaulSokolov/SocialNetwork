@@ -1,0 +1,47 @@
+﻿@model System.Collections.Generic.IEnumerable<SocialNetwork.Models.AdminViewModels.UserDeleteModel>
+@foreach (var user in Model)
+{
+    using (Ajax.BeginForm("UserMessages", new AjaxOptions { UpdateTargetId = "result", OnBegin = "beforeSend('moderatorPanel')", OnComplete = "complete('moderatorPanel')", /*OnSuccess="autocomlete()", */HttpMethod = "Post" }))
+    {
+        <div @*onclick="$(this.form).submit()"*@ class="row" id="@user.PublicId">
+            <div class="dialog">
+                <div class="media">
+                    <div class="media-left media-top">
+                        <a href="../Home/User/@user.PublicId" style="position: relative;">
+                            <img class="media-object dialog_image_user" src="@user.Avatar" alt="...">
+                        </a>
+                    </div>
+                    <div class="media-body">
+                        <a href="../Home/Profile/@user.PublicId">
+                            <h5 class="media-heading">@string.Format("{0} {1}", user.Name, user.Surname)</h5>
+                        </a>
+                            <input type="hidden" name="publicId" value="@user.PublicId" class="form-control">
+                            <button type="submit" class="btn btn-default" style="float: right;top: 0px">Messages</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+@*<script>
+    function autocomplete() {
+        $("[source]").each(function () {
+            var target = $(this);
+            target.autocomplete({
+                source: target.attr("source"),
+                focus: function (event, ui) {
+                    $("#searchDelete").val(ui.item.name + " " + lastName);
+                    return false;
+                },
+                select: function (event, ui) {
+                    $("#searchDelete").val(ui.item.name + " " + ui.item.lastName);
+                    return false;
+                }
+            }).autocomplete("instance")._renderItem = function (ul, item) {
+                return $("<li>")
+                    .append("<a href=\"/Home/User/" + item.publicId + "\"> <div class=\"media autocomplete\"><div class=\"media-left media-top\"><img class=\"media-object autocomplete\" src=\"" + item.avatar + "\"></div><div class=\"media-body\"><h5 class=\"media-heading autocomplete\">" + item.name + " " + item.lastName + "</h5><div class=\"media\"><div class=\"media-body\"><span>" + item.address + "</span></div></div></div></div>")
+                    .appendTo(ul);
+            };
+        });
+    }
+</script>*@

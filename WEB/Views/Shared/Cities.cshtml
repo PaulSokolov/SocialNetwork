@@ -1,0 +1,7 @@
+﻿@model IEnumerable<SocialNetwork.Models.CityViewModel>
+
+<option>Select city</option>
+@foreach (var city in Model)
+{
+    <option value="@city.Id">@city.Name</option>
+}

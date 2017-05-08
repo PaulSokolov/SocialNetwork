@@ -1,0 +1,19 @@
+﻿@model IEnumerable<SocialNetwork.Models.DialogModel>
+
+<div class="row">
+    <div class="col-md-3">
+        @{ Html.RenderPartial("BorderMenu");}
+    </div>
+
+    <div class="col-md-9">
+        @foreach (var dialog in Model)
+            {
+                Html.RenderPartial("Partial/Dialog", dialog);
+            }
+    </div>
+</div>
+@section Scripts
+{
+    <script src="~/Scripts/SignalR/counters.js"></script>
+
+}
