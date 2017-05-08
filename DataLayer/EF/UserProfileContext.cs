@@ -32,7 +32,7 @@ namespace DataLayer.EF
             .HasRequired(afc => afc.User)
             .WithMany(t => t.Friends)
             .HasForeignKey(afc => afc.UserId)
-            .WillCascadeOnDelete(true);
+            .WillCascadeOnDelete(false);
 
             modelBuilder.Entity<Friend>()
                     .HasRequired(m => m.RequestUser)
