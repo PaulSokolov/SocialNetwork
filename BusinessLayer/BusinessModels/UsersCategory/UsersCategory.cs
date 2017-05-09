@@ -154,7 +154,7 @@ namespace BusinessLayer.BusinessModels
             public List<CountryDTO> GetCountriesWithUsers()
             {
                 var counties = _socialNetwork.GetUserProfileRepository().GetAll().GroupBy(u => u.City.Country).Select(s => s.Key);
-
+                
                 return _socialNetworkFunctionality.Mapper.Map<List<CountryDTO>>(counties);
             }
 

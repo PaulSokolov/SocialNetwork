@@ -10,7 +10,6 @@ namespace DataLayer.Migrations
         public Configuration()
         {
             AutomaticMigrationsEnabled = false;
-            AutomaticMigrationDataLossAllowed = true;
         }
 
         protected override void Seed(DataLayer.EF.MigrationContext context)
