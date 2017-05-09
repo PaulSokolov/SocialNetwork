@@ -1,18 +1,16 @@
-﻿using DataLayer.EF;
+﻿using System;
+using System.Data.Entity;
+using DataLayer.EF;
 using DataLayer.Entities;
 using DataLayer.Interfaces;
-using System;
-using System.Data.Entity;
 
 namespace DataLayer.BasicRepositories
 {
     public abstract class UserInfoRepository<T> : IRepository<T> where T : Entity
     {
-        private readonly UserProfileContext _context;
-
-        public UserInfoRepository(UserProfileContext context)
+        protected UserInfoRepository(UserProfileContext context)
         {
-            _context = context;
+            Context = context;
         }
         public void Dispose()
         {
@@ -21,7 +19,7 @@ namespace DataLayer.BasicRepositories
         public T Get(int id)
         {
             if (id <= 0)
-                throw new ArgumentOutOfRangeException("id");
+                throw new ArgumentOutOfRangeException(nameof(id));
 
             T entity = null;
 
@@ -31,12 +29,12 @@ namespace DataLayer.BasicRepositories
             }
             catch (Exception ex)
             {
-                throw new Exception(string.Format("db.Set<{2}>().Find({0}) threw exception: {1}", id, ex, typeof(T).Name));
+                throw new Exception($"db.Set<{typeof(T).Name}>().Find({id}) threw exception: {ex}");
                 
             }
 
             if (entity == null)
-                throw new InvalidOperationException(string.Format("{0} with ID={1} was not found in the DB", typeof(T).Name, id));
+                throw new InvalidOperationException($"{typeof(T).Name} with ID={id} was not found in the DB");
 
             return entity;
         }
@@ -44,34 +42,31 @@ namespace DataLayer.BasicRepositories
         public T Add(T entity)
         {
             if (entity == null)
-                throw new ArgumentNullException("entity");
-            return _context.Set<T>().Add(entity);
+                throw new ArgumentNullException(nameof(entity));
+            return Context.Set<T>().Add(entity);
         }
-        protected UserProfileContext Context
-        {
-            get { return _context; }
-        }
+        protected UserProfileContext Context { get; }
 
         private T GetEntity(int id)
         {
-            return _context.Set<T>().Find(id);
+            return Context.Set<T>().Find(id);
         }
 
         public T Update(T entity)
         {
             if (entity == null)
-                throw new ArgumentNullException("entity");
+                throw new ArgumentNullException(nameof(entity));
 
-            _context.Entry(entity).State = EntityState.Modified;
+            Context.Entry(entity).State = EntityState.Modified;
             return entity;
         }
 
         public T Delete(T entity)
         {
             if (entity == null)
-                throw new ArgumentNullException("entity");
+                throw new ArgumentNullException(nameof(entity));
 
-            _context.Entry(entity).State = EntityState.Deleted;
+            Context.Entry(entity).State = EntityState.Deleted;
             return entity;
         }
     }

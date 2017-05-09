@@ -6,7 +6,7 @@
         @Html.AntiForgeryToken()
         <div class="row my_form">
             <div class="col-md-12">
-                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @placeholder = "Name", @class = "form-control" } })
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { placeholder = "Name", @class = "form-control" } })
                 @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
             </div>
         </div>

@@ -1,10 +1,8 @@
-﻿using BusinessLayer.DTO;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Security.Claims;
+using System.Threading.Tasks;
+using BusinessLayer.DTO;
 using BusinessLayer.Infrastructure;
 
 namespace BusinessLayer.Interfaces

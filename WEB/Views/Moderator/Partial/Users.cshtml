@@ -1,4 +1,4 @@
-﻿@model System.Collections.Generic.IEnumerable<SocialNetwork.Models.AdminViewModels.UserDeleteModel>
+﻿@model IEnumerable<SocialNetwork.Models.AdminViewModels.UserDeleteModel>
 @foreach (var user in Model)
 {
     using (Ajax.BeginForm("UserMessages", new AjaxOptions { UpdateTargetId = "result", OnBegin = "beforeSend('moderatorPanel')", OnComplete = "complete('moderatorPanel')", /*OnSuccess="autocomlete()", */HttpMethod = "Post" }))

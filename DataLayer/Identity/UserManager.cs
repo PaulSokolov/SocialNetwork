@@ -1,6 +1,6 @@
-﻿using DataLayer.Entities;
+﻿using System;
+using DataLayer.Entities;
 using Microsoft.AspNet.Identity;
-using System;
 
 namespace DataLayer.Identity
 {
@@ -11,27 +11,27 @@ namespace DataLayer.Identity
 
         {
             
-            this.UserValidator = new UserValidator<ApplicationUser>(this)
+            UserValidator = new UserValidator<ApplicationUser>(this)
             {
                 AllowOnlyAlphanumericUserNames = false,
-                RequireUniqueEmail = true,
+                RequireUniqueEmail = true
                 
             };
 
             // Configure validation logic for passwords
-            this.PasswordValidator = new PasswordValidator
+            PasswordValidator = new PasswordValidator
             {
                 RequiredLength = 4,
                 //RequireNonLetterOrDigit = true,
                 RequireDigit = false,
                 RequireLowercase = true,
-                RequireUppercase = false,
+                RequireUppercase = false
             };
 
             // Configure user lockout defaults
-            this.UserLockoutEnabledByDefault = true;
-            this.DefaultAccountLockoutTimeSpan = TimeSpan.FromMinutes(5);
-            this.MaxFailedAccessAttemptsBeforeLockout = 5;
+            UserLockoutEnabledByDefault = true;
+            DefaultAccountLockoutTimeSpan = TimeSpan.FromMinutes(5);
+            MaxFailedAccessAttemptsBeforeLockout = 5;
         }
     }
 }

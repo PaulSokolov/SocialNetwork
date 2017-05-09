@@ -1,9 +1,4 @@
 ﻿using BusinessLayer.BusinessModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TestBLL
 {
@@ -11,8 +6,9 @@ namespace TestBLL
     {
         static void Main(string[] args)
         {
-           
-            SocialNetworkFunctionalityUser functionality = new SocialNetworkFunctionalityUser("14c31b71-275a-44e5-aacf-f2c0b29ddeb0");
+
+
+            var functionality = new SocialNetworkFunctionalityUser("14c31b71-275a-44e5-aacf-f2c0b29ddeb0");
             //functionality.Friends.Add("80350603-8ce5-4a63-9735-c75d69949b1c");
             //functionality.Friends.Delete("69c956ce-bfe9-46d7-9ed1-311a91ec1fe8");
             //var list =  functionality.Friends.Get().ToList();

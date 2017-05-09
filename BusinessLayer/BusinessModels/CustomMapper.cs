@@ -1,5 +1,5 @@
-﻿using BusinessLayer.DTO;
-using AutoMapper;
+﻿using AutoMapper;
+using BusinessLayer.DTO;
 using DataLayer.Entities;
 
 namespace BusinessLayer.BusinessModels
@@ -11,7 +11,7 @@ namespace BusinessLayer.BusinessModels
             var config = new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<City, CityDTO>().PreserveReferences();
-                cfg.CreateMap<Country, DTO.CountryDTO>().PreserveReferences();
+                cfg.CreateMap<Country, CountryDTO>().PreserveReferences();
                 cfg.CreateMap<Friend, FriendDTO>().PreserveReferences();
                 cfg.CreateMap<Language, LanguageDTO>();
                 cfg.CreateMap<Sex, SexDTO>();
@@ -19,7 +19,7 @@ namespace BusinessLayer.BusinessModels
                 cfg.CreateMap<UserProfile, UserProfileDTO>().PreserveReferences();
 
                 cfg.CreateMap<CityDTO, City>().PreserveReferences();
-                cfg.CreateMap<DTO.CountryDTO, Country>().PreserveReferences();
+                cfg.CreateMap<CountryDTO, Country>().PreserveReferences();
                 cfg.CreateMap<FriendDTO, Friend>().PreserveReferences();
                 cfg.CreateMap<LanguageDTO, Language>();
                 cfg.CreateMap<SexDTO, Sex>();

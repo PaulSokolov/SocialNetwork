@@ -20,21 +20,21 @@ namespace BusinessLayer.DTO
 
         public override bool Equals(object obj)
         {
-            if(obj is FriendDTO)
+            var temp = obj as FriendDTO;
+            if(temp != null)
             {
-                var temp = obj as FriendDTO;
-                return this.ConfirmDate == temp.ConfirmDate
-                    && this.Confirmed == temp.Confirmed
-                    && this.Deleted == temp.Deleted
-                    && this.DeleteDate == temp.DeleteDate
-                    && this.FriendId == temp.FriendId
-                    && this.Friended==temp.Friended
-                    && this.Id == temp.Id
-                    && this.RequestDate == temp.RequestDate
-                    && this.RequestUser==temp.RequestUser
-                    && this.RequestUserId == temp.RequestUserId
-                    && this.User==temp.User
-                    && this.UserId == temp.UserId;
+                return ConfirmDate == temp.ConfirmDate
+                    && Confirmed == temp.Confirmed
+                    && Deleted == temp.Deleted
+                    && DeleteDate == temp.DeleteDate
+                    && FriendId == temp.FriendId
+                    && Friended==temp.Friended
+                    && Id == temp.Id
+                    && RequestDate == temp.RequestDate
+                    && RequestUser==temp.RequestUser
+                    && RequestUserId == temp.RequestUserId
+                    && User==temp.User
+                    && UserId == temp.UserId;
             }
             return false;
         }
@@ -46,14 +46,7 @@ namespace BusinessLayer.DTO
 
         public static bool operator ==(FriendDTO obj1, FriendDTO obj2)
         {
-            if (object.ReferenceEquals(obj1, null))
-            {
-                if (object.ReferenceEquals(obj2, null))
-                    return true;
-                return false;
-            }
-            return obj1.Equals(obj2);
-
+            return !ReferenceEquals(obj1, null) ? obj1.Equals(obj2) : ReferenceEquals(obj2, null);
         }
 
         public static bool operator !=(FriendDTO obj1, FriendDTO obj2)

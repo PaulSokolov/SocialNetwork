@@ -1,12 +1,6 @@
-﻿using DataLayer.Entities;
+﻿using System.Data.Entity;
+using DataLayer.Entities;
 using Microsoft.AspNet.Identity.EntityFramework;
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataLayer.EF
 {

@@ -20,14 +20,7 @@ namespace BusinessLayer.DTO
 
         public static bool operator==(UserMessageDTO obj1, UserMessageDTO obj2)
         {
-            if (object.ReferenceEquals(obj1, null))
-            {
-                if (object.ReferenceEquals(obj2, null))
-                    return true;
-                return false;
-            }
-            return obj1.Equals(obj2);
-
+            return !ReferenceEquals(obj1, null) ? obj1.Equals(obj2) : ReferenceEquals(obj2, null);
         }
 
         public static bool operator!=(UserMessageDTO obj1, UserMessageDTO obj2)
@@ -37,18 +30,18 @@ namespace BusinessLayer.DTO
 
         public override bool Equals(object obj)
         {
-            if (obj is UserMessageDTO)
+            var temp = obj as UserMessageDTO;
+            if (temp != null)
             {
-                var temp = obj as UserMessageDTO;
-                return this.Body == temp.Body
-                    && this.FromUser==temp.FromUser
-                    && this.Id == temp.Id
-                    && this.IsRead == temp.IsRead
-                    && this.MessageId == temp.MessageId
-                    && this.PostedDate == temp.PostedDate
-                    && this.ToUser==temp.ToUser
-                    && this.ToUserId == temp.ToUserId
-                    && this.FromUserId == temp.FromUserId;
+                return Body == temp.Body
+                    && FromUser==temp.FromUser
+                    && Id == temp.Id
+                    && IsRead == temp.IsRead
+                    && MessageId == temp.MessageId
+                    && PostedDate == temp.PostedDate
+                    && ToUser==temp.ToUser
+                    && ToUserId == temp.ToUserId
+                    && FromUserId == temp.FromUserId;
             }
             return false;
         }

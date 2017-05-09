@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+
 namespace BusinessLayer.DTO
 {
     public class LanguageDTO
@@ -19,16 +20,12 @@ namespace BusinessLayer.DTO
 
         public override bool Equals(object obj)
         {
-            if (obj is LanguageDTO)
-            {
-                var temp = obj as LanguageDTO;
-                return this.Code == temp.Code
-                    && this.Countries.SequenceEqual(temp.Countries)
-                    && this.Name == temp.Name
-                    && this.Id == temp.Id
-                    && this.Users.SequenceEqual(temp.Users);
-            }
-            return false;
+            var temp = obj as LanguageDTO;
+            return temp != null && (Code == temp.Code
+                                    && Countries.SequenceEqual(temp.Countries)
+                                    && Name == temp.Name
+                                    && Id == temp.Id
+                                    && Users.SequenceEqual(temp.Users));
         }
 
         public override int GetHashCode()
@@ -38,14 +35,7 @@ namespace BusinessLayer.DTO
 
         public static bool operator ==(LanguageDTO obj1, LanguageDTO obj2)
         {
-            if (object.ReferenceEquals(obj1, null))
-            {
-                if (object.ReferenceEquals(obj2, null))
-                    return true;
-                return false;
-            }
-            return obj1.Equals(obj2);
-
+            return !ReferenceEquals(obj1, null) ? obj1.Equals(obj2) : ReferenceEquals(obj2, null);
         }
 
         public static bool operator !=(LanguageDTO obj1, LanguageDTO obj2)

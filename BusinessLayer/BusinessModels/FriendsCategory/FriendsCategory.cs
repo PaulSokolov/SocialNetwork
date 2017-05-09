@@ -12,21 +12,12 @@ namespace BusinessLayer.BusinessModels
         public partial class FriendsCategory
         {
             #region Private fields
-            private ISocialNetwork _socialNetwork;
-            private SocialNetworkFunctionalityUser _socialNetworkFunctionality;
+            private readonly ISocialNetwork _socialNetwork;
+            private readonly SocialNetworkFunctionalityUser _socialNetworkFunctionality;
             private FriendCounters _counters; 
             #endregion
 
-            public FriendCounters Counters
-            {
-                get
-                {
-                    if (_counters == null)
-                        _counters = new FriendCounters(this);
-
-                    return _counters;
-                }
-            }
+            public FriendCounters Counters => _counters ?? (_counters = new FriendCounters(this));
 
             public FriendsCategory(SocialNetworkFunctionalityUser socialNetworkFunctionality)
             {
@@ -45,8 +36,8 @@ namespace BusinessLayer.BusinessModels
                 var friend = _socialNetwork.GetFriendRepository()
                     .Add(new Friend
                     {
-                        AddedDate = _socialNetworkFunctionality.Now(),
-                        RequestDate = _socialNetworkFunctionality.Now(),
+                        AddedDate = _socialNetworkFunctionality._now(),
+                        RequestDate = _socialNetworkFunctionality._now(),
                         RequestUserId = _socialNetworkFunctionality.Id,
                         FriendId = userToAddId,
                         Confirmed = false,
@@ -68,8 +59,8 @@ namespace BusinessLayer.BusinessModels
                 var friend = _socialNetwork.GetFriendRepository()
                     .Add(new Friend
                     {
-                        AddedDate = _socialNetworkFunctionality.Now(),
-                        RequestDate = _socialNetworkFunctionality.Now(),
+                        AddedDate = _socialNetworkFunctionality._now(),
+                        RequestDate = _socialNetworkFunctionality._now(),
                         RequestUserId = _socialNetworkFunctionality.Id,
                         FriendId = user.Id,
                         Confirmed = false,
@@ -79,8 +70,8 @@ namespace BusinessLayer.BusinessModels
                 _socialNetwork.GetFriendRepository().Add(
                     new Friend
                     {
-                        AddedDate = _socialNetworkFunctionality.Now(),
-                        RequestDate = _socialNetworkFunctionality.Now(),
+                        AddedDate = _socialNetworkFunctionality._now(),
+                        RequestDate = _socialNetworkFunctionality._now(),
                         RequestUserId = _socialNetworkFunctionality.Id,
                         FriendId = _socialNetworkFunctionality.Id,
                         Confirmed = false,
@@ -96,7 +87,7 @@ namespace BusinessLayer.BusinessModels
             {
                 Friend friend = _socialNetwork.GetFriendRepository().GetFriend(userToAddId, _socialNetworkFunctionality.Id);
 
-                friend.ConfirmDate = _socialNetworkFunctionality.Now();
+                friend.ConfirmDate = _socialNetworkFunctionality._now();
                 friend.Confirmed = true;
 
                 _socialNetwork.GetFriendRepository().Update(friend);
@@ -127,7 +118,7 @@ namespace BusinessLayer.BusinessModels
                     throw new UserNotFoundException();
                 Friend friend = _socialNetwork.GetFriendRepository().GetFriend(userToAddId, _socialNetworkFunctionality.Id);
 
-                friend.ConfirmDate = _socialNetworkFunctionality.Now();
+                friend.ConfirmDate = _socialNetworkFunctionality._now();
                 friend.Confirmed = true;
                 friend.Deleted = false;
 
@@ -135,7 +126,7 @@ namespace BusinessLayer.BusinessModels
 
                 Friend confirmedFriend = _socialNetwork.GetFriendRepository().GetFriend(_socialNetworkFunctionality.Id, userToAddId);
 
-                confirmedFriend.ConfirmDate = _socialNetworkFunctionality.Now();
+                confirmedFriend.ConfirmDate = _socialNetworkFunctionality._now();
                 confirmedFriend.Confirmed = true;
                 confirmedFriend.Deleted = false;
 
@@ -153,7 +144,7 @@ namespace BusinessLayer.BusinessModels
                     throw new UserNotFoundException("There is no user to delete");
 
                 friend.Confirmed = true;
-                friend.DeleteDate = _socialNetworkFunctionality.Now();
+                friend.DeleteDate = _socialNetworkFunctionality._now();
                 friend.Deleted = true;
 
                 _socialNetwork.GetFriendRepository().Update(friend);
@@ -181,7 +172,7 @@ namespace BusinessLayer.BusinessModels
                     throw new UserNotFoundException("There is no user to delete");
 
                 friend.Confirmed = true;
-                friend.DeleteDate = _socialNetworkFunctionality.Now();
+                friend.DeleteDate = _socialNetworkFunctionality._now();
                 friend.Deleted = true;
 
                 var res = _socialNetwork.GetFriendRepository().Update(friend);
@@ -223,7 +214,7 @@ namespace BusinessLayer.BusinessModels
 
             public ICollection<UserProfileDTO> GetFriends()
             {
-                var query = _socialNetwork.GetFriendRepository().GetAllByUserId(_socialNetworkFunctionality.Id.ToString()).Where(u => u.Confirmed == true && u.Deleted == false).Select(u => u.FriendId);
+                var query = _socialNetwork.GetFriendRepository().GetAllByUserId(_socialNetworkFunctionality.Id).Where(u => u.Confirmed && u.Deleted == false).Select(u => u.FriendId);
                 var friends = _socialNetwork.GetUserProfileRepository().GetAll().Where(u => query.Any(f => f == u.Id)).ToList();
 
                 var users = _socialNetworkFunctionality.Mapper.Map<List<UserProfile>, List<UserProfileDTO>>(friends);
@@ -232,7 +223,7 @@ namespace BusinessLayer.BusinessModels
             }
             public ICollection<UserProfileDTO> GetFollowed()
             {
-                var query = _socialNetwork.GetFriendRepository().GetAllByUserId(_socialNetworkFunctionality.Id.ToString()).Where(f => (f.Confirmed == false || f.Deleted == true) && f.RequestUserId == _socialNetworkFunctionality.Id).Select(u => u.FriendId);
+                var query = _socialNetwork.GetFriendRepository().GetAllByUserId(_socialNetworkFunctionality.Id).Where(f => (f.Confirmed == false || f.Deleted) && f.RequestUserId == _socialNetworkFunctionality.Id).Select(u => u.FriendId);
                 var friends = _socialNetwork.GetUserProfileRepository().GetAll().Where(u => query.Any(f => f == u.Id)).ToList();
 
                 var users = _socialNetworkFunctionality.Mapper.Map<List<UserProfile>, List<UserProfileDTO>>(friends);
@@ -241,7 +232,7 @@ namespace BusinessLayer.BusinessModels
             }
             public ICollection<UserProfileDTO> GetFollowers()
             {
-                var query = _socialNetwork.GetFriendRepository().GetAll().Where(f => f.FriendId == _socialNetworkFunctionality.Id).Where(f => (f.Confirmed == false || f.Deleted == true) && f.RequestUserId != _socialNetworkFunctionality.Id).Select(u => u.UserId);
+                var query = _socialNetwork.GetFriendRepository().GetAll().Where(f => f.FriendId == _socialNetworkFunctionality.Id).Where(f => (f.Confirmed == false || f.Deleted) && f.RequestUserId != _socialNetworkFunctionality.Id).Select(u => u.UserId);
                 var friends = _socialNetwork.GetUserProfileRepository().GetAll().Where(u => query.Any(f => f == u.Id)).ToList();
 
                 var users = _socialNetworkFunctionality.Mapper.Map<List<UserProfile>, List<UserProfileDTO>>(friends);

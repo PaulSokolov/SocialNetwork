@@ -1,6 +1,5 @@
-﻿using DataLayer.Entities;
-using System;
-using System.Linq;
+﻿using System.Linq;
+using DataLayer.Entities;
 
 namespace DataLayer.Interfaces
 {

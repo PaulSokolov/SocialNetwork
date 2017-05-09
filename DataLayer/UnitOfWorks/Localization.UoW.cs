@@ -1,8 +1,8 @@
-﻿using DataLayer.Interfaces;
+﻿using System.Collections.Generic;
 using DataLayer.EF;
-using DataLayer.Repository;
 using DataLayer.Entities;
-using System.Collections.Generic;
+using DataLayer.Interfaces;
+using DataLayer.Repository;
 
 namespace DataLayer.UnitOfWorks
 {

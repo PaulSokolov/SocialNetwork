@@ -1,12 +1,12 @@
-﻿using BusinessLayer.BusinessModels;
-using BusinessLayer.DTO;
-using Microsoft.AspNet.Identity;
-using SocialNetwork.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Web.Mvc;
+using BusinessLayer.BusinessModels;
+using BusinessLayer.DTO;
+using Microsoft.AspNet.Identity;
+using SocialNetwork.Models;
 
 namespace WEB.Controllers
 {
@@ -17,7 +17,7 @@ namespace WEB.Controllers
         [HttpGet]
         public ActionResult Index(string search)
         {
-            SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             ViewBag.Unread = soc.Messages.UnRead;
             ViewBag.Avatar = soc.Users.Avatar;
@@ -37,7 +37,7 @@ namespace WEB.Controllers
                 usersFound.AddRange(soc.Users.Search(search));
             }
 
-            List<UserSearchModel> users = new List<UserSearchModel>();
+            var users = new List<UserSearchModel>();
             usersFound = usersFound.Distinct().ToList();
 
             foreach (var user in usersFound)
@@ -66,7 +66,7 @@ namespace WEB.Controllers
         [HttpPost]
         public ActionResult Search(string search, int? ageFrom, int? ageTo, long? cityId, long? countryId, string activityConcurence, string aboutConcurence, int? sex, short? sort)
         {
-            SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             ViewBag.Unread = soc.Messages.UnRead;
             ViewBag.NewFriends = soc.Friends.Counters.Requests;
@@ -77,7 +77,7 @@ namespace WEB.Controllers
             var followed = soc.Friends.GetFollowed();
             var users = soc.Users.Search(search,ageFrom, ageTo, cityId, countryId, activityConcurence, aboutConcurence, sex, sort);
             
-            StringBuilder content = new StringBuilder();
+            var content = new StringBuilder();
 
             foreach (var user in users)
             {
@@ -105,7 +105,7 @@ namespace WEB.Controllers
 
         public ActionResult AutocompleteSearch(string term)
         {
-            SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             var searchResult = soc.Users.Search(term);
             var users = searchResult.Select(u => new { name = u.Name, avatar = u.Avatar, lastName = u.LastName, publicId = u.PublicId, address = u.Address.Length > 30 ? u.Address.Substring(0, 30):u.Address }).ToList();

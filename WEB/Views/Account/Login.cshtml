@@ -8,13 +8,13 @@
             @Html.AntiForgeryToken()
             <div class="row my_form">
                 <div class="col-md-12">
-                    @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @placeholder = "Email", @class = "form-control" } })
+                    @Html.EditorFor(model => model.Email, new { htmlAttributes = new { placeholder = "Email", @class = "form-control" } })
                     @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
                 </div>
             </div>
             <div class="row my_form">
                 <div class="col-md-12">
-                    @Html.EditorFor(model => model.Password, new { htmlAttributes = new { @placeholder = "Password", @class = "form-control" } })
+                    @Html.EditorFor(model => model.Password, new { htmlAttributes = new { placeholder = "Password", @class = "form-control" } })
                     @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
                 </div>
             </div>

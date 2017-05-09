@@ -23,77 +23,52 @@ namespace BusinessLayer.BusinessModels
         {
             get
             {
-                if (_friends == null)
-                {
-                    _friends = new FriendsCategory(this);
-                    return _friends;
-                }
-                else
-                    return _friends;
+                if (_friends != null) return _friends;
+
+                _friends = new FriendsCategory(this);
+                return _friends;
             }
-            private set
-            {
-                _friends = value;
-            }
+            private set => _friends = value;
         }
         public UsersCategory Users
         {
             get
             {
-                if (_users == null)
-                {
-                    _users = new UsersCategory(this);
-                    return _users;
-                }
-                else
-                    return _users;
+                if (_users != null) return _users;
+                _users = new UsersCategory(this);
+                return _users;
             }
-            private set
-            {
-                _users = value;
-            }
+            private set => _users = value;
         }
         public MessagesCategory Messages
         {
             get
             {
-                if (_messages == null)
-                {
-                    _messages = new MessagesCategory(this);
-                    return _messages;
-                }
-                else
-                    return _messages;
+                if (_messages != null) return _messages;
+
+                _messages = new MessagesCategory(this);
+                return _messages;
             }
-            private set
-            {
-                _messages = value;
-            }
+            private set => _messages = value;
         }
         public DatabaseCategory Database
         {
             get
             {
-                if (_database == null)
-                {
-                    _database = new DatabaseCategory(this);
-                    return _database;
-                }
-                else
-                    return _database;
+                if (_database != null) return _database;
+                _database = new DatabaseCategory(this);
+                return _database;
             }
-            private set
-            {
-                _database = value;
-            }
+            private set => _database = value;
         }
-        public readonly Func<DateTime> Now;
+
+        private readonly Func<DateTime> _now;
 
         public SocialNetworkFunctionalityUser(string userId)
         {
             Id = userId;            
             Mapper = CustomMapper.Configurate();
-            Now = () => DateTime.Now;
+            _now = () => DateTime.Now;
         }
 
         public SocialNetworkFunctionalityUser(string userId, ISocialNetwork socialNetworkUoW, ILocalization localizationUoW, Func<DateTime> now)
@@ -105,7 +80,7 @@ namespace BusinessLayer.BusinessModels
             Friends = new FriendsCategory(this);
             Users = new UsersCategory(this);
             Messages = new MessagesCategory(this);
-            Now = now;
+            _now = now;
         }
     }
     

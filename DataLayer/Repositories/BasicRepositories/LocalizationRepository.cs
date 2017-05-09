@@ -1,18 +1,16 @@
-﻿using DataLayer.EF;
+﻿using System;
+using System.Data.Entity;
+using DataLayer.EF;
 using DataLayer.Entities;
 using DataLayer.Interfaces;
-using System;
-using System.Data.Entity;
 
 namespace DataLayer.BasicRepositories
 {
     public abstract class LocalizationRepository<T> : IRepository<T> where T : Entity
     {
-        private readonly LocalizationContext _context;
-
-        public LocalizationRepository(LocalizationContext context)
+        protected LocalizationRepository(LocalizationContext context)
         {
-            _context = context;
+            Context = context;
         }
         public void Dispose()
         {
@@ -21,7 +19,7 @@ namespace DataLayer.BasicRepositories
         public T Get(int id)
         {
             if (id <= 0)
-                throw new ArgumentOutOfRangeException("id");
+                throw new ArgumentOutOfRangeException(nameof(id));
 
             T entity = null;
 
@@ -36,40 +34,37 @@ namespace DataLayer.BasicRepositories
             }
 
             if (entity == null)
-                throw new InvalidOperationException(string.Format("{0} with ID={1} was not found in the DB", typeof(T).Name, id));
+                throw new InvalidOperationException($"{typeof(T).Name} with ID={id} was not found in the DB");
 
             return entity;
         }
 
         public T Add(T entity)
         {
-            return _context.Set<T>().Add(entity);
+            return Context.Set<T>().Add(entity);
         }
-        protected LocalizationContext Context
-        {
-            get { return _context; }
-        }
+        protected LocalizationContext Context { get; }
 
         private T GetEntity(int id)
         {
-            return _context.Set<T>().Find(id);
+            return Context.Set<T>().Find(id);
         }
 
         public T Update(T entity)
         {
             if (entity == null)
-                throw new ArgumentNullException("entity");
-            _context.Set<T>().Attach(entity);
-            _context.Entry(entity).State = EntityState.Modified;
-            _context.SaveChanges();
+                throw new ArgumentNullException(nameof(entity));
+            Context.Set<T>().Attach(entity);
+            Context.Entry(entity).State = EntityState.Modified;
+            Context.SaveChanges();
 
             return entity;
         }
         public T Delete(T entity)
         {
             if (entity == null)
-                throw new ArgumentNullException("entity");
-            return _context.Set<T>().Remove(entity);
+                throw new ArgumentNullException(nameof(entity));
+            return Context.Set<T>().Remove(entity);
         }
     }
 }

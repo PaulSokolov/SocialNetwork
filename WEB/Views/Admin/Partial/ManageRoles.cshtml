@@ -1,4 +1,4 @@
-﻿@model System.Collections.Generic.IEnumerable<SocialNetwork.Models.AdminViewModels.ManageUserRolesModel>
+﻿@model IEnumerable<SocialNetwork.Models.AdminViewModels.ManageUserRolesModel>
 <div class="row">
     @using (Ajax.BeginForm("Search", "Admin", null, new AjaxOptions { UpdateTargetId = "searchResult", OnBegin = "beforeSend('searchResult')", OnComplete = "complete('searchResult')", HttpMethod = "Post" }, new { @class = "navbar-form navbar-left" }))
     {

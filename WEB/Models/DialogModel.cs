@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace SocialNetwork.Models
 {
@@ -20,12 +17,9 @@ namespace SocialNetwork.Models
             {
                 if (_body.Length <= 65)
                     return _body;
-                else
-                {
-                    return _body.Substring(0, 65) + "...";
-                }
+                return _body.Substring(0, 65) + "...";
             }
-            set { _body = value; }
+            set => _body = value;
         }
         public DateTime LastMessageTime { get; set; }
         //public int UnReadMessages { get; set; }

@@ -45,31 +45,27 @@ namespace BusinessLayer.DTO
 
         public override bool Equals(object obj)
         {
-            if (obj is UserProfileDTO)
-            {
-                var temp = obj as UserProfileDTO;
-                return this.About == temp.About
-                    && this.AboutIsHidden == temp.AboutIsHidden
-                    && this.ActivatedDate == temp.ActivatedDate
-                    && this.Activity == temp.Activity
-                    && this.ActivityIsHidden == temp.ActivityIsHidden
-                    && this.Address == temp.Address
-                    && this.Avatar == temp.Avatar
-                    && this.BirthDate == temp.BirthDate
-                    && this.BirthDateIsHidden == temp.BirthDateIsHidden
-                    && this.City == temp.City
-                    && this.CityId == temp.CityId
-                    && this.Email == temp.Email
-                    && this.EmailIsHidden == temp.EmailIsHidden
-                    && this.Id == temp.Id
-                    && this.LastName == temp.LastName
-                    && this.LastVisitDateTime == temp.LastVisitDateTime
-                    && this.Name == temp.Name
-                    && this.Password == temp.Password
-                    && this.Role == temp.Role
-                    && this.Sex == temp.Sex;
-            }
-            return false;
+            var temp = obj as UserProfileDTO;
+            return temp != null && (About == temp.About
+                                    && AboutIsHidden == temp.AboutIsHidden
+                                    && ActivatedDate == temp.ActivatedDate
+                                    && Activity == temp.Activity
+                                    && ActivityIsHidden == temp.ActivityIsHidden
+                                    && Address == temp.Address
+                                    && Avatar == temp.Avatar
+                                    && BirthDate == temp.BirthDate
+                                    && BirthDateIsHidden == temp.BirthDateIsHidden
+                                    && City == temp.City
+                                    && CityId == temp.CityId
+                                    && Email == temp.Email
+                                    && EmailIsHidden == temp.EmailIsHidden
+                                    && Id == temp.Id
+                                    && LastName == temp.LastName
+                                    && LastVisitDateTime == temp.LastVisitDateTime
+                                    && Name == temp.Name
+                                    && Password == temp.Password
+                                    && Role == temp.Role
+                                    && Sex == temp.Sex);
         }
         public override int GetHashCode()
         {
@@ -77,14 +73,7 @@ namespace BusinessLayer.DTO
         }
         public static bool operator ==(UserProfileDTO obj1, UserProfileDTO obj2)
         {
-            if (object.ReferenceEquals(obj1, null))
-            {
-                if (object.ReferenceEquals(obj2, null))
-                    return true;
-                return false;
-            }
-            return obj1.Equals(obj2);
-
+            return !ReferenceEquals(obj1, null) ? obj1.Equals(obj2) : ReferenceEquals(obj2, null);
         }
         public static bool operator !=(UserProfileDTO obj1, UserProfileDTO obj2)
         {

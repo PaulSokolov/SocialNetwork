@@ -19,7 +19,7 @@ namespace DataLayer.Identity
         public UserProfile Delete(string id)
         {
             var item = Database.UserProfiles.Find(id);
-            return Database.UserProfiles.Remove(item);
+            return item != null ? Database.UserProfiles.Remove(item) : null;
         }
         public void Dispose()
         {

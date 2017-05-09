@@ -1,10 +1,10 @@
-﻿using DataLayer.EF;
+﻿using System;
+using DataLayer.EF;
 using DataLayer.Entities;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
-using System;
 
 namespace BusinessLayer.Services
 {
@@ -26,7 +26,7 @@ namespace BusinessLayer.Services
                 //RequireNonLetterOrDigit = true,
                 RequireDigit = false,
                 RequireLowercase = true,
-                RequireUppercase = false,
+                RequireUppercase = false
             };
 
 

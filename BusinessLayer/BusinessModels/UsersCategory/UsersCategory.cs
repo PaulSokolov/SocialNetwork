@@ -13,22 +13,14 @@ namespace BusinessLayer.BusinessModels
         public class UsersCategory
         {
             #region Private fields
-            private SocialNetworkFunctionalityUser _socialNetworkFunctionality;
-            private ISocialNetwork _socialNetwork;
+            private readonly SocialNetworkFunctionalityUser _socialNetworkFunctionality;
+            private readonly ISocialNetwork _socialNetwork;
             private string _avatar;
             private long? _publicId; 
             #endregion
 
-            public string Avatar
-            {
-                get
-                {
-                    if (_avatar == null)
-                        _avatar = _socialNetwork.GetUserProfileRepository().Get(_socialNetworkFunctionality.Id).Avatar;
+            public string Avatar => _avatar ?? (_avatar = _socialNetwork.GetUserProfileRepository().Get(_socialNetworkFunctionality.Id).Avatar);
 
-                    return _avatar;
-                }
-            }
             public long PublicId
             {
                 get
@@ -72,7 +64,7 @@ namespace BusinessLayer.BusinessModels
             {
                 UserProfile up = _socialNetwork.GetUserProfileRepository().Get(user.Id);
 
-                up.ModifiedDate = _socialNetworkFunctionality.Now();
+                up.ModifiedDate = _socialNetworkFunctionality._now();
                 up.Avatar = up.Avatar;
                 up.About = user.About;
                 up.AboutIsHidden = user.AboutIsHidden;
@@ -103,7 +95,7 @@ namespace BusinessLayer.BusinessModels
 
             public List<UserProfileDTO> Search(string search = null, int? ageFrom = null, int? ageTo = null, long? cityId = null, long? countryId = null, string activityConcurence = null, string aboutConcurence = null, int? sex = null, short? sort = null)
             {
-                var time = _socialNetworkFunctionality.Now().Year;
+                var time = _socialNetworkFunctionality._now().Year;
                 var query = _socialNetwork.GetUserProfileRepository().GetAll();
 
                 activityConcurence = activityConcurence == string.Empty ? null : activityConcurence;
@@ -111,43 +103,47 @@ namespace BusinessLayer.BusinessModels
                 search = search == string.Empty ? null : search;
 
                 if (search != null)
-                    query = query.Where(u => u.Name.Contains(search) || u.LastName.Contains(search));                        
+                    query = query.Where(u => u.Name.Contains(search) || u.LastName.Contains(search));
                 if (ageFrom != null)
-                    query = query.Where(u => (time - ((DateTime)u.BirthDate).Year) > ageFrom);
+                    query = query.Where(u => time - ((DateTime) u.BirthDate).Year > ageFrom);
                 if (ageTo != null)
-                    query = query.Where(u => (time - ((DateTime)u.BirthDate).Year) < ageTo);
+                    query = query.Where(u => (time - ((DateTime) u.BirthDate).Year) < ageTo);
                 if (countryId != null)
                     query = query.Where(u => u.City.CountryId == countryId);
                 if (cityId != null)
                     query = query.Where(u => u.CityId == cityId);
                 if (sex != null)
-                    query = query.Where(u => u.Sex == (Sex)sex);
+                    query = query.Where(u => u.Sex == (Sex) sex);
                 if (sort != null)
                 {
-                    if (sort == 0)
-                        query = query.OrderBy(u => u.ActivatedDate);
-                    else if (sort == 1)
-                        query = query.OrderByDescending(u => u.ActivatedDate);
+                    switch (sort)
+                    {
+                        case 0:
+                            query = query.OrderBy(u => u.ActivatedDate);
+                            break;
+                        case 1:
+                            query = query.OrderByDescending(u => u.ActivatedDate);
+                            break;
+                    }
                 }
 
                 var users = query.ToList();
 
-                if (users.Count == 0)
+                if (users.Count != 0) return _socialNetworkFunctionality.Mapper.Map<List<UserProfileDTO>>(users);
+
+                if (activityConcurence != null)
                 {
-                    if (activityConcurence != null)
-                    {
-                        string[] activities = activityConcurence.Split(' ');
-                        query = query.Where(u => activities.Any(s => u.Activity.Contains(s)));
-                    }
-                    if (aboutConcurence != null)
-                    {
-                        string[] about = aboutConcurence.Split(' ');
-                        query = query.Where(u => about.Any(s => u.Activity.Contains(s)));
-                    }
-                    
-                    users = query.ToList();
+                    string[] activities = activityConcurence.Split(' ');
+                    query = query.Where(u => activities.Any(s => u.Activity.Contains(s)));
                 }
-                
+                if (aboutConcurence != null)
+                {
+                    string[] about = aboutConcurence.Split(' ');
+                    query = query.Where(u => about.Any(s => u.Activity.Contains(s)));
+                }
+
+                users = query.ToList();
+
                 return _socialNetworkFunctionality.Mapper.Map<List<UserProfileDTO>>(users);
             }
 

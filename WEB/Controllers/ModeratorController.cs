@@ -1,10 +1,10 @@
-﻿using BusinessLayer.BusinessModels;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Web.Mvc;
+using BusinessLayer.BusinessModels;
 using Microsoft.AspNet.Identity;
 using SocialNetwork.Models.AdminViewModels;
 using SocialNetwork.Models.ModeratorModels;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web.Mvc;
 
 namespace WEB.Controllers
 {
@@ -20,13 +20,15 @@ namespace WEB.Controllers
         [HttpPost]
         public ActionResult UserMessages(long? publicId)
         {
-            SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             ViewBag.PublicId = publicId;
 
+            var models = new List<MessageModeratorModel>();
+            if (publicId == null) return PartialView("Partial/UserMessages", models);
+
             var user = soc.Users.GetByPublicId((long)publicId);
             var messages = soc.Messages.GetAllMessagesByUserId(user.Id);
-            List<MessageModeratorModel> models = new List<MessageModeratorModel>();
 
             foreach (var message in messages)
             {
@@ -54,7 +56,7 @@ namespace WEB.Controllers
         [HttpPost]
         public ActionResult UpdateMessage(long? id, string body)
         {
-            SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             var updatedMessage = soc.Messages.Moderate((long)id, body);
             var model = new MessageModeratorModel
@@ -80,28 +82,23 @@ namespace WEB.Controllers
         [HttpGet]
         public ActionResult DeleteMessage(long? id)
         {
-            SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            bool deleted = soc.Messages.Delete((long)id);
+            var deleted = id != null && soc.Messages.Delete((long)id);
             if (deleted)
                 return Content($"<tr><td></td><td></td><td>Message {id} deleted successfully</td><td></td><td></td></tr>");
-            else
-                return Content($"<tr><td></td><td></td><td>An error occurred while deleting message {id}. Try to refresh the page and try again</td><td></td><td></td></tr>");
+            return Content($"<tr><td></td><td></td><td>An error occurred while deleting message {id}. Try to refresh the page and try again</td><td></td><td></td></tr>");
         }
 
         [HttpPost]
         public ActionResult SearchMessages(long? publicId, string body)
         {
-            SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             var user = soc.Users.GetByPublicId((long)publicId);
             var messages = soc.Messages.GetAllMessagesByUserId(user.Id).Where(m => m.Body.ToLower().Contains(body.ToLower()));
 
-            List<MessageModeratorModel> models = new List<MessageModeratorModel>();
-
-            foreach (var message in messages)
-            {
-                models.Add(new MessageModeratorModel
+            var models = messages.Select(message => new MessageModeratorModel
                 {
                     Id = message.Id,
                     UserAvatar = message.FromUser.Avatar,
@@ -115,16 +112,15 @@ namespace WEB.Controllers
                     Body = message.Body,
                     PostedDate = message.PostedDate,
                     LastModifiedDate = message.ModifiedDate
-
-                });
-            }
+                })
+                .ToList();
 
             return PartialView("Partial/MessagesTable", models);
         }
 
         public ActionResult AutocompleteSearchMessages(string term)
         {
-            SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             var searchResult = soc.Users.Search(term);
             var users = searchResult.Select(u => new { name = u.Name, avatar = u.Avatar, lastName = u.LastName, publicId = u.PublicId, address = u.Address.Length > 30 ? u.Address.Substring(0, 30) : u.Address }).ToList();
@@ -135,11 +131,11 @@ namespace WEB.Controllers
         [HttpPost]
         public ActionResult Search(string search, int? ageFrom, int? ageTo, long? cityId, long? countryId, string activityConcurence, string aboutConcurence, int? sex, short? sort)
         {
-            SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             var users = soc.Users.Search(search, ageFrom, ageTo, cityId, countryId, activityConcurence, aboutConcurence, sex, sort);
 
-            List<UserDeleteModel> models = new List<UserDeleteModel>();
+            var models = new List<UserDeleteModel>();
 
             foreach (var user in users)
             {

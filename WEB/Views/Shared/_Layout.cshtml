@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using SocialNetwork.Models
+<!DOCTYPE html>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -84,8 +85,8 @@
     </header>
     <div class="container body-content">
         @RenderBody()
-        @{Html.RenderPartial("MessageNotification", new SocialNetwork.Models.MessageModel { Body = "", Avatar = "", Name = "asdas", PublicId = 0, Surname = "asdasd", PostedTime = DateTime.Now }); }
-        @{Html.RenderPartial("FriendNotification", new SocialNetwork.Models.FriendNotificationModel { Avatar = "", Name = "asdas", PublicId = 0, Surname = "asdasd" }); }
+        @{Html.RenderPartial("MessageNotification", new MessageModel { Body = "", Avatar = "", Name = "asdas", PublicId = 0, Surname = "asdasd", PostedTime = DateTime.Now }); }
+        @{Html.RenderPartial("FriendNotification", new FriendNotificationModel { Avatar = "", Name = "asdas", PublicId = 0, Surname = "asdasd" }); }
     </div>
     <div class="row" style="display:none">
         <div class="col-md-8 col-md-offset-2">

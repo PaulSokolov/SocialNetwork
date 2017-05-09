@@ -1,6 +1,6 @@
-﻿using DataLayer.Entities;
+﻿using System.Data.Entity;
+using DataLayer.Entities;
 using Microsoft.AspNet.Identity.EntityFramework;
-using System.Data.Entity;
 
 namespace DataLayer.EF
 {
@@ -14,7 +14,7 @@ namespace DataLayer.EF
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<IdentityUserLogin>().HasKey<string>(l => l.UserId);
+            modelBuilder.Entity<IdentityUserLogin>().HasKey(l => l.UserId);
             //modelBuilder.Entity<IdentityRole>().HasKey<string>(r => r.Id);
             modelBuilder.Entity<IdentityUserRole>().HasKey(r => new { r.RoleId, r.UserId });
             modelBuilder.Entity<UserMessage>()
@@ -48,7 +48,7 @@ namespace DataLayer.EF
                         .WillCascadeOnDelete(false);
 
             modelBuilder.Entity<UserProfile>()
-                .HasMany<Language>(s => s.Languages)
+                .HasMany(s => s.Languages)
                 .WithMany(c => c.Users)
                 .Map(cs =>
                 {

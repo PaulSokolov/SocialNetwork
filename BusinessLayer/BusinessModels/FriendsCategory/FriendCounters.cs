@@ -1,6 +1,6 @@
-﻿using DataLayer.Entities;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using DataLayer.Entities;
 
 namespace BusinessLayer.BusinessModels
 {
@@ -11,37 +11,16 @@ namespace BusinessLayer.BusinessModels
         {
             public class FriendCounters
             {
-                private FriendsCategory _friendsCategory;
-                private ICollection<Friend> _friends;
+                private readonly FriendsCategory _friendsCategory;
+                private readonly ICollection<Friend> _friends;
 
-                public long Friends
-                {
-                    get
-                    {
-                        return _friends.Where(f => f.Confirmed == true && f.Deleted == false).Count();
-                    }
-                }
-                public long Followers
-                {
-                    get
-                    {
-                        return _friends.Where(f => (f.Confirmed == false || f.Deleted == true) && f.RequestUserId != _friendsCategory._socialNetworkFunctionality.Id).Count();
-                    }
-                }
-                public long Followed
-                {
-                    get
-                    {
-                        return _friends.Where(f => (f.Confirmed == false || f.Deleted == true) && f.RequestUserId == _friendsCategory._socialNetworkFunctionality.Id).Count();
-                    }
-                }
-                public long Requests
-                {
-                    get
-                    {
-                        return _friends.Where(f => f.Confirmed == false && f.Deleted == false && f.RequestUserId != _friendsCategory._socialNetworkFunctionality.Id).Count();
-                    }
-                }
+                public long Friends => _friends.Count(f => f.Confirmed && f.Deleted == false);
+
+                public long Followers => _friends.Count(f => (f.Confirmed == false || f.Deleted) && f.RequestUserId != _friendsCategory._socialNetworkFunctionality.Id);
+
+                public long Followed => _friends.Count(f => (f.Confirmed == false || f.Deleted) && f.RequestUserId == _friendsCategory._socialNetworkFunctionality.Id);
+
+                public long Requests => _friends.Count(f => f.Confirmed == false && f.Deleted == false && f.RequestUserId != _friendsCategory._socialNetworkFunctionality.Id);
 
                 public FriendCounters(FriendsCategory parent)
                 {

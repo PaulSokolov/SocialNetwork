@@ -1,10 +1,10 @@
-﻿using DataLayer.EF;
-using DataLayer.Entities;
-using DataLayer.Interfaces;
-using DataLayer.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using DataLayer.EF;
+using DataLayer.Entities;
+using DataLayer.Identity;
+using DataLayer.Interfaces;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace DataLayer.UnitOfWorks
 {
@@ -12,33 +12,20 @@ namespace DataLayer.UnitOfWorks
     {
         private IdentityContext db;
 
-        private UserManager userManager;
-        private RoleManager roleManager;
-        private IClientManager clientManager;
-
         public IdentityUnitOfWork(string connectionString)
 
         {
             db = new IdentityContext(connectionString);
-            userManager = new UserManager(new UserStore<ApplicationUser>(db));
-            roleManager = new RoleManager(new RoleStore<ApplicationRole>(db));
-            clientManager = new ClientManager(db);
+            UserManager = new UserManager(new UserStore<ApplicationUser>(db));
+            RoleManager = new RoleManager(new RoleStore<ApplicationRole>(db));
+            ClientManager = new ClientManager(db);
         }
 
-        public UserManager UserManager
-        {
-            get { return userManager; }
-        }
+        public UserManager UserManager { get; }
 
-        public IClientManager ClientManager
-        {
-            get { return clientManager; }
-        }
+        public IClientManager ClientManager { get; }
 
-        public RoleManager RoleManager
-        {
-            get { return roleManager; }
-        }
+        public RoleManager RoleManager { get; }
 
         public async Task SaveAsync()
         {
@@ -50,20 +37,18 @@ namespace DataLayer.UnitOfWorks
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        private bool disposed = false;
+        private bool disposed;
 
         public virtual void Dispose(bool disposing)
         {
-            if (!this.disposed)
+            if (disposed) return;
+            if (disposing)
             {
-                if (disposing)
-                {
-                    userManager.Dispose();
-                    roleManager.Dispose();
-                    clientManager.Dispose();
-                }
-                this.disposed = true;
+                UserManager.Dispose();
+                RoleManager.Dispose();
+                ClientManager.Dispose();
             }
+            disposed = true;
         }
     }
 }

@@ -1,26 +1,27 @@
-﻿using BusinessLayer.BusinessModels;
-using Microsoft.AspNet.Identity;
-using SocialNetwork.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Web.Mvc;
+using BusinessLayer.BusinessModels;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.SignalR;
+using SocialNetwork.Models;
 using WEB.Hubs;
 
 namespace WEB.Controllers
 {
-    [Authorize]
+    [System.Web.Mvc.Authorize]
     public class MessagesController : Controller
     {
 
         public ActionResult Index()
         {
-            SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             ViewBag.Unread = soc.Messages.UnRead;
             ViewBag.Avatar = soc.Users.Avatar;
             ViewBag.NewFriends = soc.Friends.Counters.Requests;
 
-            List<DialogModel> dialogs = new List<DialogModel>();
+            var dialogs = new List<DialogModel>();
             foreach (var lastMessage in soc.Messages.GetLastMessages())
             {
                 if (lastMessage.FromUserId == soc.Id)
@@ -52,9 +53,9 @@ namespace WEB.Controllers
 
         public ActionResult Dialog(long id)
         {
-            SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            List<MessageModel> dialog = new List<MessageModel>();
+            var dialog = new List<MessageModel>();
 
             ViewBag.UnRead = soc.Messages.UnRead;
             ViewBag.RecipientId = id;
@@ -65,7 +66,7 @@ namespace WEB.Controllers
 
             foreach (var mes in messages)
             {
-                MessageModel message = new MessageModel
+                var message = new MessageModel
                 {
                     Avatar = mes.FromUser.Avatar,
                     Body = mes.Body,
@@ -88,14 +89,14 @@ namespace WEB.Controllers
         [HttpPost]
         public ActionResult Send(long recipientId, string message)
         {
-            SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             var mes = soc.Messages.Send(recipientId, message);
 
             mes.FromUser = soc.Users.Get(mes.FromUserId);
             mes.ToUser = soc.Users.Get(mes.ToUserId);
 
-            MessageModel messageModel = new MessageModel
+            var messageModel = new MessageModel
             {
                 Avatar = mes.FromUser.Avatar,
                 Body = mes.Body,
@@ -112,7 +113,7 @@ namespace WEB.Controllers
             SendMessage(mes.ToUser.Id, messageContent);
             ShowMessageNotification(mes.ToUser.Id, RenderRazorViewToString("../Shared/MessageNotification", messageModel));
 
-            SocialNetworkFunctionalityUser recipient = new SocialNetworkFunctionalityUser(mes.ToUser.Id);
+            var recipient = new SocialNetworkFunctionalityUser(mes.ToUser.Id);
 
             UpdateMessageCounter(mes.ToUser.Id, recipient.Messages.UnRead);
 
@@ -122,18 +123,18 @@ namespace WEB.Controllers
         #region SignalR methods
         private void SendMessage(string publicId, string message)
         {
-            var context = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<ConnectionHub>();
+            var context = GlobalHost.ConnectionManager.GetHubContext<ConnectionHub>();
             context.Clients.Group(publicId).addMessage(publicId, message);
         }
 
         private void ShowMessageNotification(string publicId, string notification)
         {
-            var context = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<ConnectionHub>();
+            var context = GlobalHost.ConnectionManager.GetHubContext<ConnectionHub>();
             context.Clients.Group(publicId).notification(notification);
         }
         private void UpdateMessageCounter(string publicId, int count)
         {
-            var context = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<ConnectionHub>();
+            var context = GlobalHost.ConnectionManager.GetHubContext<ConnectionHub>();
             context.Clients.Group(publicId).messageCounter(count);
         }
         #endregion

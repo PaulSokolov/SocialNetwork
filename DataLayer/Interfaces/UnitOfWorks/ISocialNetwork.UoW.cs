@@ -1,4 +1,5 @@
 ﻿using System;
+
 namespace DataLayer.Interfaces
 {
     public interface ISocialNetwork : ITransaction, IDisposable

@@ -1,14 +1,14 @@
-﻿using BusinessLayer.BusinessModels;
-using SocialNetwork.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using Microsoft.AspNet.Identity;
-using BusinessLayer.DTO;
-using System.IO;
 using AutoMapper;
+using BusinessLayer.BusinessModels;
+using BusinessLayer.DTO;
+using Microsoft.AspNet.Identity;
+using SocialNetwork.Models;
 
 namespace WEB.Controllers
 {
@@ -23,15 +23,15 @@ namespace WEB.Controllers
         [HttpPost, Authorize]
         public ActionResult Index(HttpPostedFileBase file)
         {
-            SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             ViewBag.Avatar = soc.Users.Avatar;
 
-            if (file != null && file.ContentLength > 0 || !file.ContentType.Contains("image"))
+            if (file != null && (file.ContentLength > 0 || !file.ContentType.Contains("image")))
                 try
                 {
                     
-                    string filePath = $"/Images/avatar{User.Identity.GetUserId()}.jpg";
+                    var filePath = $"/Images/avatar{User.Identity.GetUserId()}.jpg";
                     string path = Path.Combine(Server.MapPath("~/Images"),
                                                Path.GetFileName("avatar" + User.Identity.GetUserId()+".jpg"));
                     var user = soc.Users.Get(User.Identity.GetUserId());
@@ -43,7 +43,7 @@ namespace WEB.Controllers
                 }
                 catch (Exception ex)
                 {
-                    ViewBag.Message = "ERROR:" + ex.Message.ToString();
+                    ViewBag.Message = "ERROR:" + ex.Message;
                 }
             else
             {
@@ -55,7 +55,7 @@ namespace WEB.Controllers
         [Authorize, ActionName("Profile")]
         public ActionResult ProfileInfo()
         {
-            SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             UserProfileDTO user = soc.Users.Get(soc.Id);
 
@@ -65,7 +65,7 @@ namespace WEB.Controllers
             ViewBag.Friends = soc.Friends.Counters.Friends;
             ViewBag.MyPublicId = soc.Users.PublicId;
 
-            var friends = user.Friends.Where(f => f.Confirmed == true && f.Deleted == false).Select(f => f.Friended).ToList();
+            var friends = user.Friends.Where(f => f.Confirmed && f.Deleted == false).Select(f => f.Friended).ToList();
 
             return View(new ProfileModel
             {
@@ -94,7 +94,7 @@ namespace WEB.Controllers
         [Authorize, HttpGet, ActionName("User")]
         public ActionResult UserInfo(long id)
         {
-            SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             UserProfileDTO user = soc.Users.GetByPublicId(id);
 
@@ -123,7 +123,7 @@ namespace WEB.Controllers
                 Role = user.Role,
                 Sex = user.Sex,
                 Languages = user.Languages,
-                IsEditHidden = !(soc.Id == user.Id)
+                IsEditHidden = soc.Id != user.Id
             };
             if (soc.Friends.GetFriends().Select(u => u.Id).Contains(user.Id))
                 profileModel.IsFriend = true;
@@ -132,7 +132,7 @@ namespace WEB.Controllers
             else if (soc.Friends.GetFollowed().Select(u => u.Id).Contains(user.Id))
                 profileModel.IsFollowed = true;
 
-            var friends = user.Friends.Where(f => f.Confirmed == true && f.Deleted == false).Select(f => f.Friended).ToList();
+            var friends = user.Friends.Where(f => f.Confirmed && f.Deleted == false).Select(f => f.Friended).ToList();
             profileModel.Friends = friends;
             return View("Profile", profileModel);
         }
@@ -140,7 +140,7 @@ namespace WEB.Controllers
         [Authorize]
         public ActionResult Settings()
         {
-            SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             UserProfileDTO user = soc.Users.Get(soc.Id);
 
@@ -179,38 +179,37 @@ namespace WEB.Controllers
         [Authorize, HttpPost]
         public ActionResult Settings(SettingsViewModel model)
         {
-            if (ModelState.IsValid)
-            {
-                SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            if (!ModelState.IsValid) return View(model);
 
-                UserProfileDTO user = soc.Users.Get(soc.Id);
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-                ViewBag.UnRead = soc.Messages.UnRead;
-                ViewBag.Avatar = soc.Users.Avatar;
-                ViewBag.NewFriends = soc.Friends.Counters.Requests;
-                ViewBag.Friends = soc.Friends.Counters.Friends;
+            UserProfileDTO user = soc.Users.Get(soc.Id);
 
-                user.About = model.About;
-                user.AboutIsHidden = model.AboutIsHidden;
-                user.Activity = model.Activity;
-                user.ActivityIsHidden = model.ActivityIsHidden;
-                user.Address = model.Address;
-                user.BirthDate = model.BirthDate;
-                user.BirthDateIsHidden = model.BirthDateIsHidden;
-                user.CityId = model.CityId;
-                user.Email = model.Email;
-                user.EmailIsHidden = model.EmailIsHidden;
-                user.LastName = model.Surname;
-                user.Name = model.Surname;
-                user.Sex = model.Sex;
-                soc.Users.Update(user);
-            }
+            ViewBag.UnRead = soc.Messages.UnRead;
+            ViewBag.Avatar = soc.Users.Avatar;
+            ViewBag.NewFriends = soc.Friends.Counters.Requests;
+            ViewBag.Friends = soc.Friends.Counters.Friends;
+
+            user.About = model.About;
+            user.AboutIsHidden = model.AboutIsHidden;
+            user.Activity = model.Activity;
+            user.ActivityIsHidden = model.ActivityIsHidden;
+            user.Address = model.Address;
+            user.BirthDate = model.BirthDate;
+            user.BirthDateIsHidden = model.BirthDateIsHidden;
+            user.CityId = model.CityId;
+            user.Email = model.Email;
+            user.EmailIsHidden = model.EmailIsHidden;
+            user.LastName = model.Surname;
+            user.Name = model.Surname;
+            user.Sex = model.Sex;
+            soc.Users.Update(user);
             return View(model);
         }
 
         public ActionResult Cities(long countryId)
         {
-            SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             Mapper.Initialize(cnf =>
             {

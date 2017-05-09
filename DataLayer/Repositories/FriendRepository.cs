@@ -1,9 +1,9 @@
-﻿using DataLayer.BasicRepositories;
+﻿using System;
+using System.Linq;
+using DataLayer.BasicRepositories;
 using DataLayer.EF;
 using DataLayer.Entities;
 using DataLayer.Interfaces;
-using System;
-using System.Linq;
 
 namespace DataLayer.Repository
 {
@@ -41,7 +41,7 @@ namespace DataLayer.Repository
         {
             try
             {
-                Friend friend = Context.Friends.Where(f => f.UserId == userId && f.FriendId == friendId).FirstOrDefault();
+                Friend friend = Context.Friends.FirstOrDefault(f => f.UserId == userId && f.FriendId == friendId);
                 return friend;
             }
             catch (Exception ex)

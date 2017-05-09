@@ -11,14 +11,11 @@ namespace BusinessLayer.BusinessModels
     {
         public class MessagesCategory
         {
-            private SocialNetworkFunctionalityUser _socialNetworkFunctionality;
-            private ISocialNetwork _socialNetwork;
+            private readonly SocialNetworkFunctionalityUser _socialNetworkFunctionality;
+            private readonly ISocialNetwork _socialNetwork;
 
-            public int UnRead
-            {
-                get => _socialNetwork.GetUserMessageRepository().GetAll()
-                    .Where(m => m.ToUserId == _socialNetworkFunctionality.Id && m.IsRead == false).Count();
-            }
+            public int UnRead => _socialNetwork.GetUserMessageRepository()
+                .GetAll().Count(m => m.ToUserId == _socialNetworkFunctionality.Id && m.IsRead == false);
 
             public MessagesCategory(SocialNetworkFunctionalityUser socialNetworkFunctionality)
             {
@@ -38,7 +35,7 @@ namespace BusinessLayer.BusinessModels
                 var mes = _socialNetwork.GetUserMessageRepository().Get(id);
 
                 mes.Body = body;
-                mes.ModifiedDate = _socialNetworkFunctionality.Now();
+                mes.ModifiedDate = _socialNetworkFunctionality._now();
 
                 var res = _socialNetwork.GetUserMessageRepository().Update(mes);
                 _socialNetwork.Commit();
@@ -50,15 +47,11 @@ namespace BusinessLayer.BusinessModels
             {
                 var mes = _socialNetwork.GetUserMessageRepository().Get(id);
 
-                if (mes != null)
-                {
-                    _socialNetwork.GetUserMessageRepository().Delete(mes);
-                    _socialNetwork.Commit();
+                if (mes == null) return false;
+                _socialNetwork.GetUserMessageRepository().Delete(mes);
+                _socialNetwork.Commit();
 
-                    return true;
-                }
-
-                return false;
+                return true;
             }
 
             public UserMessageDTO Send(long recipientId, string body)
@@ -71,11 +64,11 @@ namespace BusinessLayer.BusinessModels
                 var result = _socialNetwork.GetUserMessageRepository().Add(
                     new UserMessage
                     {
-                        AddedDate = _socialNetworkFunctionality.Now(),
+                        AddedDate = _socialNetworkFunctionality._now(),
                         FromUserId = _socialNetworkFunctionality.Id,
                         ToUserId = recipient,
                         IsRead = false,
-                        PostedDate = _socialNetworkFunctionality.Now(),
+                        PostedDate = _socialNetworkFunctionality._now(),
                         Body = body
                     });
 
@@ -85,8 +78,7 @@ namespace BusinessLayer.BusinessModels
             }
             public List<IGrouping<string, UserMessageDTO>> GetAllDialogs()
             {
-                var messages = _socialNetwork.GetUserMessageRepository().GetAll()
-                    .Where(m => (m.FromUserId == _socialNetworkFunctionality.Id || m.ToUserId == _socialNetworkFunctionality.Id))//.ToList()
+                var messages = Queryable.Where(_socialNetwork.GetUserMessageRepository().GetAll(), m => (m.FromUserId == _socialNetworkFunctionality.Id || m.ToUserId == _socialNetworkFunctionality.Id))//.ToList()
                     .GroupBy(d => d.FromUserId)
                     .ToList();
 
@@ -95,18 +87,16 @@ namespace BusinessLayer.BusinessModels
             }
             public List<UserMessageDTO> GetDialog(string friendId)
             {
-                var messages = _socialNetwork.GetUserMessageRepository().GetAll()
-                    .Where(m => ((m.FromUserId == _socialNetworkFunctionality.Id && m.ToUserId == friendId) ||
-                                                                                            (m.ToUserId == _socialNetworkFunctionality.Id && m.FromUserId == friendId)));
+                var messages = Queryable.Where(_socialNetwork.GetUserMessageRepository().GetAll(), m => m.FromUserId == _socialNetworkFunctionality.Id && m.ToUserId == friendId ||
+                                                                                                        m.ToUserId == _socialNetworkFunctionality.Id && m.FromUserId == friendId);
 
                 return _socialNetworkFunctionality.Mapper.Map<IEnumerable<UserMessage>, List<UserMessageDTO>>(messages);
             }
 
             public List<UserMessageDTO> GetDialog(long publicFriendId)
             {
-                var messages = _socialNetwork.GetUserMessageRepository().GetAll()
-                    .Where(m => ((m.FromUser.PublicId == _socialNetworkFunctionality.Users.PublicId && m.ToUser.PublicId == publicFriendId) ||
-                                                                                            (m.ToUser.PublicId == _socialNetworkFunctionality.Users.PublicId && m.FromUser.PublicId == publicFriendId))).OrderBy(m => m.PostedDate);
+                var messages = _socialNetwork.GetUserMessageRepository().GetAll().Where(m => m.FromUser.PublicId == _socialNetworkFunctionality.Users.PublicId && m.ToUser.PublicId == publicFriendId ||
+                                                                                             m.ToUser.PublicId == _socialNetworkFunctionality.Users.PublicId && m.FromUser.PublicId == publicFriendId).OrderBy(m => m.PostedDate);
 
                 return _socialNetworkFunctionality.Mapper.Map<IEnumerable<UserMessage>, List<UserMessageDTO>>(messages);
             }
@@ -120,8 +110,7 @@ namespace BusinessLayer.BusinessModels
             }
             public List<UserMessageDTO> GetLastMessages()
             {
-                var messages = _socialNetwork.GetUserMessageRepository().GetAll()
-                    .Where(m => (m.FromUserId == _socialNetworkFunctionality.Id || m.ToUserId == _socialNetworkFunctionality.Id)).ToList()
+                var messages = Queryable.Where(_socialNetwork.GetUserMessageRepository().GetAll(), m => (m.FromUserId == _socialNetworkFunctionality.Id || m.ToUserId == _socialNetworkFunctionality.Id)).ToList()
                     .GroupBy(d => /*d.FromUserId*/new { d.FromUserId, d.ToUserId })
                     .Select(d => d.Select(m => m).LastOrDefault())
                     .ToList();
@@ -131,19 +120,19 @@ namespace BusinessLayer.BusinessModels
 
                 var dialogs = new List<UserMessage>();
 
-                for (int i = 0; i < fromMe.Count; i++)
+                foreach (UserMessage mesFromMe in fromMe)
                 {
-                    bool same = false;
-                    for (int j = 0; j < toMe.Count; j++)
+                    var same = false;
+                    foreach (UserMessage mesToMe in toMe)
                     {
-                        if (fromMe[i].ToUserId == toMe[j].FromUserId)
+                        if (mesFromMe.ToUserId == mesToMe.FromUserId)
                         {
                             same = true;
-                            dialogs.Add(fromMe[i].PostedDate > toMe[j].PostedDate ? fromMe[i] : toMe[j]);
+                            dialogs.Add(mesFromMe.PostedDate > mesToMe.PostedDate ? mesFromMe : mesToMe);
                         }
                     }
                     if (!same)
-                        dialogs.Add(fromMe[i]);
+                        dialogs.Add(mesFromMe);
                 }
 
                 return _socialNetworkFunctionality.Mapper.Map<List<UserMessage>, List<UserMessageDTO>>(dialogs);
@@ -163,12 +152,12 @@ namespace BusinessLayer.BusinessModels
 
             public void ReadMessages(IEnumerable<long> ids)
             {
-                List<UserMessage> messages = _socialNetwork.GetUserMessageRepository().GetAll().Where(m => ids.Any(id => id == m.Id)).ToList();
+                var messages = _socialNetwork.GetUserMessageRepository().GetAll().Where(m => ids.Any(id => id == m.Id)).ToList();
 
                 foreach (var message in messages)
                 {
                     message.IsRead = true;
-                    var result = _socialNetwork.GetUserMessageRepository().Update(message);
+                    _socialNetwork.GetUserMessageRepository().Update(message);
                 }
 
                 _socialNetwork.Commit();

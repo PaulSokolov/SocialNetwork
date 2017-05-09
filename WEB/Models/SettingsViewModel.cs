@@ -1,7 +1,7 @@
-﻿using BusinessLayer.DTO;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using BusinessLayer.DTO;
 
 namespace SocialNetwork.Models
 {

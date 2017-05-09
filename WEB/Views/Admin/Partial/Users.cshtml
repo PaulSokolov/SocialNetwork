@@ -1,4 +1,4 @@
-﻿@model System.Collections.Generic.IEnumerable<SocialNetwork.Models.AdminViewModels.UserDeleteModel>
+﻿@model IEnumerable<SocialNetwork.Models.AdminViewModels.UserDeleteModel>
 @foreach (var user in Model)
 {
     <div class="row" id="@user.PublicId">
@@ -11,7 +11,7 @@
                 </div>
                 <div class="media-body">
                     <a href="../Home/Profile/@user.PublicId">
-                        <h5 class="media-heading">@string.Format("{0} {1}", user.Name, user.Surname)</h5>
+                        <h5 class="media-heading">@($"{user.Name} {user.Surname}")</h5>
                     </a>
                     @*<div id="@user.PublicId.ToString()" class="btn btn-default" style="float: right;top: 0px" onclick="UserDelete(user.PublicId)">@Ajax.ActionLink("Delete", "DeleteUser", new AjaxOptions { HttpMethod = "Post", Confirm="Are you sure?", UpdateTargetId=user.PublicId.ToString(),  })</div>*@
                     @using (Ajax.BeginForm("DeleteUser", new AjaxOptions { UpdateTargetId = user.PublicId.ToString(), OnBegin = "beforeSend('searchResult')", OnComplete = "complete('searchResult')", Confirm = "Are you sure?", HttpMethod = "Post" }))

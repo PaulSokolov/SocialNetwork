@@ -10,15 +10,13 @@
 
         public override bool Equals(object obj)
         {
-            if (obj is CityDTO)
-            {
-                var temp = obj as CityDTO;
-                return this.Id == temp.Id
-                    && this.Country==temp.Country
-                    && this.CountryId == temp.CountryId
-                    && this.Name == temp.Name;
-            }
-            return false;
+            var city = obj as CityDTO;
+            if (city == null) return false;
+            var temp = city;
+            return Id == temp.Id
+                   && Country==temp.Country
+                   && CountryId == temp.CountryId
+                   && Name == temp.Name;
         }
 
         public override int GetHashCode()
@@ -28,14 +26,7 @@
 
         public static bool operator ==(CityDTO obj1, CityDTO obj2)
         {
-            if (object.ReferenceEquals(obj1, null))
-            {
-                if (object.ReferenceEquals(obj2, null))
-                    return true;
-                return false;
-            }
-            return obj1.Equals(obj2);
-
+            return !ReferenceEquals(obj1, null) ? obj1.Equals(obj2) : ReferenceEquals(obj2, null);
         }
 
         public static bool operator !=(CityDTO obj1, CityDTO obj2)

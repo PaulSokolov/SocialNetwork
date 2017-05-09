@@ -1,9 +1,9 @@
-﻿using DataLayer.BasicRepositories;
+﻿using System;
+using System.Linq;
+using DataLayer.BasicRepositories;
 using DataLayer.EF;
 using DataLayer.Entities;
 using DataLayer.Interfaces;
-using System;
-using System.Linq;
 
 namespace DataLayer.Repository
 {

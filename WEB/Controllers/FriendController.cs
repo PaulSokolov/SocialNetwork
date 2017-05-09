@@ -1,23 +1,24 @@
-﻿using BusinessLayer.BusinessModels;
-using Microsoft.AspNet.Identity;
-using SocialNetwork.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Web.Mvc;
+using BusinessLayer.BusinessModels;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.SignalR;
+using SocialNetwork.Models;
 using WEB.Hubs;
 
 namespace WEB.Controllers
 {
-    [Authorize]
+    [System.Web.Mvc.Authorize]
     public class FriendController : Controller
     {
 
         public ActionResult Index()
         {
-            SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            List<FriendModel> friends = new List<FriendModel>();
+            var friends = new List<FriendModel>();
 
             ViewBag.UnRead = soc.Messages.UnRead;
             ViewBag.Avatar = soc.Users.Avatar;
@@ -44,9 +45,9 @@ namespace WEB.Controllers
         [HttpPost]
         public ActionResult Friends()
         {
-            SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            StringBuilder content = new StringBuilder();
+            var content = new StringBuilder();
 
             foreach (var friend in soc.Friends.GetFriends())
             {
@@ -67,9 +68,9 @@ namespace WEB.Controllers
         [HttpPost]
         public ActionResult Followed()
         {
-            SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            StringBuilder content = new StringBuilder();
+            var content = new StringBuilder();
             foreach (var friend in soc.Friends.GetFollowed())
             {
                 var friendModel = new FriendModel
@@ -90,9 +91,9 @@ namespace WEB.Controllers
         [HttpPost]
         public ActionResult Followers()
         {
-            SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            StringBuilder content = new StringBuilder();
+            var content = new StringBuilder();
             foreach (var friend in soc.Friends.GetFollowers())
             {
                 var friendModel = new FriendModel
@@ -112,18 +113,18 @@ namespace WEB.Controllers
         [HttpPost]
         public ActionResult Add(long publicId)
         {
-            SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             var friend = soc.Friends.Add(publicId);
             var user = soc.Users.Get(soc.Id);
 
-            FriendNotificationModel model = new FriendNotificationModel { Avatar = soc.Users.Avatar, Name = user.Name, Surname = user.LastName, PublicId = soc.Users.PublicId, Status = "followed you" };
+            var model = new FriendNotificationModel { Avatar = soc.Users.Avatar, Name = user.Name, Surname = user.LastName, PublicId = soc.Users.PublicId, Status = "followed you" };
 
             AddFriend(friend.FriendId, RenderRazorViewToString("../Shared/FriendNotification", model));
 
-            SocialNetworkFunctionalityUser friendSoc = new SocialNetworkFunctionalityUser(friend.UserId);
+            var friendSoc = new SocialNetworkFunctionalityUser(friend.UserId);
 
-            UpdateCounters(friend.UserId, new long[] { friendSoc.Friends.Counters.Followers, friendSoc.Friends.Counters.Friends, friendSoc.Friends.Counters.Followed });
+            UpdateCounters(friend.UserId, new[] { friendSoc.Friends.Counters.Followers, friendSoc.Friends.Counters.Friends, friendSoc.Friends.Counters.Followed });
             
             return Content("Unsubscribe");
         }
@@ -131,18 +132,18 @@ namespace WEB.Controllers
         [HttpPost]
         public ActionResult Confirm(long publicId)
         {
-            SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             var friend = soc.Friends.Confirm(publicId);
             var user = soc.Users.Get(soc.Id);
 
-            FriendNotificationModel model = new FriendNotificationModel { Avatar = soc.Users.Avatar, Name = user.Name, Surname = user.LastName, PublicId = soc.Users.PublicId, Status = "confirmed your request" };
+            var model = new FriendNotificationModel { Avatar = soc.Users.Avatar, Name = user.Name, Surname = user.LastName, PublicId = soc.Users.PublicId, Status = "confirmed your request" };
 
             AddFriend(friend.FriendId, RenderRazorViewToString("../Shared/FriendNotification", model));
 
-            SocialNetworkFunctionalityUser friendSoc = new SocialNetworkFunctionalityUser(friend.UserId);
+            var friendSoc = new SocialNetworkFunctionalityUser(friend.UserId);
 
-            UpdateCounters(friend.UserId, new long[] { friendSoc.Friends.Counters.Followers, friendSoc.Friends.Counters.Friends, friendSoc.Friends.Counters.Followed });
+            UpdateCounters(friend.UserId, new[] { friendSoc.Friends.Counters.Followers, friendSoc.Friends.Counters.Friends, friendSoc.Friends.Counters.Followed });
 
             return Content("Delete");
         }
@@ -150,30 +151,30 @@ namespace WEB.Controllers
         [HttpPost]
         public ActionResult Delete(long publicId)
         {
-            SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             var friend = soc.Friends.Delete(publicId);            
             var user = soc.Users.Get(soc.Id);
 
-            UpdateCounters(soc.Id, new long[] { soc.Friends.Counters.Requests, soc.Friends.Counters.Friends, soc.Friends.Counters.Followed });
+            UpdateCounters(soc.Id, new[] { soc.Friends.Counters.Requests, soc.Friends.Counters.Friends, soc.Friends.Counters.Followed });
 
-            FriendNotificationModel model = new FriendNotificationModel { Avatar = soc.Users.Avatar, Name = user.Name, Surname = user.LastName, PublicId = soc.Users.PublicId, Status = "deleted you from friends" };
+            var model = new FriendNotificationModel { Avatar = soc.Users.Avatar, Name = user.Name, Surname = user.LastName, PublicId = soc.Users.PublicId, Status = "deleted you from friends" };
 
             AddFriend(friend.FriendId, RenderRazorViewToString("../Shared/FriendNotification", model));
 
-            SocialNetworkFunctionalityUser friendSoc = new SocialNetworkFunctionalityUser(friend.UserId);
+            var friendSoc = new SocialNetworkFunctionalityUser(friend.UserId);
 
-            UpdateCounters(friend.FriendId, new long[] { friendSoc.Friends.Counters.Requests, friendSoc.Friends.Counters.Friends, friendSoc.Friends.Counters.Followed });
+            UpdateCounters(friend.FriendId, new[] { friendSoc.Friends.Counters.Requests, friendSoc.Friends.Counters.Friends, friendSoc.Friends.Counters.Followed });
             
             return Content("Add To Friends");
         }
         [HttpPost]
         public ActionResult Unsubscribe(long publicId)
         {
-            SocialNetworkFunctionalityUser soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             soc.Friends.Unsubscribe(publicId);
-            UpdateCounters(soc.Id, new long[] { soc.Friends.Counters.Followers, soc.Friends.Counters.Friends, soc.Friends.Counters.Followed });
+            UpdateCounters(soc.Id, new[] { soc.Friends.Counters.Followers, soc.Friends.Counters.Friends, soc.Friends.Counters.Followed });
 
             return Content("Add Friend");
         }
@@ -181,13 +182,13 @@ namespace WEB.Controllers
         #region SignalR Methods
         private void AddFriend(string publicId, string notification)
         {
-            var context = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<ConnectionHub>();
+            var context = GlobalHost.ConnectionManager.GetHubContext<ConnectionHub>();
             context.Clients.Group(publicId).addFriend(notification);
         }
 
         private void UpdateCounters(string publicId, long[] count)
         {
-            var context = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<ConnectionHub>();
+            var context = GlobalHost.ConnectionManager.GetHubContext<ConnectionHub>();
             context.Clients.Group(publicId).friendCounters(count);
         }
         #endregion

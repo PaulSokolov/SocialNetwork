@@ -1,8 +1,5 @@
-﻿using BusinessLayer.DTO;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Collections.Generic;
+using BusinessLayer.DTO;
 
 namespace SocialNetwork.Models
 {

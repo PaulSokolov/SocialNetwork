@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+
 namespace BusinessLayer.DTO
 {
     public class CountryDTO
@@ -18,15 +19,8 @@ namespace BusinessLayer.DTO
 
         public override bool Equals(object obj)
         {
-            if (obj is CountryDTO)
-            {
-                var temp = obj as CountryDTO;
-                return this.Id == temp.Id
-                    && this.Languages.SequenceEqual(temp.Languages)
-                    && this.Name == temp.Name;
-            }
-
-            return false;
+            var temp = obj as CountryDTO;
+            return temp != null && Id == temp.Id && Languages.SequenceEqual(temp.Languages) && Name == temp.Name;
         }
 
         public override int GetHashCode()
@@ -36,15 +30,7 @@ namespace BusinessLayer.DTO
 
         public static bool operator ==(CountryDTO obj1, CountryDTO obj2)
         {
-            if (object.ReferenceEquals(obj1, null))
-            {
-                if (object.ReferenceEquals(obj2, null))
-                    return true;
-                return false;
-            }
-
-            return obj1.Equals(obj2);
-
+            return !ReferenceEquals(obj1, null) ? obj1.Equals(obj2) : ReferenceEquals(obj2, null);
         }
 
         public static bool operator !=(CountryDTO obj1, CountryDTO obj2)

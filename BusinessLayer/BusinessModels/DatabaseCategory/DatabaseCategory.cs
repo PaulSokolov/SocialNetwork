@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BusinessLayer.BusinessModels.Exeptions;
 using BusinessLayer.DTO;
 using DataLayer.Entities;
-using BusinessLayer.BusinessModels.Exeptions;
 using DataLayer.Interfaces;
 using DataLayer.UnitOfWorks;
 
@@ -14,8 +14,8 @@ namespace BusinessLayer.BusinessModels
         public class DatabaseCategory
         {
 
-            private SocialNetworkFunctionalityUser _socialNetworkFunctionality;
-            private ILocalization _localization;
+            private readonly SocialNetworkFunctionalityUser _socialNetworkFunctionality;
+            private readonly ILocalization _localization;
 
             public DatabaseCategory(SocialNetworkFunctionalityUser socialNetworkFunctionality)
             {
@@ -41,9 +41,9 @@ namespace BusinessLayer.BusinessModels
                 var country = _localization.GetCountryRepository().GetCountry(id);
                 if (country != null)
                     throw new DatabaseCategoryItemAlreadyExistsException($"Country with Id : {id}. Already exists.");
-                List<Language> languages = new List<Language>();
+                var languages = new List<Language>();
 
-                foreach (long languageId in languageIds)
+                foreach (var languageId in languageIds)
                 {
                     var language = _localization.GetLanguageRepository().GetLanguage(id);
                     if (language == null)

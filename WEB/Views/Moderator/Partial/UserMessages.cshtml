@@ -1,4 +1,4 @@
-﻿@model System.Collections.Generic.IEnumerable<SocialNetwork.Models.ModeratorModels.MessageModeratorModel>
+﻿@model IEnumerable<SocialNetwork.Models.ModeratorModels.MessageModeratorModel>
 <div class="row">
     @using (Ajax.BeginForm("SearchMessages", "Moderator", null, new AjaxOptions { UpdateTargetId = "messageTable", OnBegin = "beforeSend('messageTable')", OnComplete = "complete('messageTable')", HttpMethod = "Post" }, new { @class = "navbar-form navbar-left" }))
     {

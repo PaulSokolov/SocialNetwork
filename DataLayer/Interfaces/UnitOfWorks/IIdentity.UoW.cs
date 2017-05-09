@@ -1,6 +1,6 @@
-﻿using DataLayer.Identity;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using DataLayer.Identity;
 
 namespace DataLayer.Interfaces
 {
