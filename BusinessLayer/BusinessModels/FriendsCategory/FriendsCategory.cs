@@ -28,7 +28,7 @@ namespace BusinessLayer.BusinessModels
 
             public FriendDTO Add(string userToAddId)
             {
-                var user = _socialNetwork.GetUserProfileRepository().Get(userToAddId);
+                var user = _socialNetwork.GetUserProfileRepository().GetUserProfile(userToAddId);
 
                 if (user == null)
                     throw new UserNotFoundException("There is no such user.");

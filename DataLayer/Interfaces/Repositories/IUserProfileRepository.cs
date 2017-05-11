@@ -7,9 +7,7 @@ namespace DataLayer.Interfaces
     public interface IUserProfileRepository : IRepository<UserProfile>
     {
         IQueryable<UserProfile> GetAll();
-        UserProfile Get(string id);
-
-        Task<IQueryable<UserProfile>> GetAllAsync();
-        Task<UserProfile> GetAsync(string id);
+        UserProfile GetUserProfile(string id);
+        Task<UserProfile> GetUserProfileAsync(string id);
     }
 }

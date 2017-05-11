@@ -8,7 +8,6 @@ namespace DataLayer.Interfaces
     {
         IQueryable<Country> GetAll();
         Country GetCountry(long id);
-        Task<IQueryable<Country>> GetAllAsync();
         Task<Country> GetCountryAsync(long id);
     }
 }

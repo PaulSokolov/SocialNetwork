@@ -19,7 +19,7 @@ namespace BusinessLayer.BusinessModels
             private long? _publicId; 
             #endregion
 
-            public string Avatar => _avatar ?? (_avatar = _socialNetwork.GetUserProfileRepository().Get(_socialNetworkFunctionality.Id).Avatar);
+            public string Avatar => _avatar ?? (_avatar = _socialNetwork.GetUserProfileRepository().GetUserProfile(_socialNetworkFunctionality.Id).Avatar);
 
             public long PublicId
             {
@@ -42,7 +42,7 @@ namespace BusinessLayer.BusinessModels
 
             public UserProfileDTO Get(string id)
             {
-                UserProfile userProfile = _socialNetwork.GetUserProfileRepository().Get(id);
+                UserProfile userProfile = _socialNetwork.GetUserProfileRepository().GetUserProfile(id);
 
                 if (userProfile == null)
                     throw new UserNotFoundException("There is no such user.");
@@ -62,7 +62,7 @@ namespace BusinessLayer.BusinessModels
 
             public UserProfileDTO Update(UserProfileDTO user)
             {
-                UserProfile up = _socialNetwork.GetUserProfileRepository().Get(user.Id);
+                UserProfile up = _socialNetwork.GetUserProfileRepository().GetUserProfile(user.Id);
 
                 up.ModifiedDate = _socialNetworkFunctionality._now();
                 up.Avatar = user.Avatar;

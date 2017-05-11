@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using DataLayer.BasicRepositories;
 using DataLayer.EF;
 using DataLayer.Entities;
@@ -37,7 +38,7 @@ namespace DataLayer.Repository
             }
         }
 
-        public UserMessage Get(long messageId)
+        public UserMessage GetMessage(long messageId)
         {
             try
             {
@@ -49,10 +50,30 @@ namespace DataLayer.Repository
             }
         }
 
+        public async Task<UserMessage> GetMessageAsync(long messageId)
+        {
+            try
+            {
+                return await Context.UserMessages.FindAsync(messageId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"GetMessageByMessageIdAsync() Failed {ex}");
+            }
+        }
+
         public UserMessage Remove(long messageId)
         {
-            var item = Get(messageId);
+            var item = GetMessage(messageId);
             return Context.UserMessages.Remove(item);
+        }
+
+        public async Task<UserMessage> RemoveAsync(long messageId)
+        {
+            var item = await GetMessageAsync(messageId);
+            var task = new Task<UserMessage>(()=> Context.UserMessages.Remove(item));
+            task.Start();
+            return await task;
         }
     }
 }

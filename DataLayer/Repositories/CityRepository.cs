@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 using DataLayer.BasicRepositories;
 using DataLayer.EF;
 using DataLayer.Entities;
@@ -47,6 +48,18 @@ namespace DataLayer.Repository
             catch (Exception ex)
             {
                 throw new Exception($"GetCity() failed: {ex}");
+            }
+        }
+
+        public async Task<City> GetCityAsync(long id)
+        {
+            try
+            {
+                return await Context.Cities.FindAsync(id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"GetCityAsync() failed: {ex}");
             }
         }
     }

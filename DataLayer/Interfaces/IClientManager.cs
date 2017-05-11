@@ -7,10 +7,10 @@ namespace DataLayer.Interfaces
     public interface IClientManager : IDisposable
     {
         UserProfile Create(UserProfile item);
-        UserProfile Delete(string id);
-
         Task<UserProfile> CreateAsync(UserProfile item);
+        UserProfile Delete(string id);
         Task<UserProfile> DeleteAsync(string id);
+
     }
 }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using DataLayer.BasicRepositories;
 using DataLayer.EF;
 using DataLayer.Entities;
@@ -25,7 +26,7 @@ namespace DataLayer.Repository
             }
         }
 
-        public UserProfile Get(string id)
+        public UserProfile GetUserProfile(string id)
         {
             try
             {
@@ -34,6 +35,18 @@ namespace DataLayer.Repository
             catch (Exception ex)
             {
                 throw new Exception($"GetMessageByMessageId() Failed {ex}");
+            }
+        }
+
+        public async Task<UserProfile> GetUserProfileAsync(string id)
+        {
+            try
+            {
+                return await Context.UserProfiles.FindAsync(id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"GetUserProfileAsync() Failed {ex}");
             }
         }
     }

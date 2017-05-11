@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using DataLayer.BasicRepositories;
 using DataLayer.EF;
 using DataLayer.Entities;
@@ -25,6 +26,18 @@ namespace DataLayer.Repository
             }
         }
 
+        public async Task<Country> GetCountryAsync(long id)
+        {
+            try
+            {
+                return await Context.Countries.FindAsync(id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"GetCountryAsync() failed: {ex}");
+            }
+        }
+
         public IQueryable<Country> GetAll()
         {
             try
@@ -36,5 +49,7 @@ namespace DataLayer.Repository
                 throw new Exception($"GetAll() failed: {ex}");
             }
         }
+
+        
     }
 }

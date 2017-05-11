@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 using DataLayer.BasicRepositories;
 using DataLayer.EF;
 using DataLayer.Entities;
@@ -48,6 +50,20 @@ namespace DataLayer.Repository
             {
 
                 throw new Exception($"GetFriend() Failed {ex}");
+            }
+        }
+
+        public async Task<Friend> GetFriendAsync(string userId, string friendId)
+        {
+            try
+            {
+                Friend friend = await Context.Friends.FirstOrDefaultAsync(f => f.UserId == userId && f.FriendId == friendId);
+                return friend;
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception($"GetFriendAsync() Failed {ex}");
             }
         }
     }

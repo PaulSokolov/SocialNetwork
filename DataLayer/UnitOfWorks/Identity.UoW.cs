@@ -10,15 +10,15 @@ namespace DataLayer.UnitOfWorks
 {
     public class IdentityUnitOfWork : IIdentityUoF
     {
-        private IdentityContext db;
+        private IdentityContext _context;
 
         public IdentityUnitOfWork(string connectionString)
 
         {
-            db = new IdentityContext(connectionString);
-            UserManager = new UserManager(new UserStore<ApplicationUser>(db));
-            RoleManager = new RoleManager(new RoleStore<ApplicationRole>(db));
-            ClientManager = new ClientManager(db);
+            _context = new IdentityContext(connectionString);
+            UserManager = new UserManager(new UserStore<ApplicationUser>(_context));
+            RoleManager = new RoleManager(new RoleStore<ApplicationRole>(_context));
+            ClientManager = new ClientManager(_context);
         }
 
         public UserManager UserManager { get; }
@@ -29,7 +29,7 @@ namespace DataLayer.UnitOfWorks
 
         public async Task SaveAsync()
         {
-            await db.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
 
         public void Dispose()

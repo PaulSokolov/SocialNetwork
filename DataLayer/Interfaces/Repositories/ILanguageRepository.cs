@@ -8,7 +8,6 @@ namespace DataLayer.Interfaces
     {
         IQueryable<Language> GetAll();
         Language GetLanguage(long id);
-        Task<IQueryable<Language>> GetAllAsync();
         Task<Language> GetLanguageAsync(long id);
     }
 }

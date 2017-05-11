@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using DataLayer.BasicRepositories;
 using DataLayer.EF;
 using DataLayer.Entities;
@@ -34,6 +35,18 @@ namespace DataLayer.Repository
             catch (Exception ex)
             {
                 throw new Exception($"GetLanguage() Failed {ex}");
+            }
+        }
+
+        public async Task<Language> GetLanguageAsync(long id)
+        {
+            try
+            {
+                return await Context.Languages.FindAsync(id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"GetLanguageAsync() Failed {ex}");
             }
         }
     }

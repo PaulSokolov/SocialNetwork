@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using DataLayer.EF;
 using DataLayer.Entities;
 using DataLayer.Interfaces;
@@ -18,7 +20,7 @@ namespace DataLayer.UnitOfWorks
         private IFriendRepository _friendRepository;
         private IUserMessageRepository _userMessageRepository;
         private IUserProfileRepository _userProfileRepository;
-        protected readonly UserProfileContext _context;
+        private readonly UserProfileContext _context;
         #endregion
         public SocialNetwork(string connection)
         {
@@ -40,14 +42,35 @@ namespace DataLayer.UnitOfWorks
             return _userMessageRepository ?? (_userMessageRepository = new UserMessageRepository(_context));
         }
 
+        public async Task<IUserMessageRepository> GetUserMessageRepositoryAsync()
+        {
+            var task = new Task<IUserMessageRepository>(GetUserMessageRepository);
+            task.Start();
+            return await task; 
+        }
+
         public IUserProfileRepository GetUserProfileRepository()
         {
             return _userProfileRepository ?? (_userProfileRepository = new UserProfileRepository(_context));
         }
 
+        public async Task<IUserProfileRepository> GetUserProfileRepositoryAsync()
+        {
+            var task = new Task<IUserProfileRepository>(GetUserProfileRepository);
+            task.Start();
+            return await task;
+        }
+
         public IFriendRepository GetFriendRepository()
         {
             return _friendRepository ?? (_friendRepository = new FriendRepository(_context));
+        }
+
+        public async Task<IFriendRepository> GetFriendRepositoryAsync()
+        {
+            var task = new Task<IFriendRepository>(GetFriendRepository);
+            task.Start();
+            return await task;
         }
         #endregion
         #region ITransaction
@@ -56,25 +79,68 @@ namespace DataLayer.UnitOfWorks
             _context.SaveChanges();
         }
 
-        public void Remove<T>(T entity) where T : Entity
+        public async Task CommitAsync()
         {
-            _context.Set<T>().Attach(entity);
-            _context.Set<T>().Remove(entity);
+            await _context.SaveChangesAsync();
         }
 
-        public void RemoveRange<T>(IEnumerable<T> entities) where T : Entity
+        public T Remove<T>(T entity) where T : Entity
         {
-            _context.Set<T>().RemoveRange(entities);
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+            return _context.Set<T>().Remove(entity);
+        }
+
+        public async Task<T> RemoveAsync<T>(T entity) where T : Entity
+        {
+            var task = new Task<T>(() => Remove(entity));
+            task.Start();
+            return await task;
+        }
+
+        public IEnumerable<T> RemoveRange<T>(IEnumerable<T> entities) where T : Entity
+        {
+            if (entities == null)
+                throw new ArgumentNullException(nameof(entities));
+
+            return _context.Set<T>().RemoveRange(entities);
+        }
+
+        public async Task<IEnumerable<T>> RemoveRangeAsync<T>(IEnumerable<T> entities) where T : Entity
+        {
+            var task = new Task<IEnumerable<T>>(() => RemoveRange(entities));
+            task.Start();
+            return await task;
         }
 
         public T Add<T>(T entity) where T : Entity
         {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
             return _context.Set<T>().Add(entity);
+        }
+
+        public async Task<T> AddAsync<T>(T entity) where T : Entity
+        {
+            var task = new Task<T>(() => Add(entity));
+            task.Start();
+
+            return await task;
         }
 
         public IEnumerable<T> AddRange<T>(IEnumerable<T> entities) where T : Entity
         {
+            if (entities == null)
+                throw new ArgumentNullException(nameof(entities));
             return _context.Set<T>().AddRange(entities);
+        }
+
+        public async Task<IEnumerable<T>> AddRangeAsync<T>(IEnumerable<T> entities) where T : Entity
+        {
+            var task = new Task<IEnumerable<T>>(() => AddRange(entities));
+            task.Start();
+
+            return await task;
         }
         #endregion
     }
