@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
@@ -196,7 +197,7 @@ namespace BusinessLayer.BusinessModels
             public List<UserMessageDTO> GetLastMessages()
             {
                 var messages = _socialNetwork.GetUserMessageRepository().GetAll().Where(m => (m.FromUserId == _socialNetworkFunctionality.Id || m.ToUserId == _socialNetworkFunctionality.Id)).ToList()
-                    .GroupBy(d => /*d.FromUserId*/new { d.FromUserId, d.ToUserId })
+                    .GroupBy(d => new { d.FromUserId, d.ToUserId })
                     .Select(d => d.Select(m => m).LastOrDefault())
                     .ToList();
 
@@ -225,10 +226,13 @@ namespace BusinessLayer.BusinessModels
 
             public async Task<List<UserMessageDTO>> GetLastMessagesAsync()
             {
-                var messages = await (await  _socialNetwork.GetUserMessageRepositoryAsync()).GetAll().Where(m => (m.FromUserId == _socialNetworkFunctionality.Id || m.ToUserId == _socialNetworkFunctionality.Id))
-                    .GroupBy(d => /*d.FromUserId*/new { d.FromUserId, d.ToUserId })
-                    .Select(d => d.Select(m => m).LastOrDefault())
-                    .ToListAsync();
+                var repository = await _socialNetwork.GetUserMessageRepositoryAsync();
+
+                var messages = (await repository.GetAll().Where(m => (m.FromUserId == _socialNetworkFunctionality.Id ||
+                                                                      m.ToUserId == _socialNetworkFunctionality.Id))
+                        .ToListAsync())
+                    .GroupBy(d => new {d.FromUserId, d.ToUserId})
+                    .Select(d => d.Select(m => m).LastOrDefault()).ToList();
 
                 var fromMe = messages.Where(m => m.FromUserId == _socialNetworkFunctionality.Id).ToList();
                 var toMe = messages.Where(m => m.ToUserId == _socialNetworkFunctionality.Id).ToList();

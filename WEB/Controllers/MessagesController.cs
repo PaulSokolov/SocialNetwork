@@ -23,7 +23,7 @@ namespace WEB.Controllers
             ViewBag.Avatar = soc.Users.Avatar;
             ViewBag.NewFriends = soc.Friends.Counters.Requests;
 
-            var dialogs = new List<DialogModel>();
+            var dialogModels = new List<DialogModel>();
             //foreach (var lastMessage in await soc.Messages.GetLastMessagesAsync())
             //{
             //    if (lastMessage.FromUserId == soc.Id)
@@ -50,11 +50,11 @@ namespace WEB.Controllers
             //            IsRead = lastMessage.IsRead
             //        });
             //}
-
-            Parallel.ForEach(await soc.Messages.GetLastMessagesAsync(), (lastMessage) =>
+            var dialogs = await soc.Messages.GetLastMessagesAsync();
+            Parallel.ForEach(dialogs, (lastMessage) =>
             {
                 if (lastMessage.FromUserId == soc.Id)
-                    dialogs.Add(new DialogModel
+                    dialogModels.Add(new DialogModel
                     {
                         Name = lastMessage.ToUser.Name,
                         Surname = lastMessage.ToUser.LastName,
@@ -66,7 +66,7 @@ namespace WEB.Controllers
                         IsRead = lastMessage.IsRead
                     });
                 else
-                    dialogs.Add(new DialogModel
+                    dialogModels.Add(new DialogModel
                     {
                         Name = lastMessage.FromUser.Name,
                         Surname = lastMessage.FromUser.LastName,
@@ -77,7 +77,7 @@ namespace WEB.Controllers
                         IsRead = lastMessage.IsRead
                     });
             });
-            return View(dialogs);
+            return View(dialogModels);
         }
 
         public async Task<ActionResult> Dialog(long id)
