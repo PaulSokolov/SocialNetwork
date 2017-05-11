@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace DataLayer.Interfaces
 {
@@ -8,5 +9,9 @@ namespace DataLayer.Interfaces
         ICityRepository GetCityRepository();
         ILanguageRepository GetLanguageRepository();
         bool LazyLoad { get; set; }
+
+        Task<ICountryRepository> GetCountryRepositoryAsync();
+        Task<ICityRepository> GetCityRepositoryAsync();
+        Task<ILanguageRepository> GetLanguageRepositoryAsync();
     }
 }

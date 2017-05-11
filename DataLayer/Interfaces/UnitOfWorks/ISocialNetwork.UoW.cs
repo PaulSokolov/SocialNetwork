@@ -7,7 +7,10 @@ namespace DataLayer.Interfaces
         IFriendRepository GetFriendRepository();
         IUserMessageRepository GetUserMessageRepository();
         IUserProfileRepository GetUserProfileRepository();
-
         bool LazyLoad { get; set; }
+
+        Task<IFriendRepository> GetFriendRepositoryAsync();
+        IUserMessageRepository GetUserMessageRepositoryAsync();
+        IUserProfileRepository GetUserProfileRepositoryAsync();
     }
 }
