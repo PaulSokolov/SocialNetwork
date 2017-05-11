@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using DataLayer.Entities;
 
 namespace DataLayer.Interfaces
@@ -7,5 +8,8 @@ namespace DataLayer.Interfaces
     {
         IQueryable<UserProfile> GetAll();
         UserProfile Get(string id);
+
+        Task<IQueryable<UserProfile>> GetAllAsync();
+        Task<UserProfile> GetAsync(string id);
     }
 }

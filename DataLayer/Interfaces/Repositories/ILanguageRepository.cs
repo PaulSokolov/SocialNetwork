@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using DataLayer.Entities;
 
 namespace DataLayer.Interfaces
@@ -7,5 +8,7 @@ namespace DataLayer.Interfaces
     {
         IQueryable<Language> GetAll();
         Language GetLanguage(long id);
+        Task<IQueryable<Language>> GetAllAsync();
+        Task<Language> GetLanguageAsync(long id);
     }
 }

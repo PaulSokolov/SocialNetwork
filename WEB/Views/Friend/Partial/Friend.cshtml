@@ -3,7 +3,7 @@
     <div class="friends">
         <div class="media">
             <div class="media-left media-top">
-                <a href="#" style="position: relative;">
+                <a href="@Url.Action("User","Home", new { id = Model.PublicId})" style="position: relative;">
                     <img class="media-object dialog_image_user" src="@Model.Avatar" alt="...">
                 </a>
             </div>
@@ -23,7 +23,7 @@
                 <h5 class="media-heading">@string.Format("{0} {1}", Model.Name, Model.Surname)</h5>
                 <span>@Model.Address</span>
                 <br />
-                <a href="#">Write message</a>
+                <a href="@Url.Action("Dialog","Messages", new { id = Model.PublicId})">Write message</a>
             </div>
         </div>
     </div>
