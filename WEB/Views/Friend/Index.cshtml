@@ -7,10 +7,7 @@
     <h1>@ViewBag.time</h1>
     <div class="col-md-6">
         <div id="result">
-            @foreach (var friend in Model)
-            {
-                Html.RenderPartial("Partial/Friend", friend);
-            }
+            @{ Html.RenderPartial("Partial/Friends", Model); }
         </div>
     </div>
     <div class="col-md-3">
