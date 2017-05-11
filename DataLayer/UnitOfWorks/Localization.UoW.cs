@@ -11,7 +11,7 @@ namespace DataLayer.UnitOfWorks
         private ICityRepository _cityRepository;
         private ICountryRepository _countryRepository;
         private ILanguageRepository _languageRepository;
-        protected readonly LocalizationContext _context;
+        private readonly LocalizationContext _context;
 
         public bool LazyLoad { get => _context.Configuration.LazyLoadingEnabled; set => _context.Configuration.LazyLoadingEnabled = value; }
 

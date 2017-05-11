@@ -103,9 +103,9 @@
     <Compile Include="Interfaces\UnitOfWorks\ILocalization.UoW.cs" />
     <Compile Include="Interfaces\UnitOfWorks\ISocialNetwork.UoW.cs" />
     <Compile Include="Interfaces\UnitOfWorks\ITransaction.cs" />
-    <Compile Include="Migrations\201705081920379_newDataBase.cs" />
-    <Compile Include="Migrations\201705081920379_newDataBase.Designer.cs">
-      <DependentUpon>201705081920379_newDataBase.cs</DependentUpon>
+    <Compile Include="Migrations\201705110711279_updatedFriendsEntity.cs" />
+    <Compile Include="Migrations\201705110711279_updatedFriendsEntity.Designer.cs">
+      <DependentUpon>201705110711279_updatedFriendsEntity.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -130,8 +130,8 @@
     <Folder Include="Repositories\Identity\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201705081920379_newDataBase.resx">
-      <DependentUpon>201705081920379_newDataBase.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201705110711279_updatedFriendsEntity.resx">
+      <DependentUpon>201705110711279_updatedFriendsEntity.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

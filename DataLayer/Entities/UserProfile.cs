@@ -16,6 +16,7 @@ namespace DataLayer.Entities
         public string Name { get; set; }
         [Required]
         public string LastName { get; set; }
+        [Required]
         public string Address { get; set; }
         public DateTime? ActivatedDate { get; set; }
         public DateTime? LastVisitDateTime { get; set; }
@@ -26,7 +27,9 @@ namespace DataLayer.Entities
         public bool AboutIsHidden { get; set; }
         public string Activity { get; set; }
         public bool ActivityIsHidden { get; set; }
+        [Required]
         public long? CityId { get; set; }
+        [Required]
         public string Email { get; set; }
         public bool EmailIsHidden { get; set; }
         [ForeignKey("CityId")]
