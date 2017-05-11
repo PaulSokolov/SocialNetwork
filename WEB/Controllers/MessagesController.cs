@@ -79,7 +79,7 @@ namespace WEB.Controllers
                 };
                 if (!mes.IsRead && mes.FromUserId != soc.Id)
                 {
-                    message.IsRead = soc.Messages.ReadMessage(mes.Id).IsRead;
+                    message.IsRead = soc.Messages.Read(mes.Id).IsRead;
                 }
                 dialog.Add(message);
             }
