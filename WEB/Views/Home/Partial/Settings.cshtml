@@ -20,23 +20,16 @@
         </div>
         <div class="row my_form">
             <div class="col-md-12">
-                @Html.LabelFor(model => model.Email)
-                @Html.EditorFor(model => model.Email, new { htmlAttributes = new { placeholder = "Email", @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
-            </div>
-        </div>
-        <div class="row my_form">
-            <div class="col-md-12">
-                @Html.LabelFor(model=>model.EmailIsHidden)
+                @Html.LabelFor(model => model.EmailIsHidden)
                 @Html.EditorFor(model => model.EmailIsHidden, new { htmlAttributes = new { placeholder = "EmailIsHidden", @class = "form-control checkbox" } })
                 @Html.ValidationMessageFor(model => model.EmailIsHidden, "", new { @class = "text-danger" })
             </div>
         </div>
         <div class="row my_form">
             <div class="col-md-12">
-                @Html.LabelFor(model => model.About)
-                @Html.EditorFor(model => model.About, new { htmlAttributes = new { placeholder = "About", @class = "form-control", rows="3" } })
-                @Html.ValidationMessageFor(model => model.About, "", new { @class = "text-danger" })
+                @Html.LabelFor(model => model.Email)
+                @Html.EditorFor(model => model.Email, new { htmlAttributes = new { placeholder = "Email", @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
             </div>
         </div>
         <div class="row my_form">
@@ -48,9 +41,9 @@
         </div>
         <div class="row my_form">
             <div class="col-md-12">
-                @Html.LabelFor(model => model.Activity)
-                @Html.EditorFor(model => model.Activity, new { htmlAttributes = new { placeholder = "Activity", @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Activity, "", new { @class = "text-danger" })
+                @Html.LabelFor(model => model.About)
+                @Html.EditorFor(model => model.About, new { htmlAttributes = new { placeholder = "About", @class = "form-control", rows="3" } })
+                @Html.ValidationMessageFor(model => model.About, "", new { @class = "text-danger" })
             </div>
         </div>
         <div class="row my_form">
@@ -62,9 +55,9 @@
         </div>
         <div class="row my_form">
             <div class="col-md-12">
-                @Html.LabelFor(model => model.BirthDate)
-                @Html.EditorFor(model => model.BirthDate, new { htmlAttributes = new { placeholder = "Birthdate", @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.BirthDate, "", new { @class = "text-danger" })
+                @Html.LabelFor(model => model.Activity)
+                @Html.EditorFor(model => model.Activity, new { htmlAttributes = new { placeholder = "Activity", @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Activity, "", new { @class = "text-danger" })
             </div>
         </div>
         <div class="row my_form">
@@ -74,6 +67,13 @@
                 @Html.ValidationMessageFor(model => model.BirthDateIsHidden, "", new { @class = "text-danger" })
             </div>
         </div>
+        @*<div class="row my_form">
+            <div class="col-md-12">
+                @Html.LabelFor(model => model.BirthDate)
+                @Html.EditorFor(model => model.BirthDate, new { htmlAttributes = new { placeholder = "Birthdate", @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.BirthDate, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
         <div class="row my_form">
             <div class="col-md-12">
                 @Html.LabelFor(model => model.Address)

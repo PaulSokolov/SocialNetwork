@@ -65,7 +65,7 @@ namespace BusinessLayer.BusinessModels
                 UserProfile up = _socialNetwork.GetUserProfileRepository().Get(user.Id);
 
                 up.ModifiedDate = _socialNetworkFunctionality._now();
-                up.Avatar = up.Avatar;
+                up.Avatar = user.Avatar;
                 up.About = user.About;
                 up.AboutIsHidden = user.AboutIsHidden;
                 up.Activity = user.Activity;

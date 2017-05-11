@@ -65,7 +65,7 @@ namespace WEB.Controllers
             ViewBag.Friends = soc.Friends.Counters.Friends;
             ViewBag.MyPublicId = soc.Users.PublicId;
 
-            var friends = user.Friends.Where(f => f.Confirmed && f.Deleted == false).Select(f => f.Friended).ToList();
+            var friends = soc.Friends.GetFriends();
 
             return View(new ProfileModel
             {
@@ -81,7 +81,7 @@ namespace WEB.Controllers
                 City =user.City, Email=user.Email,
                 EmailIsHidden =user.EmailIsHidden,
                 LastName =user.LastName,
-                Name =user.LastName,
+                Name =user.Name,
                 Role =user.Role,
                 Sex =user.Sex,
                 Friends=friends,
@@ -161,7 +161,7 @@ namespace WEB.Controllers
                 Activity = user.Activity,
                 ActivityIsHidden = user.ActivityIsHidden,
                 Address = user.Address,
-                BirthDate = user.BirthDate,
+                //BirthDate = user.BirthDate,
                 BirthDateIsHidden = user.BirthDateIsHidden,
                 CityId = user.CityId,
                 CountryId = user.City.CountryId,
@@ -195,7 +195,7 @@ namespace WEB.Controllers
             user.Activity = model.Activity;
             user.ActivityIsHidden = model.ActivityIsHidden;
             user.Address = model.Address;
-            user.BirthDate = model.BirthDate;
+            //user.BirthDate = model.BirthDate;
             user.BirthDateIsHidden = model.BirthDateIsHidden;
             user.CityId = model.CityId;
             user.Email = model.Email;

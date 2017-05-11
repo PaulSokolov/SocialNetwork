@@ -72,7 +72,7 @@
                         <div class="row">
                             @foreach (var friend in Model.Friends)
                             {
-                                <div class="col-md-4"><a href="/Home/User/@friend.PublicId"><img class="friends_panel_images" src="@friend.Avatar" alt=""><p>@string.Format("{0}", friend.Name)</p></a></div>
+                                <div class="col-md-4"><a href="/Home/User/@friend.PublicId"><img class="friends_panel_images" src="@friend.Avatar" alt=""><p>@($"{friend.Name}")</p></a></div>
                             }
                         </div>
                     </div>
@@ -84,13 +84,13 @@
         <div class="border">
             <div class="row">
                 <div class="col-md-12">
-                    <h4>@string.Format("{0} {1}", Model.Name, Model.LastName)</h4>
+                    <h4>@($"{Model.Name} {Model.LastName}")</h4>
                 </div>
                 <div id="info" class="col-md-12">
                     <ul class="information">
                         @if (!Model.BirthDateIsHidden)
                         {
-                            <li>Birthday<span style="float:right;">@Model.BirthDate.ToString()</span></li>
+                            <li>Birthday<span style="float:right;">@Model.BirthDate.Value.ToShortDateString()</span></li>
                         }
                         <li>City<span style="float:right;">@Model.City.Name</span></li>
                         <li>Languages<span style="float:right;">@string.Join(",", Model.Languages.Select(l => l.Name))</span></li>

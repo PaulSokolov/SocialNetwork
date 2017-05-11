@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Web.WebPages;
 using BusinessLayer.DTO;
 
 namespace SocialNetwork.Models
@@ -14,19 +16,19 @@ namespace SocialNetwork.Models
         [Required]
         public string Address { get; set; }
         [DataType(DataType.Date)]
-        [Required]
-        public DateTime? BirthDate { get; set; }
-        [Required]
+        //[Required]
+        //public DateTime? BirthDate { get; set; }
+        [Required,DisplayName("Hide birthdate")]
         public bool BirthDateIsHidden { get; set; }
         [Required]
         [DataType(DataType.MultilineText)]
         public string About { get; set; }
-        [Required]
+        [Required, DisplayName("Hide about")]
         public bool AboutIsHidden { get; set; }
         [Required]
         [DataType(DataType.MultilineText)]
         public string Activity { get; set; }
-        [Required]
+        [Required, DisplayName("Hide activities")]
         public bool ActivityIsHidden { get; set; }
         [Required]
         public long? CityId { get; set; }

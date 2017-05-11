@@ -68,6 +68,7 @@ namespace WEB.Controllers
             await SetInitialDataAsync();
 
             if (!ModelState.IsValid) return View(model);
+
             var userDto = new UserProfileDTO
             {
 
@@ -87,6 +88,7 @@ namespace WEB.Controllers
 
             if (operationDetails.Succedeed)
                 return View("SuccessRegister");
+
             ModelState.AddModelError(operationDetails.Property, operationDetails.Message);
 
             return View(model);
