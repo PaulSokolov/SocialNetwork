@@ -201,7 +201,7 @@ namespace WEB.Controllers
             user.Email = model.Email;
             user.EmailIsHidden = model.EmailIsHidden;
             user.LastName = model.Surname;
-            user.Name = model.Surname;
+            user.Name = model.Name;
             user.Sex = model.Sex;
             soc.Users.Update(user);
             return View(model);

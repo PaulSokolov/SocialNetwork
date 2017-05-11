@@ -5,6 +5,7 @@ using BusinessLayer.BusinessModels;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.SignalR;
 using SocialNetwork.Models;
+using WEB.Filters;
 using WEB.Hubs;
 
 namespace WEB.Controllers
@@ -86,7 +87,7 @@ namespace WEB.Controllers
             return View(dialog);
         }
 
-        [HttpPost]
+        [HttpPost, AjaxOnly]
         public ActionResult Send(long recipientId, string message)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());

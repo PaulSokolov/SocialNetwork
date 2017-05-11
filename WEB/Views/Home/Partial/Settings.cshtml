@@ -20,6 +20,13 @@
         </div>
         <div class="row my_form">
             <div class="col-md-12">
+                @Html.LabelFor(model => model.Sex)
+                @Html.EnumDropDownListFor(model => model.Sex, new {  placeholder = "Sex", @class = "form-control select" })
+                @Html.ValidationMessageFor(model => model.Sex, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="row my_form">
+            <div class="col-md-12">
                 @Html.LabelFor(model => model.EmailIsHidden)
                 @Html.EditorFor(model => model.EmailIsHidden, new { htmlAttributes = new { placeholder = "EmailIsHidden", @class = "form-control checkbox" } })
                 @Html.ValidationMessageFor(model => model.EmailIsHidden, "", new { @class = "text-danger" })

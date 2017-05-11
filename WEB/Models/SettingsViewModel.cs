@@ -15,9 +15,6 @@ namespace SocialNetwork.Models
         public string Surname { get; set; }
         [Required]
         public string Address { get; set; }
-        [DataType(DataType.Date)]
-        //[Required]
-        //public DateTime? BirthDate { get; set; }
         [Required,DisplayName("Hide birthdate")]
         public bool BirthDateIsHidden { get; set; }
         [Required]
@@ -38,7 +35,7 @@ namespace SocialNetwork.Models
         public IEnumerable<CountryViewModel> Countries { get; set; }
         [Required]
         public string Email { get; set; }
-        [Required]
+        [Required, DisplayName("Hide email")]
         public bool EmailIsHidden { get; set; }
         [Required]
         public SexDTO? Sex { get; set; }

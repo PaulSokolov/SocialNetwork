@@ -77,7 +77,7 @@ namespace BusinessLayer.BusinessModels
                 up.Email = user.Email;
                 up.EmailIsHidden = user.EmailIsHidden;
                 up.LastName = user.LastName;
-                up.Name = user.LastName;
+                up.Name = user.Name;
                 up.Sex = _socialNetworkFunctionality.Mapper.Map<Sex>(user.Sex);
 
                 up = _socialNetwork.GetUserProfileRepository().Update(up);

@@ -188,6 +188,7 @@
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Controllers\ModeratorController.cs" />
     <Compile Include="Controllers\UsersController.cs" />
+    <Compile Include="Filters\AjaxOnlyAttribute.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
