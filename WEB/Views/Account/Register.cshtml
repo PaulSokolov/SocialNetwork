@@ -41,6 +41,29 @@
             </div>
             <div class="row my_form">
                 <div class="col-md-12">
+                    @Html.LabelFor(model => model.Address)
+                    @Html.EditorFor(model => model.Address, new { htmlAttributes = new { placeholder = "Address", @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="row my_form">
+                <div class="col-md-12">
+                    @Html.LabelFor(model => model.CountryId)
+                    @Html.DropDownListFor(model=> model.CountryId, new SelectList(ViewBag.Countries,"Id", "Name"), "",  new { placeholder = "Countries", @class = "form-control select" } )
+                    @Html.ValidationMessageFor(model => model.CountryId, "", new { @class = "text-danger" })
+               
+                </div>
+            </div>
+            <div class="row my_form">
+                <div class="col-md-12">
+                    @Html.LabelFor(model => model.CityId)
+                    @Html.DropDownListFor(model => model.CityId, new SelectList(ViewBag.Cities, "Id", "Name"),"", new { placeholder = "Cities", @class = "form-control select" })
+                    @Html.ValidationMessageFor(model => model.CityId, "", new { @class = "text-danger" })
+
+                </div>
+            </div>
+            <div class="row my_form">
+                <div class="col-md-12">
                     @Html.EditorFor(model => model.BirthDate, new { htmlAttributes = new { placeholder = "Birthdate", @class = "form-control" } })
                     @Html.ValidationMessageFor(model => model.BirthDate, "", new { @class = "text-danger" })
                 </div>
@@ -51,3 +74,24 @@
         </form>
     </div>
 </div>
+<script>
+    $(function () {
+        $("#CountryId").change(function () {
+            $.ajax({
+                type: "GET",
+                url: "/Home/Cities",
+                data: { countryId: $('#CountryId option:selected' ).val() },
+                dataType: "html",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $("#CityId").empty().prepend(data);
+                },
+                beforeSend: function () { beforeSend('result') },
+                complete: function () { complete('result') },
+                failure: function () {
+                    alert("error");
+                }
+            });
+        });
+    })
+</script>

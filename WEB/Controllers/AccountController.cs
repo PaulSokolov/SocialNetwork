@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using BusinessLayer.BusinessModels;
 using BusinessLayer.DTO;
 using BusinessLayer.Infrastructure;
 using BusinessLayer.Interfaces;
@@ -55,6 +56,9 @@ namespace WEB.Controllers
 
         public ActionResult Register()
         {
+            var soc = new SocialNetworkFunctionalityUser("");
+            ViewBag.Countries = soc.Database.GetAllCountries();
+            ViewBag.Cities = new List<CityDTO>();
             return View();
         }
 
@@ -72,7 +76,9 @@ namespace WEB.Controllers
                 Name = model.Name,
                 LastName=model.Surname,                   
                 Role = "user",
-                BirthDate = model.BirthDate,                    
+                BirthDate = model.BirthDate,
+                CityId = model.CityId,
+                Address = model.Address,
                 ActivatedDate = DateTime.Now
 
             };
