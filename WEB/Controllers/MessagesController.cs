@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using BusinessLayer.BusinessModels;
@@ -54,30 +55,36 @@ namespace WEB.Controllers
             Parallel.ForEach(dialogs, (lastMessage) =>
             {
                 if (lastMessage.FromUserId == soc.Id)
-                    dialogModels.Add(new DialogModel
+                    lock (dialogModels)
                     {
-                        Name = lastMessage.ToUser.Name,
-                        Surname = lastMessage.ToUser.LastName,
-                        MyAvatar = lastMessage.FromUser.Avatar,
-                        SenderAvatar = lastMessage.ToUser.Avatar,
-                        Body = lastMessage.Body,
-                        LastMessageTime = lastMessage.PostedDate,
-                        PublicId = lastMessage.ToUser.PublicId,
-                        IsRead = lastMessage.IsRead
-                    });
+                        dialogModels.Add(new DialogModel
+                        {
+                            Name = lastMessage.ToUser.Name,
+                            Surname = lastMessage.ToUser.LastName,
+                            MyAvatar = lastMessage.FromUser.Avatar,
+                            SenderAvatar = lastMessage.ToUser.Avatar,
+                            Body = lastMessage.Body,
+                            LastMessageTime = lastMessage.PostedDate,
+                            PublicId = lastMessage.ToUser.PublicId,
+                            IsRead = lastMessage.IsRead
+                        });
+                    }
                 else
-                    dialogModels.Add(new DialogModel
+                    lock (dialogModels)
                     {
-                        Name = lastMessage.FromUser.Name,
-                        Surname = lastMessage.FromUser.LastName,
-                        SenderAvatar = lastMessage.FromUser.Avatar,
-                        Body = lastMessage.Body,
-                        LastMessageTime = lastMessage.PostedDate,
-                        PublicId = lastMessage.FromUser.PublicId,
-                        IsRead = lastMessage.IsRead
-                    });
+                        dialogModels.Add(new DialogModel
+                        {
+                            Name = lastMessage.FromUser.Name,
+                            Surname = lastMessage.FromUser.LastName,
+                            SenderAvatar = lastMessage.FromUser.Avatar,
+                            Body = lastMessage.Body,
+                            LastMessageTime = lastMessage.PostedDate,
+                            PublicId = lastMessage.FromUser.PublicId,
+                            IsRead = lastMessage.IsRead
+                        });
+                    }
             });
-            return View(dialogModels);
+            return View(dialogModels.OrderByDescending(d => d.LastMessageTime));
         }
 
         public async Task<ActionResult> Dialog(long id)
@@ -111,7 +118,7 @@ namespace WEB.Controllers
             //    }
             //    dialog.Add(message);
             //}
-            Parallel.ForEach(messages, (mes) =>
+            Parallel.ForEach(messages, async (mes) =>
             {
                 var message = new MessageModel
                 {
@@ -125,14 +132,17 @@ namespace WEB.Controllers
                 };
                 if (!mes.IsRead && mes.FromUserId != soc.Id)
                 {
-                    message.IsRead = soc.Messages.Read(mes.Id).IsRead;
+                    message.IsRead = (await soc.Messages.ReadAsync(mes.Id)).IsRead;
                 }
-                dialog.Add(message);
+                lock (dialog)
+                {
+                    dialog.Add(message);
+                }
             });
-            return View(dialog);
+            return View(dialog.OrderBy(m => m.PostedTime));
         }
 
-        [HttpGet, AjaxOnly]
+        [HttpPost, AjaxOnly]
         public async Task<ActionResult> Send(long recipientId, string message)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
