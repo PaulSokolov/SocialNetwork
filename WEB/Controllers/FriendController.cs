@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using BusinessLayer.BusinessModels;
 using Microsoft.AspNet.Identity;
@@ -14,32 +16,57 @@ namespace WEB.Controllers
     public class FriendController : Controller
     {
 
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            var friends = new List<FriendModel>();
+            var friendModels = new List<FriendModel>();
 
             ViewBag.UnRead = soc.Messages.UnRead;
             ViewBag.Avatar = soc.Users.Avatar;
-            ViewBag.NewFriends = soc.Friends.Counters.Requests;
-            ViewBag.Friends = soc.Friends.Counters.Friends;
-            ViewBag.Followers = soc.Friends.Counters.Followers;
-            ViewBag.Followed = soc.Friends.Counters.Followed;
+            await soc.Friends.Counters.FriendsCounters();
+                var newFriends = soc.Friends.Counters.CountRequestsAync();
+                var friends = soc.Friends.Counters.CountFriendsAync();
+                var followers = soc.Friends.Counters.CountFollowersAync();
+                var followed = soc.Friends.Counters.CountFollowedAync();
+          
 
-            foreach (var friend in soc.Friends.GetFriends())
+            //foreach (var friend in soc.Friends.GetFriends())
+            //{
+            //    friendModels.Add(new FriendModel
+            //    {
+            //        Address = friend.Address,
+            //        Name = friend.Name,
+            //        Surname = friend.LastName,
+            //        PublicId = friend.PublicId,
+            //        Avatar = friend.Avatar,
+            //        IsFriend = true
+            //    });
+            //}
+            Parallel.ForEach(await soc.Friends.GetFriendsAsync(), (friend) =>
             {
-                friends.Add(new FriendModel
+                lock (friendModels)
                 {
-                    Address = friend.Address,
-                    Name = friend.Name,
-                    Surname = friend.LastName,
-                    PublicId = friend.PublicId,
-                    Avatar = friend.Avatar,
-                    IsFriend = true
-                });
-            } 
-            return View(friends);
+                    friendModels.Add(new FriendModel
+                    {
+                        Address = friend.Address,
+                        Name = friend.Name,
+                        Surname = friend.LastName,
+                        PublicId = friend.PublicId,
+                        Avatar = friend.Avatar,
+                        IsFriend = true
+                    });
+                }
+            });
+            //Task.WaitAll();
+
+           
+            ViewBag.NewFriends = newFriends.Result;
+            ViewBag.Friends = friends.Result;
+            ViewBag.Followers = followers.Result;
+            ViewBag.Followed = followed.Result;
+
+            return View(friendModels);
         }
 
         [HttpPost]
