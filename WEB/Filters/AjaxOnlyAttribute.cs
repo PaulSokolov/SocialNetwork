@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Routing;
 
 namespace WEB.Filters
 {
@@ -14,7 +15,9 @@ namespace WEB.Filters
                 base.OnActionExecuting(filterContext);
             else
             {
-                throw new InvalidOperationException("Access denied");
+                filterContext.Result =
+                    new RedirectToRouteResult(
+                        new RouteValueDictionary(new {controller = "Error", action = "Forbidden"}));
             }
         }
     }

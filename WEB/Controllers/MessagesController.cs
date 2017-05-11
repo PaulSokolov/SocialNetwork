@@ -87,7 +87,7 @@ namespace WEB.Controllers
             return View(dialog);
         }
 
-        [HttpPost, AjaxOnly]
+        [HttpGet, AjaxOnly]
         public ActionResult Send(long recipientId, string message)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
