@@ -10,17 +10,17 @@
             <div class="media-body">
                 @if (Model.IsFriend)
                 {
-                    <div id="@string.Format("delete_{0}", Model.PublicId)" class="btn btn-default" style="float: right;top: 0px" onclick="Delete(@Model.PublicId)">Delete</div>
+                    <div id="@($"delete_{Model.PublicId}")" class="btn btn-default" style="float: right;top: 0px" onclick="FriendRequest(@Model.PublicId,'Delete','delete','result')">Delete</div>
                 }
                 else if (Model.IsFollower)
                 {
-                    <div id="@string.Format("follower_{0}", Model.PublicId)" class="btn btn-default" style="float: right;top: 0px " onclick="AddToFriends(@Model.PublicId)">Add to friends</div>
+                    <div id="@($"follower_{Model.PublicId}")" class="btn btn-default" style="float: right;top: 0px " onclick="FriendRequest(@Model.PublicId,'Confirm','result')">Add to friends</div>
                 }
                 else if (Model.IsRequested)
                 {
-                    <div id="@string.Format("followed_{0}", Model.PublicId)" class="btn btn-default" style="float: right;top: 0px " onclick="Unsubscribe(@Model.PublicId)">Unsubscribe</div>
+                    <div id="@($"followed_{Model.PublicId}")" class="btn btn-default" style="float: right;top: 0px " onclick="FriendRequest(@Model.PublicId,'Unsubscribe','result')">Unsubscribe</div>
                 }
-                <h5 class="media-heading">@string.Format("{0} {1}", Model.Name, Model.Surname)</h5>
+                <h5 class="media-heading">@($"{Model.Name} {Model.Surname}")</h5>
                 <span>@Model.Address</span>
                 <br />
                 <a href="@Url.Action("Dialog","Messages", new { id = Model.PublicId})">Write message</a>

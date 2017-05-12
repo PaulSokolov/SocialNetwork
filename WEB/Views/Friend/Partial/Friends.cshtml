@@ -1,0 +1,6 @@
+﻿@model IEnumerable<SocialNetwork.Models.FriendModel>
+    
+@foreach (var friend in Model)
+{
+    Html.RenderPartial("Partial/Friend", friend);
+}

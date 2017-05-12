@@ -300,7 +300,7 @@ namespace BusinessLayer.BusinessModels
                 friend.DeleteDate = deletedDate;
                 friend.Deleted = true;
 
-                var res = _socialNetwork.GetFriendRepository().UpdateAsync(friend);
+                var resTask = _socialNetwork.GetFriendRepository().UpdateAsync(friend);
 
                 Friend deletedFriend = await friendRepository.GetFriendAsync(userToDelete, _socialNetworkFunctionality.Id);
 
@@ -308,11 +308,11 @@ namespace BusinessLayer.BusinessModels
                 deletedFriend.Deleted = true;
                 deletedFriend.DeleteDate = deletedDate;
 
-                _socialNetwork.GetFriendRepository().UpdateAsync(deletedFriend);
-                Task.WaitAll();
+                var updateTask = _socialNetwork.GetFriendRepository().UpdateAsync(deletedFriend);
+                await Task.WhenAll(resTask, updateTask);
                 await _socialNetwork.CommitAsync();
 
-                return _socialNetworkFunctionality.Mapper.Map<FriendDTO>(res.Result);
+                return _socialNetworkFunctionality.Mapper.Map<FriendDTO>(resTask.Result);
             }
 
             public void Unsubscribe(long unsubscribeId)

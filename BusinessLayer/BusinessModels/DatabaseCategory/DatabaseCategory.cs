@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using BusinessLayer.BusinessModels.Exeptions;
 using BusinessLayer.DTO;
 using DataLayer.Entities;
 using DataLayer.Interfaces;
 using DataLayer.UnitOfWorks;
+using System.Threading.Tasks;
 
 namespace BusinessLayer.BusinessModels
 {
@@ -75,6 +77,12 @@ namespace BusinessLayer.BusinessModels
                 return _socialNetworkFunctionality.Mapper.Map<List<City>, List<CityDTO>>(cities);
             }
 
+            public async Task<List<CityDTO>> GetCitiesAsync(long countryId)
+            {
+                var cities = await _localization.GetCityRepository().GetAll().Where(c => c.CountryId == countryId).ToListAsync();
+                return _socialNetworkFunctionality.Mapper.Map<List<City>, List<CityDTO>>(cities);
+            }
+
             public CityDTO GetCityById(long id)
             {
                 City city = _localization.GetCityRepository().GetCity(id);
@@ -84,6 +92,12 @@ namespace BusinessLayer.BusinessModels
             public List<CountryDTO> GetAllCountries()
             {
                 var countries = _localization.GetCountryRepository().GetAll().ToList();
+                return _socialNetworkFunctionality.Mapper.Map<List<Country>, List<CountryDTO>>(countries);
+            }
+
+            public async Task<List<CountryDTO>> GetAllCountriesAsync()
+            {
+                var countries = await _localization.GetCountryRepository().GetAll().ToListAsync();
                 return _socialNetworkFunctionality.Mapper.Map<List<Country>, List<CountryDTO>>(countries);
             }
 
