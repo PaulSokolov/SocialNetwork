@@ -12,6 +12,7 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using SocialNetwork.Models;
 using SocialNetwork.Models.AdminViewModels;
+using WEB.Filters;
 
 namespace WEB.Controllers
 {
@@ -25,25 +26,25 @@ namespace WEB.Controllers
             return View();
         }
 
-        [HttpGet]
+        [HttpGet, AjaxOnly]
         public ActionResult CreateUser()
         {
             return PartialView("Partial/CreateUser");
         }
 
-        [HttpGet]
+        [HttpGet, AjaxOnly]
         public ActionResult DeleteUser()
         {
             return PartialView("Partial/DeleteUser");
         }
 
-        [HttpGet]
+        [HttpGet, AjaxOnly]
         public ActionResult CreateRole()
         {
             return PartialView("Partial/CreateRole");
         }
 
-        [HttpGet]
+        [HttpGet, AjaxOnly]
         public ActionResult DeleteRole()
         {
             var roles = new List<RoleModel>();
@@ -55,36 +56,38 @@ namespace WEB.Controllers
             return PartialView("Partial/DeleteRole", roles);
         }
 
-        [HttpGet]
-        public ActionResult ManageRoles()
+        [HttpGet, AjaxOnly]
+        public async Task<ActionResult> ManageRoles()
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             var usersWithRoles = new List<ManageUserRolesModel>();
-            foreach (var user in soc.Users.Search())
+            Parallel.ForEach(await soc.Users.SearchAsync(), user =>
             {
                 var userRole = UserService.GetRoles(user.Id);
                 var availableRoles = UserService.GetRoles().Except(userRole).ToList();
-                usersWithRoles.Add(new ManageUserRolesModel
+                lock (usersWithRoles)
                 {
-                    Name = user.Name,
-                    Surname = user.LastName,
-                    PublicId = user.PublicId,
-                    Avatar = user.Avatar,
-                    Roles = userRole,
-                    AvailableRoles = availableRoles
-                });
-
-            }
+                    usersWithRoles.Add(new ManageUserRolesModel
+                    {
+                        Name = user.Name,
+                        Surname = user.LastName,
+                        PublicId = user.PublicId,
+                        Avatar = user.Avatar,
+                        Roles = userRole,
+                        AvailableRoles = availableRoles
+                    });
+                }
+            });
             return PartialView("Partial/ManageRoles", usersWithRoles);
         }
 
-        [HttpPost]
+        [HttpPost, AjaxOnly]
         public async Task<ActionResult> AddToRole(long publicId, string role)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            var user = soc.Users.GetByPublicId(publicId);
+            var user = await soc.Users.GetByPublicIdAsync(publicId);
             await UserService.AddToRoleAsync(user.Id, role);
             var userRole = UserService.GetRoles(user.Id);
             var availableRoles = UserService.GetRoles().Except(userRole).ToList();
@@ -101,12 +104,12 @@ namespace WEB.Controllers
             return PartialView("Partial/ManageRoleRow", model);
         }
 
-        [HttpPost]
+        [HttpPost, AjaxOnly]
         public async Task<ActionResult> RemoveFromRole(long publicId, string role)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            var user = soc.Users.GetByPublicId(publicId);
+            var user = await soc.Users.GetByPublicIdAsync(publicId);
             await UserService.RemoveFromRoleAsync(user.Id, role);
             var userRole = UserService.GetRoles(user.Id);
             var availableRoles = UserService.GetRoles().Except(userRole).ToList();
@@ -123,7 +126,7 @@ namespace WEB.Controllers
             return PartialView("Partial/ManageRoleRow", model);
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken, AjaxOnly]
         public async Task<ActionResult> CreateUser(RegisterModel model)
         {
             if (!ModelState.IsValid) return PartialView("Partial/CreateUser", model);
@@ -148,14 +151,14 @@ namespace WEB.Controllers
             return PartialView("Partial/CreateUser", model);
         }
         //TODO: design
-        [HttpPost]
+        [HttpPost, AjaxOnly]
         public async Task<ActionResult> DeleteUser(long? publicId)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             if (!ModelState.IsValid) return HttpNotFound();
 
-            UserProfileDTO userDto = soc.Users.GetByPublicId((long)publicId);
+            UserProfileDTO userDto = await soc.Users.GetByPublicIdAsync((long)publicId);
             OperationDetails operationDetails = await UserService.Delete(userDto);
 
             if (operationDetails.Succedeed)
@@ -165,7 +168,7 @@ namespace WEB.Controllers
             return Content($"<div class=\"row\">{userDto.Name} {userDto.LastName} deleted successfully</div>");
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken, AjaxOnly]
         public async Task<ActionResult> CreateRole(RoleModel role)
         {
             if (!ModelState.IsValid) return PartialView("Partial/CreateRole", role);
@@ -180,33 +183,47 @@ namespace WEB.Controllers
             return PartialView("Partial/CreateRole", role);
         }
 
-        [HttpPost]
+        [HttpPost, AjaxOnly]
         public async Task<ActionResult> DeleteRole(string role)
         {
             OperationDetails operationDetails = await UserService.DeleteRole(role);
             return operationDetails.Succedeed ? View("SuccessRegister") : View();
         }
 
-        [HttpPost]
-        public ActionResult Search(string search, int? ageFrom, int? ageTo, long? cityId, long? countryId, string activityConcurence, string aboutConcurence, int? sex, short? sort)
+        [HttpPost, AjaxOnly]
+        public async Task<ActionResult> Search(string search, int? ageFrom, int? ageTo, long? cityId, long? countryId, string activityConcurence, string aboutConcurence, int? sex, short? sort)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            ViewBag.Unread = soc.Messages.UnRead;
-            ViewBag.NewFriends = soc.Friends.Counters.Requests;
-            ViewBag.MyPublicId = soc.Users.PublicId;
+            #region Parallel operations
+            var unread = soc.Messages.GetUnreadAsync();
+            var newFriends = soc.Friends.Counters.CountRequestsAync();
+            var myPublicId = soc.Users.GetPublicIdAsync();
+            #endregion
 
-            var users = soc.Users.Search(search, ageFrom, ageTo, cityId, countryId, activityConcurence, aboutConcurence, sex, sort);
 
-            var models = users.Select(user => new UserDeleteModel
+            var users = await soc.Users.SearchAsync(search, ageFrom, ageTo, cityId, countryId, activityConcurence, aboutConcurence, sex, sort);
+            var models = new List<UserDeleteModel>();
+            Parallel.ForEach(users, user =>
+            {
+                lock (models)
                 {
-                    Name = user.Name,
-                    Surname = user.LastName,
-                    Address = user.Address,
-                    Avatar = user.Avatar,
-                    PublicId = user.PublicId
-                })
-                .ToList();
+                    models.Add(new UserDeleteModel
+                    {
+                        Name = user.Name,
+                        Surname = user.LastName,
+                        Address = user.Address,
+                        Avatar = user.Avatar,
+                        PublicId = user.PublicId
+                    });
+                }
+            });
+
+            await Task.WhenAll(unread, newFriends, myPublicId);
+
+            ViewBag.Unread = unread.Result;
+            ViewBag.NewFriends = newFriends.Result;
+            ViewBag.MyPublicId = myPublicId.Result;
 
             return PartialView("Partial/Users", models);
         }

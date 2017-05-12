@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using BusinessLayer.BusinessModels;
 using Microsoft.AspNet.Identity;
@@ -18,7 +19,7 @@ namespace WEB.Controllers
         }
 
         [HttpPost]
-        public ActionResult UserMessages(long? publicId)
+        public async Task<ActionResult> UserMessages(long? publicId)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
@@ -27,8 +28,8 @@ namespace WEB.Controllers
             var models = new List<MessageModeratorModel>();
             if (publicId == null) return PartialView("Partial/UserMessages", models);
 
-            var user = soc.Users.GetByPublicId((long)publicId);
-            var messages = soc.Messages.GetAllMessagesByUserId(user.Id);
+            var user = await soc.Users.GetByPublicIdAsync((long)publicId);
+            var messages = await soc.Messages.GetAllMessagesByUserIdAsync(user.Id);
 
             foreach (var message in messages)
             {
@@ -91,53 +92,58 @@ namespace WEB.Controllers
         }
 
         [HttpPost]
-        public ActionResult SearchMessages(long? publicId, string body)
+        public async Task<ActionResult> SearchMessages(long? publicId, string body)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            var user = soc.Users.GetByPublicId((long)publicId);
-            var messages = soc.Messages.GetAllMessagesByUserId(user.Id).Where(m => m.Body.ToLower().Contains(body.ToLower()));
-
-            var models = messages.Select(message => new MessageModeratorModel
+            var user = await soc.Users.GetByPublicIdAsync((long)publicId);
+            var messages = (await soc.Messages.GetAllMessagesByUserIdAsync(user.Id)).Where(m => m.Body.ToLower().Contains(body.ToLower()));
+            List<MessageModeratorModel> models = new List<MessageModeratorModel>();
+            Parallel.ForEach(messages, (message) =>
+            {
+                lock (models)
                 {
-                    Id = message.Id,
-                    UserAvatar = message.FromUser.Avatar,
-                    UserName = message.FromUser.Name,
-                    UserSurname = message.FromUser.LastName,
-                    UserPublicId = message.FromUser.PublicId,
-                    RecipientAvatar = message.ToUser.Avatar,
-                    RecipientName = message.ToUser.Name,
-                    RecipientSurname = message.ToUser.LastName,
-                    RecipientPublicId = message.ToUser.PublicId,
-                    Body = message.Body,
-                    PostedDate = message.PostedDate,
-                    LastModifiedDate = message.ModifiedDate
-                })
-                .ToList();
+                    models.Add(new MessageModeratorModel
+                    {
+                        Id = message.Id,
+                        UserAvatar = message.FromUser.Avatar,
+                        UserName = message.FromUser.Name,
+                        UserSurname = message.FromUser.LastName,
+                        UserPublicId = message.FromUser.PublicId,
+                        RecipientAvatar = message.ToUser.Avatar,
+                        RecipientName = message.ToUser.Name,
+                        RecipientSurname = message.ToUser.LastName,
+                        RecipientPublicId = message.ToUser.PublicId,
+                        Body = message.Body,
+                        PostedDate = message.PostedDate,
+                        LastModifiedDate = message.ModifiedDate
+                    });
+                }
+            });
 
             return PartialView("Partial/MessagesTable", models);
         }
 
-        public ActionResult AutocompleteSearchMessages(string term)
+        public async Task<ActionResult> AutocompleteSearchMessages(string term)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            var searchResult = soc.Users.Search(term);
+            var searchResult = await soc.Users.SearchAsync(term);
             var users = searchResult.Select(u => new { name = u.Name, avatar = u.Avatar, lastName = u.LastName, publicId = u.PublicId, address = u.Address.Length > 30 ? u.Address.Substring(0, 30) : u.Address }).ToList();
 
             return Json(users, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
-        public ActionResult Search(string search, int? ageFrom, int? ageTo, long? cityId, long? countryId, string activityConcurence, string aboutConcurence, int? sex, short? sort)
+        public async Task<ActionResult> Search(string search, int? ageFrom, int? ageTo, long? cityId, long? countryId, string activityConcurence, string aboutConcurence, int? sex, short? sort)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            var users = soc.Users.Search(search, ageFrom, ageTo, cityId, countryId, activityConcurence, aboutConcurence, sex, sort);
+            var users = await soc.Users.SearchAsync(search, ageFrom, ageTo, cityId, countryId, activityConcurence, aboutConcurence, sex, sort);
 
             var models = new List<UserDeleteModel>();
 
-            foreach (var user in users)
+            Parallel.ForEach(users, user =>
             {
                 var model = new UserDeleteModel
                 {
@@ -147,8 +153,11 @@ namespace WEB.Controllers
                     Avatar = user.Avatar,
                     PublicId = user.PublicId
                 };
-                models.Add(model);
-            }
+                lock (models)
+                {
+                    models.Add(model);
+                }
+            }); 
 
             return PartialView("Partial/Users", models);
         }

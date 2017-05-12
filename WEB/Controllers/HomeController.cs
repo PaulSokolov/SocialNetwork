@@ -22,7 +22,7 @@ namespace WEB.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult Index(HttpPostedFileBase file)
+        public async Task<ActionResult> Index(HttpPostedFileBase file)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
@@ -35,9 +35,9 @@ namespace WEB.Controllers
                     var filePath = $"/Images/avatar{User.Identity.GetUserId()}.jpg";
                     string path = Path.Combine(Server.MapPath("~/Images"),
                                                Path.GetFileName("avatar" + User.Identity.GetUserId()+".jpg"));
-                    var user = soc.Users.Get(User.Identity.GetUserId());
+                    var user = await soc.Users.GetAsync(User.Identity.GetUserId());
                     user.Avatar = filePath;
-                    user = soc.Users.Update(user);
+                    user = await soc.Users.UpdateAsync(user);
 
                     file.SaveAs(path);
                     ViewBag.Message = "File uploaded successfully";
@@ -58,22 +58,24 @@ namespace WEB.Controllers
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            UserProfileDTO user = soc.Users.Get(soc.Id);
-
-            ViewBag.UnRead = soc.Messages.UnRead;
-            ViewBag.Avatar = soc.Users.Avatar;
+            UserProfileDTO user = await soc.Users.GetAsync(soc.Id);
 
             await soc.Friends.Counters.FriendsCounters();
+            #region Parallel operations
             var newFriendsTask = soc.Friends.Counters.CountRequestsAync();
             var friendsTask = soc.Friends.Counters.CountFriendsAync();
-            
-            ViewBag.MyPublicId = soc.Users.PublicId;
+            var unread = soc.Messages.GetUnreadAsync();
+            var avatar = soc.Users.GetAvatarAsync();
+            var myPublicId = soc.Users.GetPublicIdAsync();
+            var friends = soc.Friends.GetFriendsAsync(); 
+            #endregion
 
-            var friends = soc.Friends.GetFriendsAsync();
-
-            await Task.WhenAll(friends, newFriendsTask, friendsTask);
+            await Task.WhenAll(friends, newFriendsTask, friendsTask, unread, avatar, myPublicId);
             ViewBag.NewFriends = newFriendsTask.Result;
             ViewBag.Friends = friendsTask.Result;
+            ViewBag.UnRead = unread.Result;
+            ViewBag.Avatar = avatar.Result;
+            ViewBag.MyPublicId = myPublicId.Result;
 
             return View(new ProfileModel
             {
@@ -104,18 +106,22 @@ namespace WEB.Controllers
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            UserProfileDTO user = soc.Users.GetByPublicId(id);
+            var userTask = soc.Users.GetByPublicIdAsync(id);
 
-            ViewBag.UnRead = soc.Messages.UnRead;
-            ViewBag.Avatar = soc.Users.Avatar;
             await soc.Friends.Counters.FriendsCounters();
+            #region Parallel operations
             var newFriendsTask = soc.Friends.Counters.CountRequestsAync();
             var friendsTask = soc.Friends.Counters.CountFriendsAync();
-            
-            ViewBag.MyPublicId = soc.Users.PublicId;
+            var unread = soc.Messages.GetUnreadAsync();
+            var avatar = soc.Users.GetAvatarAsync();
+            var myPublicId = soc.Users.GetPublicIdAsync(); 
+            #endregion
+
+            await Task.WhenAll(userTask);
+            UserProfileDTO user = userTask.Result;
+
             var userSoc = new SocialNetworkFunctionalityUser(user.Id);
             var friends = userSoc.Friends.GetFriendsAsync();
-            
             var profileModel = new ProfileModel
             {
                 PublicId = user.PublicId,
@@ -143,10 +149,13 @@ namespace WEB.Controllers
                 profileModel.IsFollower = true;
             else if (soc.Friends.GetFollowed().Select(u => u.Id).Contains(user.Id))
                 profileModel.IsFollowed = true;
-            await Task.WhenAll(friends, newFriendsTask, friendsTask);
+            await Task.WhenAll(friends, newFriendsTask, friendsTask, unread, avatar, myPublicId);
             profileModel.Friends = friends.Result;
             ViewBag.NewFriends = newFriendsTask.Result;
             ViewBag.Friends = friendsTask.Result;
+            ViewBag.UnRead = unread.Result;
+            ViewBag.Avatar = avatar.Result;
+            ViewBag.MyPublicId = myPublicId.Result;
             return View("Profile", profileModel);
         }
 
@@ -156,23 +165,23 @@ namespace WEB.Controllers
            
 
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
-            UserProfileDTO user = soc.Users.Get(soc.Id);
-
-            var getCountriesTask = soc.Database.GetAllCountriesAsync();
-            var getCitiesTask = soc.Database.GetCitiesAsync(user.City.CountryId);
-            
-
-            ViewBag.UnRead = soc.Messages.UnRead;
-            ViewBag.Avatar = soc.Users.Avatar;
+            UserProfileDTO user = await soc.Users.GetAsync(soc.Id);
             await soc.Friends.Counters.FriendsCounters();
-            ViewBag.NewFriends = await soc.Friends.Counters.CountRequestsAync();
+
+            #region Parallel operations
+            var getCountries = soc.Database.GetAllCountriesAsync();
+            var getCities = soc.Database.GetCitiesAsync(user.City.CountryId);
+            var unread = soc.Messages.GetUnreadAsync();
+            var avatar = soc.Users.GetAvatarAsync();
+            var newFriends = soc.Friends.Counters.CountRequestsAync();
+            #endregion
 
             Mapper.Initialize(cnf =>
             {
                 cnf.CreateMap<CityDTO, CityViewModel>();
                 cnf.CreateMap<CountryDTO, CountryViewModel>();
             });
-            await Task.WhenAll(getCountriesTask, getCitiesTask);
+            await Task.WhenAll(getCountries, getCities);
             var model = new SettingsViewModel
             {
                 About = user.About,
@@ -189,9 +198,15 @@ namespace WEB.Controllers
                 Surname = user.LastName,
                 Name = user.LastName,
                 Sex = user.Sex,
-                Countries = Mapper.Map<IEnumerable<CountryViewModel>>(getCountriesTask.Result),
-                Cities = Mapper.Map<IEnumerable<CityViewModel>>(getCitiesTask.Result)
+                Countries = Mapper.Map<IEnumerable<CountryViewModel>>(getCountries.Result),
+                Cities = Mapper.Map<IEnumerable<CityViewModel>>(getCities.Result)
             };
+
+            await Task.WhenAll(unread, avatar, newFriends);
+            ViewBag.UnRead = unread.Result;
+            ViewBag.Avatar = avatar.Result;
+            ViewBag.NewFriends = newFriends.Result;
+
             return View(model);
         }
 
@@ -202,13 +217,17 @@ namespace WEB.Controllers
 
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            UserProfileDTO user = soc.Users.Get(soc.Id);
+            UserProfileDTO user = await soc.Users.GetAsync(soc.Id);
 
-            ViewBag.UnRead = soc.Messages.UnRead;
-            ViewBag.Avatar = soc.Users.Avatar;
             await soc.Friends.Counters.FriendsCounters();
-            ViewBag.NewFriends = await soc.Friends.Counters.CountRequestsAync();
-            ViewBag.Friends = await soc.Friends.Counters.CountFriendsAync();
+            #region Parallel operations
+            var newFriends = soc.Friends.Counters.CountRequestsAync();
+            var friends = soc.Friends.Counters.CountFriendsAync();
+            var unread = soc.Messages.GetUnreadAsync();
+            var avatar = soc.Users.GetAvatarAsync(); 
+            #endregion
+
+            
 
             user.About = model.About;
             user.AboutIsHidden = model.AboutIsHidden;
@@ -223,7 +242,12 @@ namespace WEB.Controllers
             user.LastName = model.Surname;
             user.Name = model.Name;
             user.Sex = model.Sex;
-            soc.Users.Update(user);
+            await soc.Users.UpdateAsync(user);
+            await Task.WhenAll(newFriends, friends, unread, avatar);
+            ViewBag.NewFriends = newFriends.Result;
+            ViewBag.Friends = friends.Result;
+            ViewBag.UnRead = unread.Result;
+            ViewBag.Avatar = avatar.Result;
             return View(model);
         }
 

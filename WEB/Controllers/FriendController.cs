@@ -23,28 +23,19 @@ namespace WEB.Controllers
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             var friendModels = new List<FriendModel>();
-
-            ViewBag.UnRead = soc.Messages.UnRead;
-            ViewBag.Avatar = soc.Users.Avatar;
+            
             await soc.Friends.Counters.FriendsCounters();
-                var newFriends = soc.Friends.Counters.CountRequestsAync();
-                var friends = soc.Friends.Counters.CountFriendsAync();
-                var followers = soc.Friends.Counters.CountFollowersAync();
-                var followed = soc.Friends.Counters.CountFollowedAync();
-          
 
-            //foreach (var friend in soc.Friends.GetFriends())
-            //{
-            //    friendModels.Add(new FriendModel
-            //    {
-            //        Address = friend.Address,
-            //        Name = friend.Name,
-            //        Surname = friend.LastName,
-            //        PublicId = friend.PublicId,
-            //        Avatar = friend.Avatar,
-            //        IsFriend = true
-            //    });
-            //}
+            #region Parallel operations
+            var unread = soc.Messages.GetUnreadAsync();
+            var newFriends = soc.Friends.Counters.CountRequestsAync();
+            var friends = soc.Friends.Counters.CountFriendsAync();
+            var followers = soc.Friends.Counters.CountFollowersAync();
+            var followed = soc.Friends.Counters.CountFollowedAync();
+            var avatar = soc.Users.GetAvatarAsync();
+            #endregion
+
+
             Parallel.ForEach(await soc.Friends.GetFriendsAsync(), (friend) =>
             {
                 lock (friendModels)
@@ -60,13 +51,15 @@ namespace WEB.Controllers
                     });
                 }
             });
-            //Task.WaitAll();
 
-           
+            await Task.WhenAll(friends, followed, followers, newFriends, unread, avatar);
+
             ViewBag.NewFriends = newFriends.Result;
             ViewBag.Friends = friends.Result;
             ViewBag.Followers = followers.Result;
             ViewBag.Followed = followed.Result;
+            ViewBag.UnRead = unread.Result;
+            ViewBag.Avatar = avatar.Result;
 
             return View(friendModels);
         }
@@ -149,7 +142,7 @@ namespace WEB.Controllers
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             var friend = await soc.Friends.AddAsync(publicId);
-            var user = soc.Users.Get(soc.Id);
+            var user = await soc.Users.GetAsync(soc.Id);
 
             var model = new FriendNotificationModel
             {
@@ -181,7 +174,7 @@ namespace WEB.Controllers
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             var friend = await soc.Friends.ConfirmAsync(publicId);
-            var user = soc.Users.Get(soc.Id);
+            var user = await soc.Users.GetAsync(soc.Id);
 
             var model = new FriendNotificationModel
             {
@@ -221,7 +214,7 @@ namespace WEB.Controllers
 
             var friendSoc = new SocialNetworkFunctionalityUser(friend.UserId);
             paralelCountersInitializingTasks.Add(friendSoc.Friends.Counters.FriendsCounters());
-            var user = soc.Users.Get(soc.Id);
+            var user = await soc.Users.GetAsync(soc.Id);
 
             await Task.WhenAll(paralelCountersInitializingTasks);
 

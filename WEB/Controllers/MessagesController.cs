@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using BusinessLayer.BusinessModels;
+using BusinessLayer.DTO;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.SignalR;
 using SocialNetwork.Models;
@@ -20,37 +21,14 @@ namespace WEB.Controllers
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            ViewBag.Unread = soc.Messages.UnRead;
-            ViewBag.Avatar = soc.Users.Avatar;
-            ViewBag.NewFriends = soc.Friends.Counters.Requests;
+            #region Parallel operations
+            var unread = soc.Messages.GetUnreadAsync();
+            var avatar = soc.Users.GetAvatarAsync();
+            var newFriends = soc.Friends.Counters.CountRequestsAync(); 
+            #endregion
 
             var dialogModels = new List<DialogModel>();
-            //foreach (var lastMessage in await soc.Messages.GetLastMessagesAsync())
-            //{
-            //    if (lastMessage.FromUserId == soc.Id)
-            //        dialogs.Add(new DialogModel
-            //        {
-            //            Name = lastMessage.ToUser.Name,
-            //            Surname = lastMessage.ToUser.LastName,
-            //            MyAvatar = lastMessage.FromUser.Avatar,
-            //            SenderAvatar = lastMessage.ToUser.Avatar,
-            //            Body = lastMessage.Body,
-            //            LastMessageTime = lastMessage.PostedDate,
-            //            PublicId = lastMessage.ToUser.PublicId,
-            //            IsRead = lastMessage.IsRead
-            //        });
-            //    else
-            //        dialogs.Add(new DialogModel
-            //        {
-            //            Name = lastMessage.FromUser.Name,
-            //            Surname = lastMessage.FromUser.LastName,
-            //            SenderAvatar = lastMessage.FromUser.Avatar,
-            //            Body = lastMessage.Body,
-            //            LastMessageTime = lastMessage.PostedDate,
-            //            PublicId = lastMessage.FromUser.PublicId,
-            //            IsRead = lastMessage.IsRead
-            //        });
-            //}
+
             var dialogs = await soc.Messages.GetLastMessagesAsync();
             Parallel.ForEach(dialogs, (lastMessage) =>
             {
@@ -84,6 +62,12 @@ namespace WEB.Controllers
                         });
                     }
             });
+            await Task.WhenAll(unread, avatar, newFriends);
+
+            ViewBag.Unread = unread.Result;
+            ViewBag.Avatar = avatar.Result;
+            ViewBag.NewFriends = newFriends.Result;
+
             return View(dialogModels.OrderByDescending(d => d.LastMessageTime));
         }
 
@@ -93,31 +77,16 @@ namespace WEB.Controllers
 
             var dialog = new List<MessageModel>();
 
-            ViewBag.UnRead = soc.Messages.UnRead;
-            ViewBag.RecipientId = id;
-            ViewBag.Avatar = soc.Users.Avatar;
-            ViewBag.NewFriends = soc.Friends.Counters.Requests;
+            #region Parallel operations
+            var unread = soc.Messages.GetUnreadAsync();
+            var avatar = soc.Users.GetAvatarAsync();
+            var newFriends = soc.Friends.Counters.CountRequestsAync(); 
+            #endregion
+
+            
 
             var messages = await soc.Messages.GetDialogAsync(id);
-
-            //foreach (var mes in messages)
-            //{
-            //    var message = new MessageModel
-            //    {
-            //        Avatar = mes.FromUser.Avatar,
-            //        Body = mes.Body,
-            //        Name = mes.FromUser.Name,
-            //        PostedTime = mes.PostedDate,
-            //        Surname = mes.FromUser.LastName,
-            //        PublicId = mes.FromUser.PublicId,
-            //        IsRead = mes.IsRead
-            //    };
-            //    if (!mes.IsRead && mes.FromUserId != soc.Id)
-            //    {
-            //        message.IsRead = soc.Messages.Read(mes.Id).IsRead;
-            //    }
-            //    dialog.Add(message);
-            //}
+            
             Parallel.ForEach(messages, async (mes) =>
             {
                 var message = new MessageModel
@@ -139,18 +108,31 @@ namespace WEB.Controllers
                     dialog.Add(message);
                 }
             });
+            await Task.WhenAll(unread, avatar, newFriends);
+
+            ViewBag.UnRead = unread.Result;
+            ViewBag.RecipientId = id;
+            ViewBag.Avatar = avatar.Result;
+            ViewBag.NewFriends = newFriends.Result;
+
             return View(dialog.OrderBy(m => m.PostedTime));
         }
 
         [HttpPost, AjaxOnly]
         public async Task<ActionResult> Send(long recipientId, string message)
         {
+            Dictionary<string,Task<UserProfileDTO>> getUsersParallel = new Dictionary<string,Task<UserProfileDTO>>();
+
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             var mes = await soc.Messages.SendAsync(recipientId, message);
 
-            mes.FromUser = soc.Users.Get(mes.FromUserId);
-            mes.ToUser = soc.Users.Get(mes.ToUserId);
+            getUsersParallel.Add("fromUser", soc.Users.GetAsync(mes.FromUserId));
+            getUsersParallel.Add("toUser", soc.Users.GetAsync(mes.FromUserId));
+            await Task.WhenAll(getUsersParallel.Select(u=>u.Value));
+
+            mes.FromUser = getUsersParallel["fromUser"].Result;
+            mes.ToUser = getUsersParallel["toUser"].Result;
 
             var messageModel = new MessageModel
             {
@@ -171,7 +153,7 @@ namespace WEB.Controllers
 
             var recipient = new SocialNetworkFunctionalityUser(mes.ToUser.Id);
 
-            UpdateMessageCounter(mes.ToUser.Id, recipient.Messages.UnRead);
+            UpdateMessageCounter(mes.ToUser.Id, await recipient.Messages.GetUnreadAsync());
 
             return Content(messageContent);
         }

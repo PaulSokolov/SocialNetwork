@@ -54,10 +54,10 @@ namespace WEB.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        public ActionResult Register()
+        public async Task<ActionResult> Register()
         {
             var soc = new SocialNetworkFunctionalityUser("");
-            ViewBag.Countries = soc.Database.GetAllCountries();
+            ViewBag.Countries = await soc.Database.GetAllCountriesAsync();
             ViewBag.Cities = new List<CityDTO>();
             return View();
         }

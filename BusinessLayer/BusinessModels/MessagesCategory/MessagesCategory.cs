@@ -26,6 +26,12 @@ namespace BusinessLayer.BusinessModels
                 _socialNetwork = new SocialNetwork(_socialNetworkFunctionality._connection);
             }
 
+            public async Task<int> GetUnreadAsync()
+            {
+                return await _socialNetwork.GetUserMessageRepository()
+                    .GetAll().CountAsync(m => m.ToUserId == _socialNetworkFunctionality.Id && m.IsRead == false);
+            }
+
             public List<UserMessageDTO> GetAllMessagesByUserId(string id)
             {
                 var messages = _socialNetwork.GetUserMessageRepository().GetAllByUserId(id).ToList();

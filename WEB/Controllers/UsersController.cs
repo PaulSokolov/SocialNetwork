@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using BusinessLayer.BusinessModels;
 using BusinessLayer.DTO;
@@ -15,32 +16,38 @@ namespace WEB.Controllers
     {
 
         [HttpGet]
-        public ActionResult Index(string search)
+        public async Task<ActionResult> Index(string search)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            ViewBag.Unread = soc.Messages.UnRead;
-            ViewBag.Avatar = soc.Users.Avatar;
-            ViewBag.MyPublicId = soc.Users.PublicId;
-            ViewBag.NewFriends = soc.Friends.Counters.Requests;
 
-            var friends = soc.Friends.GetFriends();
-            var followers = soc.Friends.GetFollowers();
-            var followed = soc.Friends.GetFollowed();
+
+            #region Parallel operations
+            var countries = soc.Users.GetCountriesWithUsersAsync();
+            var friends = soc.Friends.GetFriendsAsync();
+            var followers = soc.Friends.GetFollowersAsync();
+            var followed = soc.Friends.GetFollowedAsync();
+            var unread = soc.Messages.GetUnreadAsync();
+            var avatar = soc.Users.GetAvatarAsync();
+            var myPublicId = soc.Users.GetPublicIdAsync();
+            var newFriends = soc.Friends.Counters.CountRequestsAync(); 
+            #endregion
+
             var usersFound = new List<UserProfileDTO>();
 
             if (search == string.Empty)
-                usersFound = soc.Users.Search();
+                usersFound = await soc.Users.SearchAsync();
             else
             {
-                usersFound = soc.Users.Search(activityConcurence: search, aboutConcurence: search);
-                usersFound.AddRange(soc.Users.Search(search));
+                usersFound = await soc.Users.SearchAsync(activityConcurence: search, aboutConcurence: search);
+                usersFound.AddRange(await soc.Users.SearchAsync(search));
             }
 
             var users = new List<UserSearchModel>();
             usersFound = usersFound.Distinct().ToList();
+            await Task.WhenAll(friends, followers, followed);
 
-            foreach (var user in usersFound)
+            Parallel.ForEach(usersFound, (user) =>
             {
                 var userModel = new UserSearchModel
                 {
@@ -50,36 +57,46 @@ namespace WEB.Controllers
                     Avatar = user.Avatar,
                     PublicId = user.PublicId
                 };
-                if (friends.Contains(user))
+                if (friends.Result.Contains(user))
                     userModel.IsFriend = true;
-                else if (followers.Contains(user))
+                else if (followers.Result.Contains(user))
                     userModel.IsFollower = true;
-                else if (followed.Contains(user))
+                else if (followed.Result.Contains(user))
                     userModel.IsFollowed = true;
+                lock (users)
+                {
+                    users.Add(userModel);
+                }
+            });
+            await Task.WhenAll(countries, unread, avatar, myPublicId, newFriends);
 
-                users.Add(userModel);
-            }
-
-            return View(new SearchPageModel { Users = users, Countries = soc.Users.GetCountriesWithUsers() });
+            ViewBag.Unread = unread.Result;
+            ViewBag.Avatar = avatar.Result;
+            ViewBag.MyPublicId = myPublicId.Result;
+            ViewBag.NewFriends = newFriends.Result;
+            return View(new SearchPageModel { Users = users, Countries =  countries.Result });
         }
 
         [HttpPost]
-        public ActionResult Search(string search, int? ageFrom, int? ageTo, long? cityId, long? countryId, string activityConcurence, string aboutConcurence, int? sex, short? sort)
+        public async Task<ActionResult> Search(string search, int? ageFrom, int? ageTo, long? cityId, long? countryId, string activityConcurence, string aboutConcurence, int? sex, short? sort)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            ViewBag.Unread = soc.Messages.UnRead;
-            ViewBag.NewFriends = soc.Friends.Counters.Requests;
-            ViewBag.MyPublicId = soc.Users.PublicId;
+            #region Parallel operations
+            var friends = soc.Friends.GetFriendsAsync();
+            var followers = soc.Friends.GetFollowersAsync();
+            var followed = soc.Friends.GetFollowedAsync();
+            var unread = soc.Messages.GetUnreadAsync();
+            var newFriends = soc.Friends.Counters.CountRequestsAync();
+            var myPublicId = soc.Users.GetPublicIdAsync(); 
+            #endregion
 
-            var friends = soc.Friends.GetFriends();
-            var followers = soc.Friends.GetFollowers();
-            var followed = soc.Friends.GetFollowed();
-            var users = soc.Users.Search(search,ageFrom, ageTo, cityId, countryId, activityConcurence, aboutConcurence, sex, sort);
+            var users = await soc.Users.SearchAsync(search,ageFrom, ageTo, cityId, countryId, activityConcurence, aboutConcurence, sex, sort);
             
-            var content = new StringBuilder();
+            var userModels = new List<UserSearchModel>();
 
-            foreach (var user in users)
+            await Task.WhenAll(friends, followers, followed);
+            Parallel.ForEach(users, user =>
             {
                 var userSM = new UserSearchModel
                 {
@@ -90,42 +107,36 @@ namespace WEB.Controllers
                     PublicId = user.PublicId
                 };
 
-                if (friends.Contains(user))
+                if (friends.Result.Contains(user))
                     userSM.IsFriend = true;
-                else if (followers.Contains(user))
+                else if (followers.Result.Contains(user))
                     userSM.IsFollower = true;
-                else if (followed.Contains(user))
+                else if (followed.Result.Contains(user))
                     userSM.IsFollowed = true;
+                lock (userModels)
+                {
+                    userModels.Add(userSM);
+                }
+                
+            });
 
-                content.Append(RenderRazorViewToString("Partial/User", userSM));
-            }
+            await Task.WhenAll(unread, newFriends, myPublicId);
+            
+            ViewBag.Unread = unread.Result;
+            ViewBag.NewFriends = newFriends.Result;
+            ViewBag.MyPublicId = myPublicId.Result;
 
-            return Content(content.ToString());
+            return PartialView("Partial/Users", userModels);
         }
 
-        public ActionResult AutocompleteSearch(string term)
+        public async Task<ActionResult> AutocompleteSearch(string term)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            var searchResult = soc.Users.Search(term);
+            var searchResult = await soc.Users.SearchAsync(term);
             var users = searchResult.Select(u => new { name = u.Name, avatar = u.Avatar, lastName = u.LastName, publicId = u.PublicId, address = u.Address.Length > 30 ? u.Address.Substring(0, 30):u.Address }).ToList();
 
             return Json(users, JsonRequestBehavior.AllowGet);
         }
-
-        #region Helper
-        private string RenderRazorViewToString(string viewName, object model)
-        {
-            ViewData.Model = model;
-            using (var sw = new StringWriter())
-            {
-                var viewResult = ViewEngines.Engines.FindPartialView(ControllerContext, viewName);
-                var viewContext = new ViewContext(ControllerContext, viewResult.View, ViewData, TempData, sw);
-                viewResult.View.Render(viewContext, sw);
-                viewResult.ViewEngine.ReleaseView(ControllerContext, viewResult.View);
-                return sw.GetStringBuilder().ToString();
-            }
-        } 
-        #endregion
     }
 }
