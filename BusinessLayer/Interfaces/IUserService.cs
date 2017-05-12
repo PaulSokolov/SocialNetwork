@@ -16,8 +16,8 @@ namespace BusinessLayer.Interfaces
         Task<OperationDetails> AddToRoleAsync(string id, string role);
         Task<OperationDetails> RemoveFromRoleAsync(string id, string role);
         Task<ClaimsIdentity> Authenticate(UserProfileDTO user);
-        List<string> GetRoles();
-        List<string> GetRoles(string id);
+        Task<List<string>> GetRoles();
+        Task<List<string>> GetRoles(string id);
         Task SetInitialData(UserProfileDTO admin, List<string> roles);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -91,15 +92,14 @@ namespace BusinessLayer.Services
             return claim;
         }
 
-        public List<string> GetRoles()
+        public async Task<List<string>> GetRoles()
         {
             var roles = Database.RoleManager.Roles.Select(r => r.Name);
-            return roles.ToList();
+            return await roles.ToListAsync();
         }
-        public List<string> GetRoles(string id)
+        public async Task<List<string>> GetRoles(string id)
         {
-            var roles = Database.UserManager.GetRoles(id);
-            return roles.ToList();
+            return (await Database.UserManager.GetRolesAsync(id)).ToList();;
         }
 
         public async Task SetInitialData(UserProfileDTO adminDto, List<string> roles)

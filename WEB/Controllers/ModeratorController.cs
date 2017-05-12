@@ -6,6 +6,7 @@ using BusinessLayer.BusinessModels;
 using Microsoft.AspNet.Identity;
 using SocialNetwork.Models.AdminViewModels;
 using SocialNetwork.Models.ModeratorModels;
+using WEB.Filters;
 
 namespace WEB.Controllers
 {
@@ -18,7 +19,7 @@ namespace WEB.Controllers
             return View();
         }
 
-        [HttpPost]
+        [HttpPost,AjaxOnly]
         public async Task<ActionResult> UserMessages(long? publicId)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
@@ -54,12 +55,12 @@ namespace WEB.Controllers
             return PartialView("Partial/UserMessages", models);
         }
 
-        [HttpPost]
-        public ActionResult UpdateMessage(long? id, string body)
+        [HttpPost,AjaxOnly]
+        public async Task<ActionResult> UpdateMessage(long? id, string body)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            var updatedMessage = soc.Messages.Moderate((long)id, body);
+            var updatedMessage = await soc.Messages.ModerateAsync((long)id, body);
             var model = new MessageModeratorModel
             {
                 Id = updatedMessage.Id,
@@ -80,18 +81,18 @@ namespace WEB.Controllers
             return PartialView("Partial/MessageRow", model);
         }
 
-        [HttpGet]
-        public ActionResult DeleteMessage(long? id)
+        [HttpGet,AjaxOnly]
+        public async Task<ActionResult> DeleteMessage(long? id)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            var deleted = id != null && soc.Messages.Delete((long)id);
+            var deleted = id != null && await soc.Messages.DeleteAsync((long)id);
             if (deleted)
                 return Content($"<tr><td></td><td></td><td>Message {id} deleted successfully</td><td></td><td></td></tr>");
             return Content($"<tr><td></td><td></td><td>An error occurred while deleting message {id}. Try to refresh the page and try again</td><td></td><td></td></tr>");
         }
 
-        [HttpPost]
+        [HttpPost,AjaxOnly]
         public async Task<ActionResult> SearchMessages(long? publicId, string body)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
@@ -134,7 +135,7 @@ namespace WEB.Controllers
             return Json(users, JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
+        [HttpPost,AjaxOnly]
         public async Task<ActionResult> Search(string search, int? ageFrom, int? ageTo, long? cityId, long? countryId, string activityConcurence, string aboutConcurence, int? sex, short? sort)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());

@@ -115,9 +115,9 @@ namespace BusinessLayer.BusinessModels
                 if (user == null)
                     throw new UserNotFoundException("There is no such user.");
 
-                var frindRepository = await _socialNetwork.GetFriendRepositoryAsync();
+                var friendRepository = await _socialNetwork.GetFriendRepositoryAsync();
 
-                var friend = frindRepository.AddAsync(new Friend
+                var friend = friendRepository.AddAsync(new Friend
                     {
                         AddedDate = _socialNetworkFunctionality._now(),
                         RequestDate = _socialNetworkFunctionality._now(),
@@ -127,7 +127,7 @@ namespace BusinessLayer.BusinessModels
                         UserId = _socialNetworkFunctionality.Id
                     });
 
-                frindRepository.AddAsync(
+                var task = friendRepository.AddAsync(
                     new Friend
                     {
                         AddedDate = _socialNetworkFunctionality._now(),
@@ -137,7 +137,7 @@ namespace BusinessLayer.BusinessModels
                         Confirmed = false,
                         UserId = user.Id
                     });
-                Task.WaitAll();
+                await Task.WhenAll(friend, task);
                 await _socialNetwork.CommitAsync();
 
                 return _socialNetworkFunctionality.Mapper.Map<Friend, FriendDTO>(friend.Result);
@@ -169,8 +169,6 @@ namespace BusinessLayer.BusinessModels
 
                 return _socialNetworkFunctionality.Mapper.Map<FriendDTO>(res);
             }
-
-
 
             public FriendDTO Confirm(long userToAddPublicId)
             {
@@ -212,7 +210,7 @@ namespace BusinessLayer.BusinessModels
                 friend.Confirmed = true;
                 friend.Deleted = false;
 
-                _socialNetwork.GetFriendRepository().UpdateAsync(friend);
+                var task = _socialNetwork.GetFriendRepository().UpdateAsync(friend);
 
                 Friend confirmedFriend = await friendRepository.GetFriendAsync(_socialNetworkFunctionality.Id, userToAddId);
 
@@ -222,7 +220,7 @@ namespace BusinessLayer.BusinessModels
 
                 var res = _socialNetwork.GetFriendRepository().UpdateAsync(confirmedFriend);
 
-                Task.WaitAll();
+                await Task.WhenAll(task, res);
                 await _socialNetwork.CommitAsync();
 
                 return _socialNetworkFunctionality.Mapper.Map<FriendDTO>(res.Result);
@@ -351,14 +349,14 @@ namespace BusinessLayer.BusinessModels
                     throw new UserNotFoundException("There is no user to delete");
 
 
-                friendRepository.DeleteAsync(friend);
+                await friendRepository.DeleteAsync(friend);
 
                 Friend deletedFriend =
                     await friendRepository.GetFriendAsync(userToDelete.Id, _socialNetworkFunctionality.Id);
 
                 if (deletedFriend != null)
-                    friendRepository.DeleteAsync(deletedFriend);
-                Task.WaitAll();
+                    await friendRepository.DeleteAsync(deletedFriend);
+                
                 await _socialNetwork.CommitAsync();
             }
 

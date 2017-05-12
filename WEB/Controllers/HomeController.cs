@@ -110,11 +110,14 @@ namespace WEB.Controllers
 
             await soc.Friends.Counters.FriendsCounters();
             #region Parallel operations
-            var newFriendsTask = soc.Friends.Counters.CountRequestsAync();
-            var friendsTask = soc.Friends.Counters.CountFriendsAync();
+            var newFriends = soc.Friends.Counters.CountRequestsAync();
+            var friendsCountTask = soc.Friends.Counters.CountFriendsAync();
             var unread = soc.Messages.GetUnreadAsync();
             var avatar = soc.Users.GetAvatarAsync();
-            var myPublicId = soc.Users.GetPublicIdAsync(); 
+            var myPublicId = soc.Users.GetPublicIdAsync();
+            var friendsTask = soc.Friends.GetFriendsAsync();
+            var followers = soc.Friends.GetFollowersAsync();
+            var followed = soc.Friends.GetFollowedAsync();
             #endregion
 
             await Task.WhenAll(userTask);
@@ -143,16 +146,20 @@ namespace WEB.Controllers
                 Languages = user.Languages,
                 IsEditHidden = soc.Id != user.Id
             };
-            if (soc.Friends.GetFriends().Select(u => u.Id).Contains(user.Id))
+
+            await Task.WhenAll(friendsTask, followers, followed);
+
+            if (friendsTask.Result.Select(u => u.Id).Contains(user.Id))
                 profileModel.IsFriend = true;
-            else if (soc.Friends.GetFollowers().Select(u => u.Id).Contains(user.Id))
+            else if (followers.Result.Select(u => u.Id).Contains(user.Id))
                 profileModel.IsFollower = true;
-            else if (soc.Friends.GetFollowed().Select(u => u.Id).Contains(user.Id))
+            else if (followed.Result.Select(u => u.Id).Contains(user.Id))
                 profileModel.IsFollowed = true;
-            await Task.WhenAll(friends, newFriendsTask, friendsTask, unread, avatar, myPublicId);
+
+            await Task.WhenAll(friends, newFriends, friendsCountTask, unread, avatar, myPublicId);
             profileModel.Friends = friends.Result;
-            ViewBag.NewFriends = newFriendsTask.Result;
-            ViewBag.Friends = friendsTask.Result;
+            ViewBag.NewFriends = newFriends.Result;
+            ViewBag.Friends = friendsCountTask.Result;
             ViewBag.UnRead = unread.Result;
             ViewBag.Avatar = avatar.Result;
             ViewBag.MyPublicId = myPublicId.Result;

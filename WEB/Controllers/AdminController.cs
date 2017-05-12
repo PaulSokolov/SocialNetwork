@@ -48,7 +48,7 @@ namespace WEB.Controllers
         public ActionResult DeleteRole()
         {
             var roles = new List<RoleModel>();
-            foreach (var role in UserService.GetRoles())
+            foreach (var role in  UserService.GetRoles())
             {
                 roles.Add(new RoleModel { Name = role });
             }
@@ -62,10 +62,10 @@ namespace WEB.Controllers
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             var usersWithRoles = new List<ManageUserRolesModel>();
-            Parallel.ForEach(await soc.Users.SearchAsync(), user =>
+            Parallel.ForEach(await soc.Users.SearchAsync(), async user =>
             {
-                var userRole = UserService.GetRoles(user.Id);
-                var availableRoles = UserService.GetRoles().Except(userRole).ToList();
+                var userRole = await UserService.GetRoles(user.Id);
+                var availableRoles = (await UserService.GetRoles()).Except(userRole).ToList();
                 lock (usersWithRoles)
                 {
                     usersWithRoles.Add(new ManageUserRolesModel
@@ -89,8 +89,8 @@ namespace WEB.Controllers
 
             var user = await soc.Users.GetByPublicIdAsync(publicId);
             await UserService.AddToRoleAsync(user.Id, role);
-            var userRole = UserService.GetRoles(user.Id);
-            var availableRoles = UserService.GetRoles().Except(userRole).ToList();
+            var userRole = await UserService.GetRoles(user.Id);
+            var availableRoles = (await UserService.GetRoles()).Except(userRole).ToList();
             var model = new ManageUserRolesModel
             {
                 Name = user.Name,
@@ -111,8 +111,8 @@ namespace WEB.Controllers
 
             var user = await soc.Users.GetByPublicIdAsync(publicId);
             await UserService.RemoveFromRoleAsync(user.Id, role);
-            var userRole = UserService.GetRoles(user.Id);
-            var availableRoles = UserService.GetRoles().Except(userRole).ToList();
+            var userRole = await UserService.GetRoles(user.Id);
+            var availableRoles = (await UserService.GetRoles()).Except(userRole).ToList();
             var model = new ManageUserRolesModel
             {
                 Name = user.Name,
