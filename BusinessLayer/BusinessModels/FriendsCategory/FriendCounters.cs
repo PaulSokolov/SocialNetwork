@@ -38,22 +38,22 @@ namespace BusinessLayer.BusinessModels
                 }
                 public async Task<long> CountFriendsAync()
                 {
-                    return await Task.Run(() => this.Friends);
+                    return await Task.Run(() => Friends);
                 }
 
                 public async Task<long> CountFollowersAync()
                 {
-                    return await Task.Run(() => this.Followers);
+                    return await Task.Run(() => Followers);
                 }
 
                 public async Task<long> CountFollowedAync()
                 {
-                    return await Task.Run(() => this.Followed);
+                    return await Task.Run(() => Followed);
                 }
 
                 public async Task<long> CountRequestsAync()
                 {
-                    return await Task.Run(() => this.Requests);
+                    return await Task.Run(() => Requests);
                 }
 
             }

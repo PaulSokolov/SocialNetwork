@@ -2,7 +2,7 @@
 {
     public enum SexDTO
     {
-        male,
-        female
+        Male,
+        Female
     }
 }

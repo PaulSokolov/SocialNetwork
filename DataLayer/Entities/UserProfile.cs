@@ -55,7 +55,7 @@ namespace DataLayer.Entities
     }
     public enum Sex
     {
-        male,
-        female
+        Male,
+        Female
     }
 }

@@ -38,18 +38,25 @@ namespace BusinessLayer.BusinessModels
 
             public async Task<string> GetAvatarAsync()
             {
-                return _avatar ?? (_avatar = (await _socialNetwork.UserProfiles
-                           .GetAsync(_socialNetworkFunctionality.Id)).Avatar);
+                using (var context = new SocialNetwork(_socialNetworkFunctionality._connection))
+                {
+                    return _avatar ?? (_avatar = (await context.UserProfiles
+                               .GetAsync(_socialNetworkFunctionality.Id)).Avatar);
+                }
             }
 
             public async Task<long> GetPublicIdAsync()
             {
-                _publicId = await _socialNetwork.UserProfiles.GetAll().Where(u => u.Id == _socialNetworkFunctionality.Id).Select(u => u.PublicId).FirstOrDefaultAsync();
+                using (var context = new SocialNetwork(_socialNetworkFunctionality._connection))
+                {
+                    _publicId = await context.UserProfiles.GetAll().Where(u => u.Id == _socialNetworkFunctionality.Id)
+                        .Select(u => u.PublicId).FirstOrDefaultAsync();
 
-                if (_publicId == null)
-                    throw new UserNotFoundException();
+                    if (_publicId == null)
+                        throw new UserNotFoundException();
 
-                return (long)_publicId;
+                    return (long) _publicId;
+                }
             }
 
             public UsersCategory(SocialNetworkFunctionalityUser socialNetworkFunctionality)

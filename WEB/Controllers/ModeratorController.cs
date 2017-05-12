@@ -14,8 +14,9 @@ namespace WEB.Controllers
     public class ModeratorController : Controller
     {
 
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
+            ViewBag.Avatar = await new SocialNetworkFunctionalityUser(User.Identity.GetUserId()).Users.GetAvatarAsync();
             return View();
         }
 
@@ -23,7 +24,7 @@ namespace WEB.Controllers
         public async Task<ActionResult> UserMessages(long? publicId)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
-
+            
             ViewBag.PublicId = publicId;
 
             var models = new List<MessageModeratorModel>();
@@ -32,25 +33,28 @@ namespace WEB.Controllers
             var user = await soc.Users.GetByPublicIdAsync((long)publicId);
             var messages = await soc.Messages.GetAllMessagesByUserIdAsync(user.Id);
 
-            foreach (var message in messages)
+            Parallel.ForEach(messages, message =>
             {
-                models.Add(new MessageModeratorModel
+                lock (models)
                 {
-                    Id = message.Id,
-                    UserAvatar = message.FromUser.Avatar,
-                    UserName = message.FromUser.Name,
-                    UserSurname = message.FromUser.LastName,
-                    UserPublicId = message.FromUser.PublicId,
-                    RecipientAvatar = message.ToUser.Avatar,
-                    RecipientName = message.ToUser.Name,
-                    RecipientSurname = message.ToUser.LastName,
-                    RecipientPublicId = message.ToUser.PublicId,
-                    Body = message.Body,
-                    PostedDate = message.PostedDate,
-                    LastModifiedDate = message.ModifiedDate
+                    models.Add(new MessageModeratorModel
+                    {
+                        Id = message.Id,
+                        UserAvatar = message.FromUser.Avatar,
+                        UserName = message.FromUser.Name,
+                        UserSurname = message.FromUser.LastName,
+                        UserPublicId = message.FromUser.PublicId,
+                        RecipientAvatar = message.ToUser.Avatar,
+                        RecipientName = message.ToUser.Name,
+                        RecipientSurname = message.ToUser.LastName,
+                        RecipientPublicId = message.ToUser.PublicId,
+                        Body = message.Body,
+                        PostedDate = message.PostedDate,
+                        LastModifiedDate = message.ModifiedDate
 
-                });
-            }
+                    });
+                }
+            });
 
             return PartialView("Partial/UserMessages", models);
         }

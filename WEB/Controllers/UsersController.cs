@@ -19,7 +19,7 @@ namespace WEB.Controllers
         public async Task<ActionResult> Index(string search)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
-
+            await soc.Friends.Counters.FriendsCounters();
 
 
             #region Parallel operations
@@ -81,7 +81,7 @@ namespace WEB.Controllers
         public async Task<ActionResult> Search(string search, int? ageFrom, int? ageTo, long? cityId, long? countryId, string activityConcurence, string aboutConcurence, int? sex, short? sort)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
-
+            await soc.Friends.Counters.FriendsCounters();
             #region Parallel operations
             var friends = soc.Friends.GetFriendsAsync();
             var followers = soc.Friends.GetFollowersAsync();

@@ -163,7 +163,7 @@ namespace WEB.Controllers
                     About= string.Join(", ", about[index], about[index + 1], about[index - 1]),
                     Activity=string.Join(", ", activities[index], activities[index + 1], activities[index - 1]),
                     BirthDate=DateTime.Now,
-                    Sex=SexDTO.male
+                    Sex=SexDTO.Male
                 }, new List<string> { "user", "admin", "moderator" });
             }
             

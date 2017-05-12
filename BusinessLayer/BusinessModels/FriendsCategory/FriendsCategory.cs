@@ -60,7 +60,7 @@ namespace BusinessLayer.BusinessModels
 
                 var friendRepository = _socialNetwork.Friends;
 
-                var friend = friendRepository.AddAsync(new Friend
+                var friend = await friendRepository.AddAsync(new Friend
                 {
                     AddedDate = _socialNetworkFunctionality._now(),
                     RequestDate = _socialNetworkFunctionality._now(),
@@ -70,7 +70,7 @@ namespace BusinessLayer.BusinessModels
                     UserId = _socialNetworkFunctionality.Id
                 });
 
-                var task = friendRepository.AddAsync(
+                var task = await friendRepository.AddAsync(
                     new Friend
                     {
                         AddedDate = _socialNetworkFunctionality._now(),
@@ -80,10 +80,9 @@ namespace BusinessLayer.BusinessModels
                         Confirmed = false,
                         UserId = user.Id
                     });
-                await Task.WhenAll(friend, task);
                 await _socialNetwork.CommitAsync();
 
-                return _socialNetworkFunctionality.Mapper.Map<Friend, FriendDTO>(friend.Result);
+                return _socialNetworkFunctionality.Mapper.Map<Friend, FriendDTO>(friend);
             }
 
             public async Task<FriendDTO> ConfirmAsync(long userToAddPublicId)
@@ -175,34 +174,48 @@ namespace BusinessLayer.BusinessModels
 
             public async Task<ICollection<UserProfileDTO>> GetFriendsAsync()
             {
-                var query = _socialNetwork.Friends.GetAll().Where(f => f.UserId == _socialNetworkFunctionality.Id).Where(u => u.Confirmed && u.Deleted == false).Select(u => u.FriendId);
-                var friends = await _socialNetwork.UserProfiles.GetAll().Where(u => query.Any(f => f == u.Id)).ToListAsync();
+                List<UserProfile> friends = new List<UserProfile>();
+                using (var context = new SocialNetwork(_socialNetworkFunctionality._connection))
+                {
+                    var query = context.Friends.GetAll().Where(f => f.UserId == _socialNetworkFunctionality.Id)
+                        .Where(u => u.Confirmed && u.Deleted == false).Select(u => u.FriendId);
+                    friends = await context.UserProfiles.GetAll().Where(u => query.Any(f => f == u.Id)).ToListAsync();
 
-                return _socialNetworkFunctionality.Mapper.Map<List<UserProfile>, List<UserProfileDTO>>(friends);
+
+                    return _socialNetworkFunctionality.Mapper.Map<List<UserProfile>, List<UserProfileDTO>>(friends);
+                }
             }
 
             public async Task<ICollection<UserProfileDTO>> GetFollowedAsync()
             {
-                var query = _socialNetwork.Friends.GetAll()
-                    .Where(f => f.UserId == _socialNetworkFunctionality.Id)
-                    .Where(f => (f.Confirmed == false || f.Deleted) &&
-                                f.RequestUserId == _socialNetworkFunctionality.Id).Select(u => u.FriendId);
-                var friends = await _socialNetwork.UserProfiles.GetAll()
-                    .Where(u => query.Any(f => f == u.Id)).ToListAsync();
+                List<UserProfile> friends = new List<UserProfile>();
+                using (var context = new SocialNetwork(_socialNetworkFunctionality._connection))
+                {
+                    var query = context.Friends.GetAll()
+                        .Where(f => f.UserId == _socialNetworkFunctionality.Id)
+                        .Where(f => (f.Confirmed == false || f.Deleted) &&
+                                    f.RequestUserId == _socialNetworkFunctionality.Id).Select(u => u.FriendId);
+                    friends = await context.UserProfiles.GetAll()
+                        .Where(u => query.Any(f => f == u.Id)).ToListAsync();
 
-                return _socialNetworkFunctionality.Mapper.Map<List<UserProfile>, List<UserProfileDTO>>(friends);
+                    return _socialNetworkFunctionality.Mapper.Map<List<UserProfile>, List<UserProfileDTO>>(friends);
+                }
             }
 
             public async Task<ICollection<UserProfileDTO>> GetFollowersAsync()
             {
-                var query = _socialNetwork.Friends.GetAll()
-                    .Where(f => f.FriendId == _socialNetworkFunctionality.Id)
-                    .Where(f => (f.Confirmed == false || f.Deleted) &&
-                                f.RequestUserId != _socialNetworkFunctionality.Id).Select(u => u.UserId);
-                var friends = await _socialNetwork.UserProfiles.GetAll()
-                    .Where(u => query.Any(f => f == u.Id)).ToListAsync();
+                List<UserProfile> friends = new List<UserProfile>();
+                using (var context = new SocialNetwork(_socialNetworkFunctionality._connection))
+                {
+                    var query = context.Friends.GetAll()
+                        .Where(f => f.FriendId == _socialNetworkFunctionality.Id)
+                        .Where(f => (f.Confirmed == false || f.Deleted) &&
+                                    f.RequestUserId != _socialNetworkFunctionality.Id).Select(u => u.UserId);
+                    friends = await context.UserProfiles.GetAll()
+                        .Where(u => query.Any(f => f == u.Id)).ToListAsync();
 
-                return _socialNetworkFunctionality.Mapper.Map<List<UserProfile>, List<UserProfileDTO>>(friends);
+                    return _socialNetworkFunctionality.Mapper.Map<List<UserProfile>, List<UserProfileDTO>>(friends);
+                }
             }
         }
     }

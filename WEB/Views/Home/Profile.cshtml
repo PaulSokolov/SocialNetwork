@@ -25,20 +25,20 @@
                 }
                 if (Model.IsFriend)
                 {
-                    <div id="@string.Format("delete_{0}", Model.PublicId)" class="btn btn-danger btn-profile" onclick="FriendRequest(@Model.PublicId,'Delete','delete','wait')">Delete</div>
+                    <div id="@($"delete_{Model.PublicId}")" class="btn btn-danger btn-profile" onclick="FriendRequest(@Model.PublicId,'Delete','delete','wait')">Delete</div>
                 }
                 else if (Model.IsFollower)
                 {
-                    <div id="@string.Format("follower_{0}", Model.PublicId)" class="btn btn-default btn-profile" onclick="FriendRequest(@Model.PublicId,'Confirm','follower','wait')">Add to friends</div>
+                    <div id="@($"follower_{Model.PublicId}")" class="btn btn-default btn-profile" onclick="FriendRequest(@Model.PublicId,'Confirm','follower','wait')">Add to friends</div>
                 }
                 else if (Model.IsFollowed)
                 {
-                    <div id="@string.Format("followed_{0}", Model.PublicId)" class="btn btn-default btn-profile" onclick="FriendRequest(@Model.PublicId,'Unsubscribe','followed','wait')">Unsubscribe</div>
+                    <div id="@($"followed_{Model.PublicId}")" class="btn btn-default btn-profile" onclick="FriendRequest(@Model.PublicId,'Unsubscribe','followed','wait')">Unsubscribe</div>
                 }
                 else if (ViewBag.MyPublicId == Model.PublicId) { }
                 else
                 {
-                    <div id="@string.Format("friend_{0}", Model.PublicId)" class="btn btn-default" style="float: right;" onclick="FriendRequest(@Model.PublicId,'Add','friend','wait')">Add Friend</div>
+                    <div id="@($"friend_{Model.PublicId}")" class="btn btn-default btn-profile" onclick="FriendRequest(@Model.PublicId,'Add','friend','wait')">Add Friend</div>
                 }
             }
             @*<button class="btn btn-info btn-lg" type="button" data-toggle="modal" data-target="#myModal">Показать всплывающее окно</button>*@

@@ -1,4 +1,7 @@
-﻿using BusinessLayer.BusinessModels;
+﻿using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using BusinessLayer.BusinessModels;
 
 namespace TestBLL
 {
@@ -8,18 +11,17 @@ namespace TestBLL
         {
 
 
-            var functionality = new SocialNetworkFunctionalityUser("14c31b71-275a-44e5-aacf-f2c0b29ddeb0");
-            //functionality.Friends.Add("80350603-8ce5-4a63-9735-c75d69949b1c");
-            //functionality.Friends.Delete("69c956ce-bfe9-46d7-9ed1-311a91ec1fe8");
-            //var list =  functionality.Friends.Get().ToList();
-            //var list = functionality.Messages.GetDialog("69c956ce-bfe9-46d7-9ed1-311a91ec1fe8");
-            //functionality.Messages.Send("69c956ce-bfe9-46d7-9ed1-311a91ec1fe8", "asdasd");
-            //var mes = functionality.Messages.GetLastMessage("69c956ce-bfe9-46d7-9ed1-311a91ec1fe8");
-            //var list = functionality.Messages.GetAllDialogs();
-            //var user = functionality.Users.Get("14c31b71-275a-44e5-aacf-f2c0b29ddeb0");
-            var count = functionality.Friends.Counters;
-            var c = functionality.Users.GetCountriesWithUsers();
-            var p = functionality.Messages.GetDialog("111136f0-bde3-4b00-82df-32f2ea2d04b2");
+            var soc = new SocialNetworkFunctionalityUser("14c31b71-275a-44e5-aacf-f2c0b29ddeb0");
+            Stopwatch timer = new Stopwatch();
+            timer.Start();
+            var friends = soc.Friends.GetFriendsAsync();
+            var followers = soc.Friends.GetFollowersAsync();
+            var followed = soc.Friends.GetFollowedAsync();
+            //await Task.WhenAll(friends, followers, followed);
+            Task.WaitAll();
+            timer.Stop();
+            Console.WriteLine(timer.ElapsedMilliseconds);
+            Console.ReadKey();
             //for (int i = 0; i < 10; i++)
             //{
             //    functionality.Messages.Send("111136f0-bde3-4b00-82df-32f2ea2d04b2", $"{1000 * 1000 * i}");

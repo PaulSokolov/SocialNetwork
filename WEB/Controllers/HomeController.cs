@@ -10,6 +10,7 @@ using BusinessLayer.BusinessModels;
 using BusinessLayer.DTO;
 using Microsoft.AspNet.Identity;
 using SocialNetwork.Models;
+using WEB.Filters;
 
 namespace WEB.Controllers
 {
@@ -203,7 +204,7 @@ namespace WEB.Controllers
                 Email = user.Email,
                 EmailIsHidden = user.EmailIsHidden,
                 Surname = user.LastName,
-                Name = user.LastName,
+                Name = user.Name,
                 Sex = user.Sex,
                 Countries = Mapper.Map<IEnumerable<CountryViewModel>>(getCountries.Result),
                 Cities = Mapper.Map<IEnumerable<CityViewModel>>(getCities.Result)
@@ -231,10 +232,15 @@ namespace WEB.Controllers
             var newFriends = soc.Friends.Counters.CountRequestsAync();
             var friends = soc.Friends.Counters.CountFriendsAync();
             var unread = soc.Messages.GetUnreadAsync();
-            var avatar = soc.Users.GetAvatarAsync(); 
+            var avatar = soc.Users.GetAvatarAsync();
+            var countries = soc.Database.GetAllCountriesAsync();
             #endregion
+            Mapper.Initialize(cnf =>
+            {
+                cnf.CreateMap<CityDTO, CityViewModel>();
+                cnf.CreateMap<CountryDTO, CountryViewModel>();
+            });
 
-            
 
             user.About = model.About;
             user.AboutIsHidden = model.AboutIsHidden;
@@ -250,14 +256,16 @@ namespace WEB.Controllers
             user.Name = model.Name;
             user.Sex = model.Sex;
             await soc.Users.UpdateAsync(user);
-            await Task.WhenAll(newFriends, friends, unread, avatar);
+            await Task.WhenAll(newFriends, friends, unread, avatar,countries);
             ViewBag.NewFriends = newFriends.Result;
             ViewBag.Friends = friends.Result;
             ViewBag.UnRead = unread.Result;
             ViewBag.Avatar = avatar.Result;
+            model.Countries = Mapper.Map<IEnumerable<CountryViewModel>>(countries.Result);
+            model.Cities = Mapper.Map<IEnumerable<CityViewModel>>(await soc.Database.GetCitiesAsync((long)model.CountryId));
             return View(model);
         }
-
+        [AjaxOnly]
         public async Task<ActionResult> Cities(long countryId)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());

@@ -20,7 +20,7 @@ namespace WEB.Controllers
         public async Task<ActionResult> Index()
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
-
+            await soc.Friends.Counters.FriendsCounters();
             #region Parallel operations
             var unread = soc.Messages.GetUnreadAsync();
             var avatar = soc.Users.GetAvatarAsync();
@@ -76,7 +76,7 @@ namespace WEB.Controllers
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             var dialog = new List<MessageModel>();
-
+            await soc.Friends.Counters.FriendsCounters();
             #region Parallel operations
             var unread = soc.Messages.GetUnreadAsync();
             var avatar = soc.Users.GetAvatarAsync();

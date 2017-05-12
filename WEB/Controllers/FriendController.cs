@@ -135,7 +135,7 @@ namespace WEB.Controllers
             });
             return PartialView("Partial/Friends", friendModels);
         }
-        //TODO: After making userscategory async. add this methods to action
+
         [HttpPost,AjaxOnly]
         public async Task<ActionResult> Add(long publicId)
         {
@@ -274,6 +274,7 @@ namespace WEB.Controllers
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
             await soc.Friends.UnsubscribeAsync(publicId);
+            await soc.Friends.Counters.FriendsCounters();
 
             var friendsTask = soc.Friends.Counters.CountFriendsAync();
             var followersTask = soc.Friends.Counters.CountFollowersAync();
