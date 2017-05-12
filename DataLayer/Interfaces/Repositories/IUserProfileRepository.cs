@@ -4,10 +4,8 @@ using DataLayer.Entities;
 
 namespace DataLayer.Interfaces
 {
-    public interface IUserProfileRepository : IRepository<UserProfile>
+    public interface IUserProfileRepository : IRepository<UserProfile,string>
     {
-        IQueryable<UserProfile> GetAll();
-        UserProfile GetUserProfile(string id);
-        Task<UserProfile> GetUserProfileAsync(string id);
+        Task<UserProfile> GetAsync(long publicId);
     }
 }

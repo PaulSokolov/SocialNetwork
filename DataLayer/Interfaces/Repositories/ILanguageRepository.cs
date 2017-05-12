@@ -4,10 +4,7 @@ using DataLayer.Entities;
 
 namespace DataLayer.Interfaces
 {
-    public interface ILanguageRepository : IRepository<Language>
+    public interface ILanguageRepository : IRepository<Language,long>
     {
-        IQueryable<Language> GetAll();
-        Language GetLanguage(long id);
-        Task<Language> GetLanguageAsync(long id);
     }
 }

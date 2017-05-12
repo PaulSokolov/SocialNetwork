@@ -101,41 +101,16 @@ namespace DataLayer.UnitOfWorks
         }
         #endregion
         #region ILocalization
-        public ICityRepository GetCityRepository()
-        {
-            return _cityRepository ?? (_cityRepository = new CityRepository(_context));
-        }
 
-        public async Task<ICityRepository> GetCityRepositoryAsync()
-        {
-            var task = new Task<ICityRepository>(GetCityRepository);
-            task.Start();
-            return await task;
-        }
+        public ICityRepository Cities => _cityRepository ?? (_cityRepository = new CityRepository(_context));
 
-        public ICountryRepository GetCountryRepository()
-        {
-            return _countryRepository ?? (_countryRepository = new CountryRepository(_context));
-        }
 
-        public async Task<ICountryRepository> GetCountryRepositoryAsync()
-        {
-            var task = new Task<ICountryRepository>(GetCountryRepository);
-            task.Start();
-            return await task;
-        }
+        public ICountryRepository Countries => _countryRepository ??
+                                               (_countryRepository = new CountryRepository(_context));
 
-        public ILanguageRepository GetLanguageRepository()
-        {
-            return _languageRepository ?? (_languageRepository = new LanguageRepository(_context));
-        }
 
-        public async Task<ILanguageRepository> GetLanguageRepositoryAsync()
-        {
-            var task = new Task<ILanguageRepository>(GetLanguageRepository);
-            task.Start();
-            return await task;
-        }
+        public ILanguageRepository Languages => _languageRepository ??
+                                                  (_languageRepository = new LanguageRepository(_context));
         #endregion
     }
 }

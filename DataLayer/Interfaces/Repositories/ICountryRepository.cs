@@ -4,10 +4,7 @@ using DataLayer.Entities;
 
 namespace DataLayer.Interfaces
 {
-    public interface ICountryRepository : IRepository<Country>
+    public interface ICountryRepository : IRepository<Country, long>
     {
-        IQueryable<Country> GetAll();
-        Country GetCountry(long id);
-        Task<Country> GetCountryAsync(long id);
     }
 }

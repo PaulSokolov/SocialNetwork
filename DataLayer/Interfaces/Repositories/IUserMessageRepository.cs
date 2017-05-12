@@ -4,13 +4,8 @@ using DataLayer.Entities;
 
 namespace DataLayer.Interfaces
 {
-    public interface IUserMessageRepository : IRepository<UserMessage>
+    public interface IUserMessageRepository : IRepository<UserMessage,long>
     {
-        IQueryable<UserMessage> GetAll();
-        UserMessage GetMessage(long messageId);
-        Task<UserMessage> GetMessageAsync(long messageId);
-        IQueryable<UserMessage> GetAllByUserId(string userId);
-        UserMessage Remove(long messageId);
-        Task<UserMessage> RemoveAsync(long messageId);
+        IQueryable<UserMessage> GetAllSent(string userId);
     }
 }

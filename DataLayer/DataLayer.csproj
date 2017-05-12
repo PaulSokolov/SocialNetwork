@@ -91,8 +91,8 @@
     <Compile Include="Entities\UserProfile.cs" />
     <Compile Include="Identity\RoleManager.cs" />
     <Compile Include="Identity\UserManager.cs" />
-    <Compile Include="Interfaces\Repositories\ICityRepository.cs" />
     <Compile Include="Interfaces\IClientManager.cs" />
+    <Compile Include="Interfaces\Repositories\ICityRepository.cs" />
     <Compile Include="Interfaces\Repositories\ICountryRepository.cs" />
     <Compile Include="Interfaces\Repositories\IFriendRepository.cs" />
     <Compile Include="Interfaces\Repositories\ILanguageRepository.cs" />

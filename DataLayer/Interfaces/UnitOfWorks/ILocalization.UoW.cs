@@ -5,12 +5,9 @@ namespace DataLayer.Interfaces
 {
     public interface ILocalization : ITransaction, IDisposable
     {
-        ICountryRepository GetCountryRepository();
-        Task<ICountryRepository> GetCountryRepositoryAsync();
-        ICityRepository GetCityRepository();
-        Task<ICityRepository> GetCityRepositoryAsync();
-        ILanguageRepository GetLanguageRepository();
-        Task<ILanguageRepository> GetLanguageRepositoryAsync();
+        ICountryRepository Countries { get; }
+        ICityRepository Cities { get; }
+        ILanguageRepository Languages { get; }
         bool LazyLoad { get; set; }
 
     }

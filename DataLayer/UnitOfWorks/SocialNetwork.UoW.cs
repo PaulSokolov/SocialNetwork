@@ -10,11 +10,7 @@ namespace DataLayer.UnitOfWorks
 {
     public class SocialNetwork : ISocialNetwork
     {
-        public bool LazyLoad
-        {
-            get => _context.Configuration.LazyLoadingEnabled;
-            set => _context.Configuration.LazyLoadingEnabled = value;
-        }
+        
         #region Variables
 
         private IFriendRepository _friendRepository;
@@ -37,41 +33,17 @@ namespace DataLayer.UnitOfWorks
 
         }
         #region ISocialNetwork
-        public IUserMessageRepository GetUserMessageRepository()
+        public bool LazyLoad
         {
-            return _userMessageRepository ?? (_userMessageRepository = new UserMessageRepository(_context));
+            get => _context.Configuration.LazyLoadingEnabled;
+            set => _context.Configuration.LazyLoadingEnabled = value;
         }
 
-        public async Task<IUserMessageRepository> GetUserMessageRepositoryAsync()
-        {
-            var task = new Task<IUserMessageRepository>(GetUserMessageRepository);
-            task.Start();
-            return await task; 
-        }
+        public IFriendRepository Friends => _friendRepository ?? (_friendRepository = new FriendRepository(_context));
 
-        public IUserProfileRepository GetUserProfileRepository()
-        {
-            return _userProfileRepository ?? (_userProfileRepository = new UserProfileRepository(_context));
-        }
+        public IUserMessageRepository Messages => _userMessageRepository ?? (_userMessageRepository = new UserMessageRepository(_context));
 
-        public async Task<IUserProfileRepository> GetUserProfileRepositoryAsync()
-        {
-            var task = new Task<IUserProfileRepository>(GetUserProfileRepository);
-            task.Start();
-            return await task;
-        }
-
-        public IFriendRepository GetFriendRepository()
-        {
-            return _friendRepository ?? (_friendRepository = new FriendRepository(_context));
-        }
-
-        public async Task<IFriendRepository> GetFriendRepositoryAsync()
-        {
-            var task = new Task<IFriendRepository>(GetFriendRepository);
-            task.Start();
-            return await task;
-        }
+        public IUserProfileRepository UserProfiles => _userProfileRepository ?? (_userProfileRepository = new UserProfileRepository(_context));
         #endregion
         #region ITransaction
         public void Commit()

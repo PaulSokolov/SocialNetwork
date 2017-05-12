@@ -27,15 +27,11 @@ namespace BusinessLayer.BusinessModels
                 public FriendCounters(FriendsCategory parent)
                 {
                     _friendsCategory = parent;
-                    //_friends = _friendsCategory._socialNetwork.GetUserProfileRepository().GetAll()
-                    //    .Where(u => u.Id == _friendsCategory._socialNetworkFunctionality.Id)
-                    //    .Select(u => u.Friends)
-                    //    .FirstOrDefault();
                 }
 
                 public async Task FriendsCounters()
                 {
-                    _friends = await (await _friendsCategory._socialNetwork.GetUserProfileRepositoryAsync()).GetAll()
+                    _friends = await _friendsCategory._socialNetwork.UserProfiles.GetAll()
                         .Where(u => u.Id == _friendsCategory._socialNetworkFunctionality.Id)
                         .Select(u => u.Friends)
                         .FirstOrDefaultAsync();
@@ -43,50 +39,21 @@ namespace BusinessLayer.BusinessModels
                 public async Task<long> CountFriendsAync()
                 {
                     return await Task.Run(() => this.Friends);
-                    //    if (_friends == null)
-                    //        _friends = (await (await _friendsCategory._socialNetwork.GetUserProfileRepositoryAsync())
-                    //            .GetAll()
-                    //            .Where(u => u.Id == _friendsCategory._socialNetworkFunctionality.Id)
-                    //            .Select(u => u.Friends)
-                    //            .FirstOrDefaultAsync());
-                    //    return await Task.Run<long>(()=> { return _friends.Count(f => f.Confirmed && f.Deleted == false); });
                 }
 
                 public async Task<long> CountFollowersAync()
                 {
                     return await Task.Run(() => this.Followers);
-                    if (_friends == null)
-                        _friends = (await (await _friendsCategory._socialNetwork.GetUserProfileRepositoryAsync())
-                                .GetAll()
-                                .Where(u => u.Id == _friendsCategory._socialNetworkFunctionality.Id)
-                                .Select(u => u.Friends)
-                                .FirstOrDefaultAsync());
-                    return await Task.Run<long>(() => { return _friends.Count(f => (f.Confirmed == false || f.Deleted) && f.RequestUserId != _friendsCategory._socialNetworkFunctionality.Id); });
                 }
+
                 public async Task<long> CountFollowedAync()
                 {
                     return await Task.Run(() => this.Followed);
-                    if (_friends == null)
-                        _friends = (await (await _friendsCategory._socialNetwork.GetUserProfileRepositoryAsync())
-                            .GetAll()
-                            .Where(u => u.Id == _friendsCategory._socialNetworkFunctionality.Id)
-                            .Select(u => u.Friends)
-                            .FirstOrDefaultAsync());
-                    return await Task.Run<long>(() => { return _friends.Count(f => (f.Confirmed == false || f.Deleted) && f.RequestUserId == _friendsCategory._socialNetworkFunctionality.Id); });
                 }
+
                 public async Task<long> CountRequestsAync()
                 {
                     return await Task.Run(() => this.Requests);
-                    lock (_friends)
-                    {
-                        //if (_friends == null)
-                        //    _friends = (await (await _friendsCategory._socialNetwork.GetUserProfileRepositoryAsync())
-                        //        .GetAll()
-                        //        .Where(u => u.Id == _friendsCategory._socialNetworkFunctionality.Id)
-                        //        .Select(u => u.Friends)
-                        //        .FirstOrDefaultAsync());
-                    }
-                    return await Task.Run<long>(() => { return _friends.Count(f => f.Confirmed == false && f.Deleted == false && f.RequestUserId != _friendsCategory._socialNetworkFunctionality.Id); });
                 }
 
             }

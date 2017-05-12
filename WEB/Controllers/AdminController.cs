@@ -45,10 +45,10 @@ namespace WEB.Controllers
         }
 
         [HttpGet, AjaxOnly]
-        public ActionResult DeleteRole()
+        public async Task<ActionResult> DeleteRole()
         {
             var roles = new List<RoleModel>();
-            foreach (var role in  UserService.GetRoles())
+            foreach (var role in await UserService.GetRoles())
             {
                 roles.Add(new RoleModel { Name = role });
             }

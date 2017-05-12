@@ -5,12 +5,9 @@ namespace DataLayer.Interfaces
 {
     public interface ISocialNetwork : ITransaction, IDisposable
     {
-        IFriendRepository GetFriendRepository();
-        Task<IFriendRepository> GetFriendRepositoryAsync();
-        IUserMessageRepository GetUserMessageRepository();
-        Task<IUserMessageRepository> GetUserMessageRepositoryAsync();
-        IUserProfileRepository GetUserProfileRepository();
-        Task<IUserProfileRepository> GetUserProfileRepositoryAsync();
+        IFriendRepository Friends { get; }
+        IUserMessageRepository Messages { get; }
+        IUserProfileRepository UserProfiles { get; }
         bool LazyLoad { get; set; }
 
     }

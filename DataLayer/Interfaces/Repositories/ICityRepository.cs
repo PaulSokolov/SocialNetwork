@@ -4,12 +4,7 @@ using DataLayer.Entities;
 
 namespace DataLayer.Interfaces
 {
-    public interface ICityRepository : IRepository<City>
+    public interface ICityRepository : IRepository<City, long>
     {
-        IQueryable<City> GetAll();
-        City GetCity(long id);
-        Task<City> GetCityAsync(long id);
-        IQueryable<City> GetAllCitiesByCountryId(long countryId);
-
     }
 }
