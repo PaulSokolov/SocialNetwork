@@ -14,11 +14,11 @@
                 }
                 else if (Model.IsFollower)
                 {
-                    <div id="@($"follower_{Model.PublicId}")" class="btn btn-default" style="float: right;top: 0px " onclick="FriendRequest(@Model.PublicId,'Confirm','result')">Add to friends</div>
+                    <div id="@($"follower_{Model.PublicId}")" class="btn btn-default" style="float: right;top: 0px " onclick="FriendRequest(@Model.PublicId,'Confirm','follower','result')">Add to friends</div>
                 }
                 else if (Model.IsRequested)
                 {
-                    <div id="@($"followed_{Model.PublicId}")" class="btn btn-default" style="float: right;top: 0px " onclick="FriendRequest(@Model.PublicId,'Unsubscribe','result')">Unsubscribe</div>
+                    <div id="@($"followed_{Model.PublicId}")" class="btn btn-default" style="float: right;top: 0px " onclick="FriendRequest(@Model.PublicId,'Unsubscribe','followed','result')">Unsubscribe</div>
                 }
                 <h5 class="media-heading">@($"{Model.Name} {Model.Surname}")</h5>
                 <span>@Model.Address</span>

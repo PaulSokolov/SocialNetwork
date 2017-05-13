@@ -11,12 +11,16 @@ using DataLayer.UnitOfWorks;
 
 namespace BusinessLayer.BusinessModels
 {
+    class Dialog
+    {
+        public UserMessage FromMe { get; set; }
+        public UserMessage ToMe { get; set; }
+    }
     public partial class SocialNetworkFunctionalityUser
     {
 
         public class MessagesCategory
         {
-            private SemaphoreSlim _semophore;
             private readonly SocialNetworkFunctionalityUser _socialNetworkFunctionality;
             private readonly ISocialNetwork _socialNetwork;
 
@@ -140,38 +144,6 @@ namespace BusinessLayer.BusinessModels
                 var fromMe = messages.Where(m => m.FromUserId == _socialNetworkFunctionality.Id).ToList();
                 var toMe = messages.Where(m => m.ToUserId == _socialNetworkFunctionality.Id).ToList();
 
-                var dialogs = new List<UserMessage>();
-
-                //Parallel.ForEach(fromMe, mesFromMe =>
-                //{
-                //    var same = false;
-                //    Parallel.ForEach(toMe, (mesToMe) =>
-                //    {
-                //        UserMessage mesToAdd = null;
-                //        if (mesFromMe.ToUserId == mesToMe.FromUserId)
-                //        {
-                //            same = true;
-
-                //            lock (dialogs)
-                //            {
-                //                mesToAdd = mesFromMe.PostedDate > mesToMe.PostedDate ? mesFromMe : mesToMe;
-                //                if (!dialogs.Contains(mesToAdd))
-                //                    dialogs.Add(mesFromMe.PostedDate > mesToMe.PostedDate ? mesFromMe : mesToMe);
-
-                //            }
-                //        }
-                //        if ( !dialogs.Contains(mesToMe) || !dialogs.Contains(mesFromMe))
-                //            lock (dialogs)
-                //            {
-                //                dialogs.Add(mesToMe);
-                //            }
-                //    });
-                //    if (!same)
-                //        lock (dialogs)
-                //        {
-                //            dialogs.Add(mesFromMe);
-                //        }
-                //});
                 List<Dialog> dialogLastmes = fromMe.AsParallel().Select(userMessage => new Dialog {FromMe = userMessage}).ToList();
                 foreach (var lastMessagesInDialog in dialogLastmes)
                 {
@@ -183,18 +155,14 @@ namespace BusinessLayer.BusinessModels
                         toMe.Remove(toMeItem);
                 }
                 dialogLastmes.AddRange(toMe.Select(m => new Dialog {ToMe = m}));
-                var messagess = dialogLastmes.AsParallel().Where(m=> m.ToMe != null && m.FromMe != null).Select(m => m.FromMe.PostedDate > m.ToMe.PostedDate ? m.FromMe : m.ToMe).ToList();
-                messagess.AddRange(dialogLastmes.AsParallel().Where(m => m.ToMe == null).Select(m => m.FromMe));
-                messagess.AddRange(dialogLastmes.AsParallel().Where(m => m.FromMe == null).Select(m => m.ToMe));
-                dialogs = messagess;
+                var dialogs = dialogLastmes.AsParallel().Where(m=> m.ToMe != null && m.FromMe != null).Select(m => m.FromMe.PostedDate > m.ToMe.PostedDate ? m.FromMe : m.ToMe).ToList();
+                dialogs.AddRange(dialogLastmes.AsParallel().Where(m => m.ToMe == null).Select(m => m.FromMe));
+                dialogs.AddRange(dialogLastmes.AsParallel().Where(m => m.FromMe == null).Select(m => m.ToMe));
+                
                 return _socialNetworkFunctionality.Mapper.Map<List<UserMessage>, List<UserMessageDTO>>(dialogs.ToList());
             }
             
-            class Dialog
-            {
-                public UserMessage FromMe { get; set; }
-                public UserMessage ToMe { get; set; }
-            }
+            
             public UserMessageDTO Read(long id)
             {
                 using (var context = new SocialNetwork(_socialNetworkFunctionality._connection))
@@ -228,18 +196,6 @@ namespace BusinessLayer.BusinessModels
                 return _socialNetworkFunctionality.Mapper.Map<UserMessageDTO>(result);
 
             }
-            //public void ReadMessages(IEnumerable<long> ids)
-            //{
-            //    var messages = _socialNetwork.GetUserMessageRepository().GetAll().Where(m => ids.Any(id => id == m.Id)).ToList();
-
-            //    foreach (var message in messages)
-            //    {
-            //        message.IsRead = true;
-            //        _socialNetwork.GetUserMessageRepository().Update(message);
-            //    }
-
-            //    _socialNetwork.Commit();
-            //}
         }
     }
 }
