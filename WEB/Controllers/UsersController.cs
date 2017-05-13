@@ -74,7 +74,7 @@ namespace WEB.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Search(string search, int? ageFrom, int? ageTo, long? cityId, long? countryId, string activityConcurence, string aboutConcurence, int? sex, short? sort)
+        public async Task<ActionResult> Search(string search, int? ageFrom, int? ageTo, long? cityId, long? countryId, string activityConcurence, string aboutConcurence, int? sex, short? sort, int? lastIndex)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
             await soc.Friends.Counters.FriendsCounters();
@@ -87,12 +87,27 @@ namespace WEB.Controllers
             var myPublicId = soc.Users.GetPublicIdAsync(); 
             #endregion
 
-            var users = await soc.Users.SearchAsync(search,ageFrom, ageTo, cityId, countryId, activityConcurence, aboutConcurence, sex, sort);
+            var users = await soc.Users.SearchAsync(search,ageFrom, ageTo, cityId, countryId, activityConcurence, aboutConcurence, sex, sort, lastIndex);
             
             
 
             await Task.WhenAll(friends, followers, followed);
-            var userModels = users.AsParallel().Select(user =>
+            
+            var userModels = users.AsParallel();
+            switch (sort)
+            {
+                case 0:
+                    userModels = userModels.OrderByDescending(user => user.ActivatedDate);
+                    break;
+                case 1:
+                    userModels =
+                        userModels.OrderByDescending(user => user.ActivatedDate);
+                    break;
+            }
+
+
+
+            userModels.Select(user =>
             {
                 var userSM = new UserSearchModel
                 {
@@ -112,7 +127,6 @@ namespace WEB.Controllers
                 return userSM;
 
             }).ToList();
-
             await Task.WhenAll(unread, newFriends, myPublicId);
             
             ViewBag.Unread = unread.Result;

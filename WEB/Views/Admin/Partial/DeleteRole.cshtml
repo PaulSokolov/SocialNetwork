@@ -9,8 +9,13 @@
         </tr>
     </thead>
     <tbody>
-        @for (var i = 0; i < Model.Count(); i++)
+    @{ int i = 0;}
+    @foreach (var role in Model)
+    {
+        
         {
+            i = i + 1;
+        }
             @*string style = null;
             if (@Model.ElementAt(i).Name == "admin")
             { @style = "danger";
@@ -19,11 +24,17 @@
             {
                 @style = "warning";
             }*@
-            <tr class="">
-                <td>@(i+1)</td>
-                <td>@Model.ElementAt(i).Name</td>
-                <td>@Ajax.ActionLink("Delete", "DeleteRole", new AjaxOptions { OnBegin = "beforeSend('rolesTable')", OnComplete = "complete('rolesTable')", HttpMethod = "Post" })</td>
-            </tr>
-        }
+        <tr class="">
+            <td>@i</td>
+            <td>@role.Name</td>
+            <td>
+                @using (Ajax.BeginForm("DeleteRole", new AjaxOptions {OnBegin = "beforeSend('rolesTable')", OnComplete = "complete('rolesTable')", HttpMethod = "Post"}))
+                {
+                    @Html.Hidden("role", role.Name)
+                    <button type="submit">Delete</button>
+                }
+            </td>
+        </tr>
+    }
     </tbody>
 </table> 

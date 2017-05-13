@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using BusinessLayer.DTO;
@@ -17,10 +18,11 @@ namespace BusinessLayer.Services
     public class UserService : IUserService
     {
         private IIdentityUoF Database { get; set; }
-
+        private SemaphoreSlim _semaphore;
         public UserService(IIdentityUoF uow)
         {
             Database = uow;
+            _semaphore = new SemaphoreSlim(1);
         }
 
         public async Task<OperationDetails> Create(UserProfileDTO userDto)
@@ -94,21 +96,27 @@ namespace BusinessLayer.Services
 
         public async Task<List<string>> GetRoles()
         {
-            IQueryable<string> roles = null;
-            lock (Database)
-            { 
-                roles = Database.RoleManager.Roles.Select(r => r.Name);
+            try
+            {
+                await _semaphore.WaitAsync();
+                return await Database.RoleManager.Roles.Select(r => r.Name).ToListAsync();
             }
-            return await roles.ToListAsync();
+            finally
+            {
+                _semaphore.Release();
+            }
         }
         public async Task<List<string>> GetRoles(string id)
         {
-            DataLayer.Identity.UserManager userManager = null;
-            lock (Database)
+            try
             {
-                userManager = Database.UserManager;
+                await _semaphore.WaitAsync();
+                return (await Database.UserManager.GetRolesAsync(id)).ToList();
             }
-            return (await userManager.GetRolesAsync(id)).ToList();;
+            finally
+            {
+                _semaphore.Release();
+            }
         }
 
         public async Task SetInitialData(UserProfileDTO adminDto, List<string> roles)

@@ -10,7 +10,7 @@
             <div class="media-body">
                 @if (Model.IsFriend)
                 {
-                    <div id="@($"delete_{Model.PublicId}")" class="btn btn-default" style="float: right;top: 0px" onclick="FriendRequest(@Model.PublicId,'Delete','delete','result')">Delete</div>
+                    <div id="@($"delete_{Model.PublicId}")" class="btn btn-default btn-danger" style="float: right;top: 0px" onclick="FriendRequest(@Model.PublicId,'Delete','delete','result')">Delete</div>
                 }
                 else if (Model.IsFollower)
                 {
@@ -18,7 +18,7 @@
                 }
                 else if (Model.IsRequested)
                 {
-                    <div id="@($"followed_{Model.PublicId}")" class="btn btn-default" style="float: right;top: 0px " onclick="FriendRequest(@Model.PublicId,'Unsubscribe','followed','result')">Unsubscribe</div>
+                    <div id="@($"followed_{Model.PublicId}")" class="btn btn-default btn-danger" style="float: right;top: 0px " onclick="FriendRequest(@Model.PublicId,'Unsubscribe','followed','result')">Unsubscribe</div>
                 }
                 <h5 class="media-heading">@($"{Model.Name} {Model.Surname}")</h5>
                 <span>@Model.Address</span>

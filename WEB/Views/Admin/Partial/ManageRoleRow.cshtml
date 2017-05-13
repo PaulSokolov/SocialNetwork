@@ -51,7 +51,7 @@
             {
                 @*@Html.DropDownList("role", new SelectList(Model.Roles), "Select role", new { onchange = "$(this.form).submit()", @class = "form-control" })*@
 
-                <select name="publicId" onchange="this.form.submit()" class="form-control">
+                <select name="role" onchange="$(this.form).submit()" class="form-control">
                     <option selected disabled>Select role</option>
                     @foreach (var role in Model.Roles)
                     {

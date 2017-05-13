@@ -63,12 +63,11 @@ namespace WEB.Controllers
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             var usersWithRoles = new List<ManageUserRolesModel>();
-            Parallel.ForEach(await soc.Users.SearchAsync(), async user =>
+            foreach (var user in await soc.Users.SearchAsync())
             {
                 var userRole = await UserService.GetRoles(user.Id);
                 var availableRoles = (await UserService.GetRoles()).Except(userRole).ToList();
-                lock (usersWithRoles)
-                {
+                
                     usersWithRoles.Add(new ManageUserRolesModel
                     {
                         Name = user.Name,
@@ -78,8 +77,25 @@ namespace WEB.Controllers
                         Roles = userRole,
                         AvailableRoles = availableRoles
                     });
-                }
-            });
+                
+            }
+            //Parallel.ForEach(await soc.Users.SearchAsync(), async user =>
+            //{
+            //    var userRole = await UserService.GetRoles(user.Id);
+            //    var availableRoles = (await UserService.GetRoles()).Except(userRole).ToList();
+            //    lock (usersWithRoles)
+            //    {
+            //        usersWithRoles.Add(new ManageUserRolesModel
+            //        {
+            //            Name = user.Name,
+            //            Surname = user.LastName,
+            //            PublicId = user.PublicId,
+            //            Avatar = user.Avatar,
+            //            Roles = userRole,
+            //            AvailableRoles = availableRoles
+            //        });
+            //    }
+            //});
             return PartialView("Partial/ManageRoles", usersWithRoles);
         }
 

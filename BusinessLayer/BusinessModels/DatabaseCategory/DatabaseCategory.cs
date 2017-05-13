@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading;
 using BusinessLayer.BusinessModels.Exeptions;
 using BusinessLayer.DTO;
 using DataLayer.Entities;
@@ -15,14 +16,18 @@ namespace BusinessLayer.BusinessModels
     {
         public class DatabaseCategory
         {
-
+            private SemaphoreSlim semophore;
+            private object _sync;
             private readonly SocialNetworkFunctionalityUser _socialNetworkFunctionality;
             private readonly ILocalization _localization;
+            private int threadIn = 0;
 
             public DatabaseCategory(SocialNetworkFunctionalityUser socialNetworkFunctionality)
             {
                 _socialNetworkFunctionality = socialNetworkFunctionality;
                 _localization = new Localization(_socialNetworkFunctionality._connection);
+                _sync = new object();
+                semophore = new SemaphoreSlim(1);
             }
             
             public void AddCity(long id, long coutryId, string name)
@@ -79,8 +84,22 @@ namespace BusinessLayer.BusinessModels
 
             public async Task<List<CityDTO>> GetCitiesAsync(long countryId)
             {
-                var cities = await _localization.Cities.GetAll().Where(c => c.CountryId == countryId).ToListAsync();
-                return _socialNetworkFunctionality.Mapper.Map<List<City>, List<CityDTO>>(cities);
+                lock (_sync)
+                {
+                    threadIn = threadIn + 1;
+                }
+                if (threadIn == 1)
+                {
+                    var cities = await _localization.Cities.GetAll().Where(c => c.CountryId == countryId).ToListAsync();
+                    threadIn = 0;
+                    return _socialNetworkFunctionality.Mapper.Map<List<City>, List<CityDTO>>(cities);
+                }
+                using (var context = new Localization(_socialNetworkFunctionality._connection))
+                {
+                    var cities = await context.Cities.GetAll().Where(c => c.CountryId == countryId)
+                        .ToListAsync();
+                    return _socialNetworkFunctionality.Mapper.Map<List<City>, List<CityDTO>>(cities);
+                }
             }
 
             public CityDTO GetCityById(long id)
@@ -97,8 +116,22 @@ namespace BusinessLayer.BusinessModels
 
             public async Task<List<CountryDTO>> GetAllCountriesAsync()
             {
-                var countries = await _localization.Countries.GetAll().ToListAsync();
-                return _socialNetworkFunctionality.Mapper.Map<List<Country>, List<CountryDTO>>(countries);
+                
+                lock (_sync)
+                {
+                    threadIn = threadIn + 1;
+                }
+                if (threadIn == 1)
+                {
+                    var countries = await _localization.Countries.GetAll().ToListAsync();
+                    threadIn = 0;
+                    return _socialNetworkFunctionality.Mapper.Map<List<Country>, List<CountryDTO>>(countries);
+                }
+                using (var context = new Localization(_socialNetworkFunctionality._connection))
+                {
+                    var countries = await context.Countries.GetAll().ToListAsync();
+                    return _socialNetworkFunctionality.Mapper.Map<List<Country>, List<CountryDTO>>(countries);
+                }
             }
 
             public CountryDTO GetCountryById(long id)

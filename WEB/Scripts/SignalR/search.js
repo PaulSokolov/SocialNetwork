@@ -22,12 +22,27 @@ function filterAges(fromAge, toAgeList, toAge = null, fromAgeList = null) {
         });
     }
 }
-$(function () {
+
+$(document).ready(function() {
+    $(window).scroll(function () {
+        var scrtop = $(window).scrollTop();
+        var docHeight = $(document).height();
+        var win = $(window).height();
+        if ($(window).scrollTop() + $(window).height() >= $(document).height()) {
+            var data = getSearchData();
+            takeDataOnScroll(data);
+        }
+    });
+});
+
+
+$(function() {
     $("#cityLabel").hide();
     $("#cities").hide();
     var docHeight = $(window).height();
     var footerHeight = $('footer').height();
     var footerTop = $('footer').position().top + footerHeight;
+
 
     //if (footerTop < docHeight) {
     //    $('footer').css('margin-top', 10 + (docHeight - footerTop) + 'px');
@@ -40,6 +55,7 @@ $("#searchButton").click(function (e) {
 })
 $('#sort').on("change", function () {   
     var data = getSearchData();
+    data.lastIndex = 0;
     searchRequest(data);
 });
 $('#countries').on("change", function () {
@@ -67,10 +83,12 @@ $('#countries').on("change", function () {
         });
     }
     var data = getSearchData();
+    data.lastIndex = 0;
     searchRequest(data);
 });
 $('#cities').on("change", function () {
     var data = getSearchData();
+    data.lastIndex = 0;
     searchRequest(data);
 });
 $('#from').on("change", function () {
@@ -78,6 +96,7 @@ $('#from').on("change", function () {
     var fromSelectedAge = $(this).val();
     filterAges(fromSelectedAge, options);
     var data = getSearchData();
+    data.lastIndex = 0;
     searchRequest(data);
 });
 $('#to').on("change", function () {
@@ -85,10 +104,12 @@ $('#to').on("change", function () {
     var toSelectedAge = $(this).val();
     filterAges(null, null, toSelectedAge, options);
     var data = getSearchData();
+    data.lastIndex = 0;
     searchRequest(data);
 });
 $('#gender').on("change", function () {
     var data = getSearchData();
+    data.lastIndex = 0;
     searchRequest(data);
 });
 function updateQueryString(data) {
@@ -121,16 +142,35 @@ function searchRequest(data) {
         data: JSON.stringify(data),
         dataType: "html",
         contentType: "application/json; charset=utf-8",
-        success: function (data) {
+        success: function(data) {
             $("#result").empty().prepend(data);
         },
-        beforeSend: function () { beforeSend('result') },
-        complete: function () { complete('result') },
-        failure: function () {
+        beforeSend: function() { beforeSend('result') },
+        complete: function() { complete('result') },
+        failure: function() {
             alert("error");
         }
-    })
+    });
 }
+
+function takeDataOnScroll(data) {
+    $.ajax({
+        type: "POST",
+        url: "/Users/Search",
+        data: JSON.stringify(data),
+        dataType: "html",
+        contentType: "application/json; charset=utf-8",
+        success: function(data) {
+            $("#result").append(data);
+        },
+        beforeSend: function() { beforeSend('result') },
+        complete: function() { complete('result') },
+        failure: function() {
+            alert("error");
+        }
+    });
+}
+
 function getSearchData() {
     var data = {
         ageFrom: $("#from").val(),
@@ -141,7 +181,8 @@ function getSearchData() {
         sort: $("#sort").val(),
         activityConcurence: $("#search").val(),
         aboutConcurence: $("#search").val(),
-        search: $("#search").val()
+        search: $("#search").val(),
+        lastIndex: $('div.row div.dialog').length
     };
     return data;
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using BusinessLayer.BusinessModels;
+using Microsoft.Ajax.Utilities;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.SignalR;
 using SocialNetwork.Models;
@@ -20,8 +21,8 @@ namespace WEB.Controllers
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            
-            
+
+
             await soc.Friends.Counters.FriendsCounters();
 
             #region Parallel operations
@@ -33,16 +34,16 @@ namespace WEB.Controllers
             var avatar = soc.Users.GetAvatarAsync();
             #endregion
 
-            var friendModels =(await soc.Friends.GetFriendsAsync()).AsParallel().Select(friend =>new FriendModel
-                    {
-                        Address = friend.Address,
-                        Name = friend.Name,
-                        Surname = friend.LastName,
-                        PublicId = friend.PublicId,
-                        Avatar = friend.Avatar,
-                        IsFriend = true
-                    }).ToList();
-                
+            var friendModels = (await soc.Friends.GetFriendsAsync()).AsParallel().Select(friend => new FriendModel
+            {
+                Address = friend.Address,
+                Name = friend.Name,
+                Surname = friend.LastName,
+                PublicId = friend.PublicId,
+                Avatar = friend.Avatar,
+                IsFriend = true
+            }).ToList();
+
 
             await Task.WhenAll(friends, followed, followers, newFriends, unread, avatar);
 
@@ -62,15 +63,15 @@ namespace WEB.Controllers
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             var friendModels = (await soc.Friends.GetFriendsAsync()).AsParallel().Select(friend => new FriendModel
-                    {
-                        Address = friend.Address,
-                        Name = friend.Name,
-                        Surname = friend.LastName,
-                        PublicId = friend.PublicId,
-                        Avatar = friend.Avatar,
-                        IsFriend = true
+            {
+                Address = friend.Address,
+                Name = friend.Name,
+                Surname = friend.LastName,
+                PublicId = friend.PublicId,
+                Avatar = friend.Avatar,
+                IsFriend = true
 
-                    }).ToList();
+            }).ToList();
             return PartialView("Partial/Friends", friendModels);
         }
 
@@ -92,7 +93,7 @@ namespace WEB.Controllers
             return PartialView("Partial/Friends", friendModels);
         }
 
-        [HttpPost,AjaxOnly]
+        [HttpPost, AjaxOnly]
         public async Task<ActionResult> Followers()
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
@@ -113,14 +114,14 @@ namespace WEB.Controllers
             return PartialView("Partial/Friends", friendModels);
         }
 
-        [HttpPost,AjaxOnly]
+        [HttpPost, AjaxOnly]
         public async Task<ActionResult> Add(long publicId)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
             var friend = await soc.Friends.AddAsync(publicId);
             var user = await soc.Users.GetAsync(soc.Id);
-
+            await soc.Friends.Counters.FriendsCounters();
 
 
             var model = new FriendNotificationModel
@@ -138,19 +139,32 @@ namespace WEB.Controllers
             await friendSoc.Friends.Counters.FriendsCounters();
 
             #region Parallel operations
-            var followers = friendSoc.Friends.Counters.CountFollowersAync();
-            var friends = friendSoc.Friends.Counters.CountFriendsAync();
-            var followed = friendSoc.Friends.Counters.CountFollowedAync(); 
+            var ffollowers = friendSoc.Friends.Counters.CountFollowersAync();
+            var ffriends = friendSoc.Friends.Counters.CountFriendsAync();
+            var ffollowed = friendSoc.Friends.Counters.CountFollowedAync();
+            var fnewfriends = friendSoc.Friends.Counters.CountRequestsAync();
+            var followers = soc.Friends.Counters.CountFollowersAync();
+            var friends = soc.Friends.Counters.CountFriendsAync();
+            var followed = soc.Friends.Counters.CountFollowedAync();
+            var newfriends = soc.Friends.Counters.CountRequestsAync();
             #endregion
-            await Task.WhenAll(followers, friends, followed);
-            UpdateCounters(friend.UserId,
-                new[]
+            await Task.WhenAll(followers, friends, followed, newfriends, ffollowers, ffriends, ffollowed, fnewfriends);
+            UpdateCounters(friendSoc.Id,Json(
+                new
                 {
-                    followers.Result,
-                    friends.Result,
-                    followed.Result
-                });
-            
+                    followers = ffollowers.Result,
+                    friends = ffriends.Result,
+                    followed = ffollowed.Result,
+                    newfriends = fnewfriends.Result
+                }).Data);
+            UpdateCounters(soc.Id, Json(
+                new
+                {
+                    followers = followers.Result,
+                    friends = friends.Result,
+                    followed = followed.Result,
+                    newfriends = newfriends.Result
+                }).Data);
             return Content("Unsubscribe");
         }
 
@@ -173,21 +187,40 @@ namespace WEB.Controllers
 
             AddFriend(friend.FriendId, RenderRazorViewToString("../Shared/FriendNotification", model));
 
-            var friendSoc = new SocialNetworkFunctionalityUser(friend.UserId);
+            var friendSoc = new SocialNetworkFunctionalityUser(friend.FriendId);
             await friendSoc.Friends.Counters.FriendsCounters();
+            await soc.Friends.Counters.FriendsCounters();
             #region Parallel operations
-            var followers = friendSoc.Friends.Counters.CountFollowersAync();
-            var friends = friendSoc.Friends.Counters.CountFriendsAync();
-            var followed = friendSoc.Friends.Counters.CountFollowedAync();
+
+            var friendNewFriends = friendSoc.Friends.Counters.CountRequestsAync();
+            var friendFollowers = friendSoc.Friends.Counters.CountFollowersAync();
+            var friendFriends = friendSoc.Friends.Counters.CountFriendsAync();
+            var friendFollowed = friendSoc.Friends.Counters.CountFollowedAync();
+
+            var newfriends = soc.Friends.Counters.CountRequestsAync();
+            var followers = soc.Friends.Counters.CountFollowersAync();
+            var friends = soc.Friends.Counters.CountFriendsAync();
+            var followed = soc.Friends.Counters.CountFollowedAync();
             #endregion
-            await Task.WhenAll(followers, friends, followed);
-            UpdateCounters(friend.UserId,
-                new[]
+
+            await Task.WhenAll(followers, friends, followed, newfriends, friendFollowers, friendFriends, friendFollowed,
+                friendNewFriends);
+            UpdateCounters(friendSoc.Id,Json(
+                new
                 {
-                    followers.Result,
-                    friends.Result,
-                    followed.Result
-                });
+                    newfriends = friendNewFriends.Result,
+                    followers = friendFollowers.Result,
+                    friends = friendFriends.Result,
+                    followed = friendFollowed.Result
+                }).Data);
+            UpdateCounters(soc.Id,Json(
+                new
+                {
+                    newfriends = newfriends.Result,
+                    followers = followers.Result,
+                    friends = friends.Result,
+                    followed = followed.Result
+                }).Data);
             return Content("Delete");
         }
 
@@ -202,7 +235,7 @@ namespace WEB.Controllers
 
             paralelCountersInitializingTasks.Add(soc.Friends.Counters.FriendsCounters());
 
-            var friendSoc = new SocialNetworkFunctionalityUser(friend.UserId);
+            var friendSoc = new SocialNetworkFunctionalityUser(friend.FriendId);
             paralelCountersInitializingTasks.Add(friendSoc.Friends.Counters.FriendsCounters());
             var user = await soc.Users.GetAsync(soc.Id);
 
@@ -210,28 +243,32 @@ namespace WEB.Controllers
 
             parallelFriendCounntingTasks.AddRange(new List<Task<long>>
             {
-                soc.Friends.Counters.CountRequestsAync(),
+                soc.Friends.Counters.CountFollowersAync(),
                 soc.Friends.Counters.CountFriendsAync(),
                 soc.Friends.Counters.CountFollowedAync(),
-                friendSoc.Friends.Counters.CountRequestsAync(),
+                soc.Friends.Counters.CountRequestsAync(),
+                friendSoc.Friends.Counters.CountFollowersAync(),
                 friendSoc.Friends.Counters.CountFriendsAync(),
-                friendSoc.Friends.Counters.CountFollowedAync()
+                friendSoc.Friends.Counters.CountFollowedAync(),
+                friendSoc.Friends.Counters.CountRequestsAync()
             });
             await Task.WhenAll(parallelFriendCounntingTasks);
-            UpdateCounters(soc.Id,
-                new[]
+            UpdateCounters(soc.Id,Json(
+                new
                 {
-                    parallelFriendCounntingTasks[0].Result,
-                    parallelFriendCounntingTasks[1].Result,
-                    parallelFriendCounntingTasks[2].Result
-                });
-            UpdateCounters(friend.FriendId,
-                new[]
+                    followers = parallelFriendCounntingTasks[0].Result,
+                    friends = parallelFriendCounntingTasks[1].Result,
+                    followed = parallelFriendCounntingTasks[2].Result,
+                    newfriends = parallelFriendCounntingTasks[3].Result
+                }).Data);
+            UpdateCounters(friendSoc.Id,Json(
+                new
                 {
-                    parallelFriendCounntingTasks[3].Result,
-                    parallelFriendCounntingTasks[4].Result,
-                    parallelFriendCounntingTasks[5].Result
-                });
+                    followers = parallelFriendCounntingTasks[4].Result,
+                    friends = parallelFriendCounntingTasks[5].Result,
+                    followed = parallelFriendCounntingTasks[6].Result,
+                    newfriends = parallelFriendCounntingTasks[7].Result
+                }).Data);
             var model = new FriendNotificationModel
             {
                 Avatar = soc.Users.Avatar,
@@ -242,11 +279,11 @@ namespace WEB.Controllers
             };
 
             AddFriend(friend.FriendId, RenderRazorViewToString("../Shared/FriendNotification", model));
-            
-            
+
+
             return Content("Add To Friends");
         }
-        [HttpPost,AjaxOnly]
+        [HttpPost, AjaxOnly]
         public async Task<ActionResult> Unsubscribe(long publicId)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
@@ -258,13 +295,13 @@ namespace WEB.Controllers
             var followedTask = soc.Friends.Counters.CountFollowedAync();
             await Task.WhenAll(friendsTask, followedTask, followersTask);
 
-            UpdateCounters(soc.Id,
-                new[]
+            UpdateCounters(soc.Id,Json(
+                new
                 {
-                    followersTask.Result ,
-                    friendsTask.Result ,
-                    followedTask.Result 
-                });
+                    followers = followersTask.Result,
+                    friends = friendsTask.Result,
+                    followed = followedTask.Result
+                }).Data);
 
             return Content("Add Friend");
         }
@@ -276,7 +313,7 @@ namespace WEB.Controllers
             context.Clients.Group(publicId).addFriend(notification);
         }
 
-        private void UpdateCounters(string publicId, long[] count)
+        private void UpdateCounters(string publicId, object count)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<ConnectionHub>();
             context.Clients.Group(publicId).friendCounters(count);
@@ -295,7 +332,7 @@ namespace WEB.Controllers
                 viewResult.ViewEngine.ReleaseView(ControllerContext, viewResult.View);
                 return sw.GetStringBuilder().ToString();
             }
-        } 
+        }
         #endregion
     }
 }

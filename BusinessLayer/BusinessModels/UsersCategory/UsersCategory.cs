@@ -122,7 +122,7 @@ namespace BusinessLayer.BusinessModels
                 return _socialNetworkFunctionality.Mapper.Map<List<UserProfileDTO>>(users);
             }
             
-            public async Task<List<UserProfileDTO>> SearchAsync(string search = null, int? ageFrom = null, int? ageTo = null, long? cityId = null, long? countryId = null, string activityConcurence = null, string aboutConcurence = null, int? sex = null, short? sort = null)
+            public async Task<List<UserProfileDTO>> SearchAsync(string search = null, int? ageFrom = null, int? ageTo = null, long? cityId = null, long? countryId = null, string activityConcurence = null, string aboutConcurence = null, int? sex = null, short? sort = 0, int? lastIndex = 0)
             {
                 var time = _socialNetworkFunctionality._now().Year;
                 var query = _socialNetwork.UserProfiles.GetAll();
@@ -156,7 +156,7 @@ namespace BusinessLayer.BusinessModels
                     }
                 }
 
-                var users = await query.ToListAsync();
+                var users = await query.Skip((int)lastIndex).Take(10).ToListAsync();
 
                 if (users.Count != 0) return _socialNetworkFunctionality.Mapper.Map<List<UserProfileDTO>>(users);
 
@@ -171,7 +171,7 @@ namespace BusinessLayer.BusinessModels
                     query = query.Where(u => about.Any(s => u.Activity.Contains(s)));
                 }
 
-                users = await query.ToListAsync();
+                users = await query.Skip((int)lastIndex).Take(10).ToListAsync();
 
                 return _socialNetworkFunctionality.Mapper.Map<List<UserProfileDTO>>(users);
             }
