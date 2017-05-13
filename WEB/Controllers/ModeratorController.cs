@@ -103,28 +103,22 @@ namespace WEB.Controllers
 
             var user = await soc.Users.GetByPublicIdAsync((long)publicId);
             var messages = (await soc.Messages.GetAllMessagesByUserIdAsync(user.Id)).Where(m => m.Body.ToLower().Contains(body.ToLower()));
-            List<MessageModeratorModel> models = new List<MessageModeratorModel>();
-            Parallel.ForEach(messages, (message) =>
+            var models = messages.AsParallel().Select(message => new MessageModeratorModel
             {
-                lock (models)
-                {
-                    models.Add(new MessageModeratorModel
-                    {
-                        Id = message.Id,
-                        UserAvatar = message.FromUser.Avatar,
-                        UserName = message.FromUser.Name,
-                        UserSurname = message.FromUser.LastName,
-                        UserPublicId = message.FromUser.PublicId,
-                        RecipientAvatar = message.ToUser.Avatar,
-                        RecipientName = message.ToUser.Name,
-                        RecipientSurname = message.ToUser.LastName,
-                        RecipientPublicId = message.ToUser.PublicId,
-                        Body = message.Body,
-                        PostedDate = message.PostedDate,
-                        LastModifiedDate = message.ModifiedDate
-                    });
-                }
-            });
+                Id = message.Id,
+                UserAvatar = message.FromUser.Avatar,
+                UserName = message.FromUser.Name,
+                UserSurname = message.FromUser.LastName,
+                UserPublicId = message.FromUser.PublicId,
+                RecipientAvatar = message.ToUser.Avatar,
+                RecipientName = message.ToUser.Name,
+                RecipientSurname = message.ToUser.LastName,
+                RecipientPublicId = message.ToUser.PublicId,
+                Body = message.Body,
+                PostedDate = message.PostedDate,
+                LastModifiedDate = message.ModifiedDate
+            }).ToList();
+            
 
             return PartialView("Partial/MessagesTable", models);
         }
@@ -146,23 +140,14 @@ namespace WEB.Controllers
 
             var users = await soc.Users.SearchAsync(search, ageFrom, ageTo, cityId, countryId, activityConcurence, aboutConcurence, sex, sort);
 
-            var models = new List<UserDeleteModel>();
-
-            Parallel.ForEach(users, user =>
+            var models = users.AsParallel().Select(user => new UserDeleteModel
             {
-                var model = new UserDeleteModel
-                {
-                    Name = user.Name,
-                    Surname = user.LastName,
-                    Address = user.Address,
-                    Avatar = user.Avatar,
-                    PublicId = user.PublicId
-                };
-                lock (models)
-                {
-                    models.Add(model);
-                }
-            }); 
+                Name = user.Name,
+                Surname = user.LastName,
+                Address = user.Address,
+                Avatar = user.Avatar,
+                PublicId = user.PublicId
+            });
 
             return PartialView("Partial/Users", models);
         }

@@ -142,30 +142,59 @@ namespace BusinessLayer.BusinessModels
 
                 var dialogs = new List<UserMessage>();
 
-                Parallel.ForEach(fromMe, mesFromMe =>
+                //Parallel.ForEach(fromMe, mesFromMe =>
+                //{
+                //    var same = false;
+                //    Parallel.ForEach(toMe, (mesToMe) =>
+                //    {
+                //        UserMessage mesToAdd = null;
+                //        if (mesFromMe.ToUserId == mesToMe.FromUserId)
+                //        {
+                //            same = true;
+
+                //            lock (dialogs)
+                //            {
+                //                mesToAdd = mesFromMe.PostedDate > mesToMe.PostedDate ? mesFromMe : mesToMe;
+                //                if (!dialogs.Contains(mesToAdd))
+                //                    dialogs.Add(mesFromMe.PostedDate > mesToMe.PostedDate ? mesFromMe : mesToMe);
+
+                //            }
+                //        }
+                //        if ( !dialogs.Contains(mesToMe) || !dialogs.Contains(mesFromMe))
+                //            lock (dialogs)
+                //            {
+                //                dialogs.Add(mesToMe);
+                //            }
+                //    });
+                //    if (!same)
+                //        lock (dialogs)
+                //        {
+                //            dialogs.Add(mesFromMe);
+                //        }
+                //});
+                List<Dialog> dialogLastmes = fromMe.AsParallel().Select(userMessage => new Dialog {FromMe = userMessage}).ToList();
+                foreach (var lastMessagesInDialog in dialogLastmes)
                 {
-                    var same = false;
-                    Parallel.ForEach(toMe, (mesToMe) =>
-                    {
-                        if (mesFromMe.ToUserId == mesToMe.FromUserId)
-                        {
-                            same = true;
-                            lock (dialogs)
-                            {
-                                dialogs.Add(mesFromMe.PostedDate > mesToMe.PostedDate ? mesFromMe : mesToMe);
-                            }
-                        }
-                    });
-                    if (!same)
-                        lock (dialogs)
-                        {
-                            dialogs.Add(mesFromMe);
-                        }
-                });
-
-                return _socialNetworkFunctionality.Mapper.Map<List<UserMessage>, List<UserMessageDTO>>(dialogs);
+                    var fromUserId = lastMessagesInDialog.FromMe.FromUserId;
+                    var toUserId = lastMessagesInDialog.FromMe.ToUserId;
+                    var toMeItem = toMe.AsParallel().FirstOrDefault(m => m.FromUserId == toUserId && m.ToUserId == fromUserId);
+                    lastMessagesInDialog.ToMe = toMeItem;
+                    if (toMeItem != null)
+                        toMe.Remove(toMeItem);
+                }
+                dialogLastmes.AddRange(toMe.Select(m => new Dialog {ToMe = m}));
+                var messagess = dialogLastmes.AsParallel().Where(m=> m.ToMe != null && m.FromMe != null).Select(m => m.FromMe.PostedDate > m.ToMe.PostedDate ? m.FromMe : m.ToMe).ToList();
+                messagess.AddRange(dialogLastmes.AsParallel().Where(m => m.ToMe == null).Select(m => m.FromMe));
+                messagess.AddRange(dialogLastmes.AsParallel().Where(m => m.FromMe == null).Select(m => m.ToMe));
+                dialogs = messagess;
+                return _socialNetworkFunctionality.Mapper.Map<List<UserMessage>, List<UserMessageDTO>>(dialogs.ToList());
             }
-
+            
+            class Dialog
+            {
+                public UserMessage FromMe { get; set; }
+                public UserMessage ToMe { get; set; }
+            }
             public UserMessageDTO Read(long id)
             {
                 using (var context = new SocialNetwork(_socialNetworkFunctionality._connection))
@@ -188,7 +217,7 @@ namespace BusinessLayer.BusinessModels
             public async Task<UserMessageDTO> ReadAsync(long id)
             {
                 UserMessage message = await _socialNetwork.Messages.GetAsync(id);
-                if(message.FromUserId == _socialNetworkFunctionality.Id)
+                if(message.FromUserId == _socialNetworkFunctionality.Id && message.IsRead == true)
                     return _socialNetworkFunctionality.Mapper.Map<UserMessageDTO>(message);
                 message.IsRead = true;
                 //mes.Result.IsRead = true;

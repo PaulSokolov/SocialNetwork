@@ -94,12 +94,21 @@ namespace BusinessLayer.Services
 
         public async Task<List<string>> GetRoles()
         {
-            var roles = Database.RoleManager.Roles.Select(r => r.Name);
+            IQueryable<string> roles = null;
+            lock (Database)
+            { 
+                roles = Database.RoleManager.Roles.Select(r => r.Name);
+            }
             return await roles.ToListAsync();
         }
         public async Task<List<string>> GetRoles(string id)
         {
-            return (await Database.UserManager.GetRolesAsync(id)).ToList();;
+            DataLayer.Identity.UserManager userManager = null;
+            lock (Database)
+            {
+                userManager = Database.UserManager;
+            }
+            return (await userManager.GetRolesAsync(id)).ToList();;
         }
 
         public async Task SetInitialData(UserProfileDTO adminDto, List<string> roles)

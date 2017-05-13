@@ -42,12 +42,10 @@ namespace WEB.Controllers
                 usersFound = await soc.Users.SearchAsync(activityConcurence: search, aboutConcurence: search);
                 usersFound.AddRange(await soc.Users.SearchAsync(search));
             }
-
-            var users = new List<UserSearchModel>();
+            
             usersFound = usersFound.Distinct().ToList();
             await Task.WhenAll(friends, followers, followed);
-
-            Parallel.ForEach(usersFound, (user) =>
+            var users = usersFound.AsParallel().Select(user =>
             {
                 var userModel = new UserSearchModel
                 {
@@ -63,11 +61,9 @@ namespace WEB.Controllers
                     userModel.IsFollower = true;
                 else if (followed.Result.Contains(user))
                     userModel.IsFollowed = true;
-                lock (users)
-                {
-                    users.Add(userModel);
-                }
-            });
+                return userModel;
+            }).ToList();
+            
             await Task.WhenAll(countries, unread, avatar, myPublicId, newFriends);
 
             ViewBag.Unread = unread.Result;
@@ -93,10 +89,10 @@ namespace WEB.Controllers
 
             var users = await soc.Users.SearchAsync(search,ageFrom, ageTo, cityId, countryId, activityConcurence, aboutConcurence, sex, sort);
             
-            var userModels = new List<UserSearchModel>();
+            
 
             await Task.WhenAll(friends, followers, followed);
-            Parallel.ForEach(users, user =>
+            var userModels = users.AsParallel().Select(user =>
             {
                 var userSM = new UserSearchModel
                 {
@@ -113,12 +109,9 @@ namespace WEB.Controllers
                     userSM.IsFollower = true;
                 else if (followed.Result.Contains(user))
                     userSM.IsFollowed = true;
-                lock (userModels)
-                {
-                    userModels.Add(userSM);
-                }
-                
-            });
+                return userSM;
+
+            }).ToList();
 
             await Task.WhenAll(unread, newFriends, myPublicId);
             

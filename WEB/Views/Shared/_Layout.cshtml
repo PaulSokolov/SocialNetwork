@@ -62,19 +62,19 @@
                                     </div>
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="#">My profile</a></li>
-                                    <li><a href="#">Edit</a></li>
+                                    <li><a href="@Url.Action("Profile","Home")">My profile</a></li>
+                                    <li><a href="@Url.Action("Settings", "Home")">Edit</a></li>
                                     @if (User.IsInRole("admin"))
                                     {
-                                    <li><a href="/Admin/Index">Admin panel</a></li>
-                                    <li><a href="/Moderator/Index">Moderator panel</a></li>
+                                    <li><a href="@Url.Action("Index","Admin")">Admin panel</a></li>
+                                    <li><a href="@Url.Action("Index","Moderator")">Moderator panel</a></li>
                                     }
                                     else if (User.IsInRole("moderator"))
                                     {
-                                        <li><a href="/Moderator/Index">Moderator panel</a></li>
+                                        <li><a href="@Url.Action("Index","Moderator")">Moderator panel</a></li>
                                     }
                                     <li role="separator" class="divider"></li>
-                                    <li><a href="/Account/Logout">Logout</a></li>
+                                    <li><a href="@Url.Action("LogOut","Account")">Logout</a></li>
                                 </ul>
                             </li>
                         </div>

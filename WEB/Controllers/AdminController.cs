@@ -21,8 +21,9 @@ namespace WEB.Controllers
     {
         private IUserService UserService => HttpContext.GetOwinContext().GetUserManager<IUserService>();
 
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
+            ViewBag.Avatar = await new SocialNetworkFunctionalityUser(User.Identity.GetUserId()).Users.GetAvatarAsync();
             return View();
         }
 
@@ -203,20 +204,13 @@ namespace WEB.Controllers
 
 
             var users = await soc.Users.SearchAsync(search, ageFrom, ageTo, cityId, countryId, activityConcurence, aboutConcurence, sex, sort);
-            var models = new List<UserDeleteModel>();
-            Parallel.ForEach(users, user =>
+            var models = users.AsParallel().Select(user => new UserDeleteModel
             {
-                lock (models)
-                {
-                    models.Add(new UserDeleteModel
-                    {
-                        Name = user.Name,
-                        Surname = user.LastName,
-                        Address = user.Address,
-                        Avatar = user.Avatar,
-                        PublicId = user.PublicId
-                    });
-                }
+                Name = user.Name,
+                Surname = user.LastName,
+                Address = user.Address,
+                Avatar = user.Avatar,
+                PublicId = user.PublicId
             });
 
             await Task.WhenAll(unread, newFriends, myPublicId);

@@ -74,10 +74,10 @@ function subscribeOnHoverEvents() {
                 url: "/Messages/Read",
                 data: { messageId: mesId },
                 type: "post",
-                dataType: "html",
+                dataType: "json",
                 success: function (data) {
-                    if (data.isRead) {
-                        this.removeClass("unread");
+                    if (data.isRead === true) {
+                        $('#mes_' + mesId).removeClass("unread");
                     }
                 }
             });

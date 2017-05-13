@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
@@ -22,7 +23,7 @@ namespace WEB.Controllers
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            var friendModels = new List<FriendModel>();
+            
             
             await soc.Friends.Counters.FriendsCounters();
 
@@ -35,12 +36,7 @@ namespace WEB.Controllers
             var avatar = soc.Users.GetAvatarAsync();
             #endregion
 
-
-            Parallel.ForEach(await soc.Friends.GetFriendsAsync(), (friend) =>
-            {
-                lock (friendModels)
-                {
-                    friendModels.Add(new FriendModel
+            var friendModels =(await soc.Friends.GetFriendsAsync()).AsParallel().Select(friend =>new FriendModel
                     {
                         Address = friend.Address,
                         Name = friend.Name,
@@ -48,9 +44,8 @@ namespace WEB.Controllers
                         PublicId = friend.PublicId,
                         Avatar = friend.Avatar,
                         IsFriend = true
-                    });
-                }
-            });
+                    }).ToList();
+                
 
             await Task.WhenAll(friends, followed, followers, newFriends, unread, avatar);
 
@@ -69,13 +64,7 @@ namespace WEB.Controllers
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            var friendModels = new List<FriendModel>();
-
-            Parallel.ForEach(await soc.Friends.GetFriendsAsync(), (friend) =>
-            {
-                lock (friendModels)
-                {
-                    friendModels.Add(new FriendModel
+            var friendModels = (await soc.Friends.GetFriendsAsync()).AsParallel().Select(friend => new FriendModel
                     {
                         Address = friend.Address,
                         Name = friend.Name,
@@ -84,9 +73,7 @@ namespace WEB.Controllers
                         Avatar = friend.Avatar,
                         IsFriend = true
 
-                    });
-                }
-            });
+                    }).ToList();
             return PartialView("Partial/Friends", friendModels);
         }
 
@@ -95,21 +82,14 @@ namespace WEB.Controllers
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            var friendModels = new List<FriendModel>();
-            Parallel.ForEach(await soc.Friends.GetFollowedAsync(), (friend) =>
+            var friendModels = (await soc.Friends.GetFollowedAsync()).AsParallel().Select(friend => new FriendModel
             {
-                lock (friendModels)
-                {
-                    friendModels.Add(new FriendModel
-                    {
-                        Address = friend.Address,
-                        Name = friend.Name,
-                        Surname = friend.LastName,
-                        PublicId = friend.PublicId,
-                        Avatar = friend.Avatar,
-                        IsRequested = true
-                    });
-                }
+                Address = friend.Address,
+                Name = friend.Name,
+                Surname = friend.LastName,
+                PublicId = friend.PublicId,
+                Avatar = friend.Avatar,
+                IsRequested = true
             });
 
             return PartialView("Partial/Friends", friendModels);
