@@ -93,7 +93,6 @@ namespace DataLayer.BasicRepositories
 
             Context.Set<T>().Attach(entity);
             Context.Entry(entity).State = EntityState.Modified;
-
             return entity;
         }
 

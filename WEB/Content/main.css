@@ -267,7 +267,9 @@ div.message_input button {
     overflow: auto;
     bottom: 0;
 }
-
+.unread {
+    background-color: rgba(128, 128, 128, 0.15);
+}
 .height {
     height: 600px;
     bottom: 0;

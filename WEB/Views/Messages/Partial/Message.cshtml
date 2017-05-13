@@ -1,13 +1,21 @@
 ﻿
 @model SocialNetwork.Models.MessageModel
 
-@{string style = null; }
+@{
+    string style = null;
+    string name = null;
+}
 @{ 
     if (!Model.IsRead)
-    { style = "background-color: rgba(128, 128, 128, 0.15);"; }
+    { style = "unread"; }
+    if (Model.IsMy)
+    {
+        name = "fromMe";
+    }
+
 }
 
-<div class="message dialog_last_message" style="@style">
+<div id="mes_@Model.Id" name="@name" class="message dialog_last_message @style">
     <div class="media">
         <div class="media-left media-top">
             <a href="../../Home/User/@Model.PublicId">

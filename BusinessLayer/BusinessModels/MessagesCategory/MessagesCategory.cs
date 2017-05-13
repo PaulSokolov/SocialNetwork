@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BusinessLayer.DTO;
 using DataLayer.Entities;
@@ -12,8 +13,10 @@ namespace BusinessLayer.BusinessModels
 {
     public partial class SocialNetworkFunctionalityUser
     {
+
         public class MessagesCategory
         {
+            private SemaphoreSlim _semophore;
             private readonly SocialNetworkFunctionalityUser _socialNetworkFunctionality;
             private readonly ISocialNetwork _socialNetwork;
 
@@ -34,7 +37,14 @@ namespace BusinessLayer.BusinessModels
                         .GetAll().CountAsync(m => m.ToUserId == _socialNetworkFunctionality.Id && m.IsRead == false);
                 }
             }
-            
+
+            public async Task<UserMessageDTO> GetAsync(long id)
+            {
+                var mes = await _socialNetwork.Messages.GetAsync(id);
+                if (mes == null)
+                    throw new Exception();
+                return _socialNetworkFunctionality.Mapper.Map<UserMessageDTO>(mes);
+            }
 
             public async Task<List<UserMessageDTO>> GetAllMessagesByUserIdAsync(string id)
             {
@@ -156,19 +166,38 @@ namespace BusinessLayer.BusinessModels
                 return _socialNetworkFunctionality.Mapper.Map<List<UserMessage>, List<UserMessageDTO>>(dialogs);
             }
 
-            public async Task<UserMessageDTO> ReadAsync(long id)
+            public UserMessageDTO Read(long id)
             {
-                UserMessage message = await _socialNetwork.Messages.GetAsync(id);
-
-                message.IsRead = true;
                 using (var context = new SocialNetwork(_socialNetworkFunctionality._connection))
                 {
-                    var result = await context.Messages.UpdateAsync(message);
-                    await context.CommitAsync();
+
+
+                    UserMessage message = context.Messages.Get(id);
+                    if (message.FromUserId == _socialNetworkFunctionality.Id)
+                        return _socialNetworkFunctionality.Mapper.Map<UserMessageDTO>(message);
+                    message.IsRead = true;
+                    //mes.Result.IsRead = true;
+                    var result = context.Messages.Update(message);
+                    context.Commit();
+
 
                     return _socialNetworkFunctionality.Mapper.Map<UserMessageDTO>(result);
                 }
-                
+            }
+
+            public async Task<UserMessageDTO> ReadAsync(long id)
+            {
+                UserMessage message = await _socialNetwork.Messages.GetAsync(id);
+                if(message.FromUserId == _socialNetworkFunctionality.Id)
+                    return _socialNetworkFunctionality.Mapper.Map<UserMessageDTO>(message);
+                message.IsRead = true;
+                //mes.Result.IsRead = true;
+                var result = await _socialNetwork.Messages.UpdateAsync(message);
+                await _socialNetwork.CommitAsync();
+
+
+                return _socialNetworkFunctionality.Mapper.Map<UserMessageDTO>(result);
+
             }
             //public void ReadMessages(IEnumerable<long> ids)
             //{

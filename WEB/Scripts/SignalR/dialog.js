@@ -1,4 +1,16 @@
 ﻿$(function () {
+    var dialog = $.connection.connectionHub;
+
+    dialog.client.addMessage = function (message) {
+        $("#chat").append(message);
+        scrollMessages();
+        subscribeOnHoverEvents();
+    };
+    dialog.client.readMessage = function (messageId) {
+        $("#mes_" + messageId).removeClass("unread");
+    };
+    $.connection.hub.start();
+
     updateContainer();
     scrollMessages();
 
@@ -23,30 +35,14 @@
             });
         }
     });
+    subscribeOnHoverEvents();
+    
 
     $(window).keydown(function (e) {
         if (e.keyCode == 13)
             $("#send").click();
     });
-    // Ссылка на автоматически-сгенерированный прокси хаба
-    var dialog = $.connection.connectionHub;
-    // Объявление функции, которая хаб вызывает при получении сообщений
-    dialog.client.addMessage = function (publicId, message) {
-        // Добавление сообщений на веб-страницу 
-        $('#chat').append(message);
-        scrollMessages();
-    };
-    $.connection.hub.start();
-    //    .done(function () {
-
-    //    $('#send').click(function () {
-    //        // Вызываем у хаба метод Send
-    //        dialog.server.send($('#recipientId').val(), $('#message').val());
-    //        /*$('#body').val('');*/
-    //    });
-
-
-    //});
+    
 });
 // Кодирование тегов
 function htmlEncode(value) {
@@ -68,4 +64,23 @@ function updateContainer() {
 function scrollMessages() {
     var chat = document.getElementById("chat");
     chat.scrollTop = chat.scrollHeight;
+}
+function subscribeOnHoverEvents() {
+    $(".message.dialog_last_message").mouseenter(function () {
+        if (this.getAttribute('name') === 'fromMe') return;
+        if ($(this).hasClass("unread")) {
+            var mesId = this.getAttribute("id").split("_")[1];
+            $.ajax({
+                url: "/Messages/Read",
+                data: { messageId: mesId },
+                type: "post",
+                dataType: "html",
+                success: function (data) {
+                    if (data.isRead) {
+                        this.removeClass("unread");
+                    }
+                }
+            });
+        }
+    });
 }

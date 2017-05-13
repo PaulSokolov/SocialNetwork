@@ -67,12 +67,16 @@ namespace BusinessLayer.BusinessModels
 
             public async Task<UserProfileDTO> GetAsync(string id)
             {
-                UserProfile userProfile = await _socialNetwork.UserProfiles.GetAsync(id);
+                using (var context = new SocialNetwork(_socialNetworkFunctionality._connection))
+                {
+                    UserProfile userProfile = await context.UserProfiles.GetAsync(id);
 
-                if (userProfile == null)
-                    throw new UserNotFoundException("There is no such user.");
+                    if (userProfile == null)
+                        throw new UserNotFoundException("There is no such user.");
 
-                return _socialNetworkFunctionality.Mapper.Map<UserProfile, UserProfileDTO>(userProfile);
+                    return _socialNetworkFunctionality.Mapper.Map<UserProfile, UserProfileDTO>(userProfile);
+                }
+               
             }
 
             public async Task<UserProfileDTO> GetByPublicIdAsync(long publicId)

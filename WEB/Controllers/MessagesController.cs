@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.SymbolStore;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,10 +23,13 @@ namespace WEB.Controllers
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
             await soc.Friends.Counters.FriendsCounters();
+
             #region Parallel operations
+
             var unread = soc.Messages.GetUnreadAsync();
             var avatar = soc.Users.GetAvatarAsync();
-            var newFriends = soc.Friends.Counters.CountRequestsAync(); 
+            var newFriends = soc.Friends.Counters.CountRequestsAync();
+
             #endregion
 
             var dialogModels = new List<DialogModel>();
@@ -32,9 +37,10 @@ namespace WEB.Controllers
             var dialogs = await soc.Messages.GetLastMessagesAsync();
             Parallel.ForEach(dialogs, (lastMessage) =>
             {
-                if (lastMessage.FromUserId == soc.Id)
-                    lock (dialogModels)
-                    {
+                lock (dialogModels)
+                {
+                    if (lastMessage.FromUserId == soc.Id)
+
                         dialogModels.Add(new DialogModel
                         {
                             Name = lastMessage.ToUser.Name,
@@ -46,10 +52,8 @@ namespace WEB.Controllers
                             PublicId = lastMessage.ToUser.PublicId,
                             IsRead = lastMessage.IsRead
                         });
-                    }
-                else
-                    lock (dialogModels)
-                    {
+
+                    else
                         dialogModels.Add(new DialogModel
                         {
                             Name = lastMessage.FromUser.Name,
@@ -60,7 +64,8 @@ namespace WEB.Controllers
                             PublicId = lastMessage.FromUser.PublicId,
                             IsRead = lastMessage.IsRead
                         });
-                    }
+                }
+
             });
             await Task.WhenAll(unread, avatar, newFriends);
 
@@ -87,10 +92,11 @@ namespace WEB.Controllers
 
             var messages = await soc.Messages.GetDialogAsync(id);
             
-            Parallel.ForEach(messages, async (mes) =>
+            Parallel.ForEach(messages, mes =>
             {
                 var message = new MessageModel
                 {
+                    Id = mes.Id,
                     Avatar = mes.FromUser.Avatar,
                     Body = mes.Body,
                     Name = mes.FromUser.Name,
@@ -99,9 +105,13 @@ namespace WEB.Controllers
                     PublicId = mes.FromUser.PublicId,
                     IsRead = mes.IsRead
                 };
+                if (mes.FromUserId == soc.Id)
+                {
+                    message.IsMy = true;
+                }
                 if (!mes.IsRead && mes.FromUserId != soc.Id)
                 {
-                    message.IsRead = (await soc.Messages.ReadAsync(mes.Id)).IsRead;
+                    message.IsRead = (soc.Messages.Read(mes.Id)).IsRead;
                 }
                 lock (dialog)
                 {
@@ -128,7 +138,7 @@ namespace WEB.Controllers
             var mes = await soc.Messages.SendAsync(recipientId, message);
 
             getUsersParallel.Add("fromUser", soc.Users.GetAsync(mes.FromUserId));
-            getUsersParallel.Add("toUser", soc.Users.GetAsync(mes.FromUserId));
+            getUsersParallel.Add("toUser", soc.Users.GetAsync(mes.ToUserId));
             await Task.WhenAll(getUsersParallel.Select(u=>u.Value));
 
             mes.FromUser = getUsersParallel["fromUser"].Result;
@@ -136,6 +146,7 @@ namespace WEB.Controllers
 
             var messageModel = new MessageModel
             {
+                Id = mes.Id,
                 Avatar = mes.FromUser.Avatar,
                 Body = mes.Body,
                 Name = mes.FromUser.Name,
@@ -158,11 +169,34 @@ namespace WEB.Controllers
             return Content(messageContent);
         }
 
+        [HttpPost, AjaxOnly]
+        public async Task<ActionResult> Read(long messageId)
+        {
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var mes = await soc.Messages.ReadAsync(messageId);
+            //SignalR methods
+            ReadMessage(mes.ToUserId, mes.Id);
+
+            var recipient = new SocialNetworkFunctionalityUser(mes.ToUserId);
+
+            UpdateMessageCounter(mes.ToUserId, await recipient.Messages.GetUnreadAsync());
+
+            return Json(new{isRead = mes.IsRead});
+        }
+
+        
+
         #region SignalR methods
         private void SendMessage(string publicId, string message)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<ConnectionHub>();
-            context.Clients.Group(publicId).addMessage(publicId, message);
+            context.Clients.Group(publicId).addMessage(message);
+        }
+
+        private void ReadMessage(string id, long messageId)
+        {
+            var context = GlobalHost.ConnectionManager.GetHubContext<ConnectionHub>();
+            context.Clients.Group(id).readMessage(messageId);
         }
 
         private void ShowMessageNotification(string publicId, string notification)
@@ -170,6 +204,7 @@ namespace WEB.Controllers
             var context = GlobalHost.ConnectionManager.GetHubContext<ConnectionHub>();
             context.Clients.Group(publicId).notification(notification);
         }
+
         private void UpdateMessageCounter(string publicId, int count)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<ConnectionHub>();
