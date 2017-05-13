@@ -138,7 +138,7 @@ namespace WEB.Controllers
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
 
-            var users = await soc.Users.SearchAsync(search, ageFrom, ageTo, cityId, countryId, activityConcurence, aboutConcurence, sex, sort);
+            var users = await soc.Users.SearchAsync(search, activityConcurence: activityConcurence, aboutConcurence: aboutConcurence);
 
             var models = users.AsParallel().Select(user => new UserDeleteModel
             {

@@ -126,7 +126,7 @@ namespace BusinessLayer.BusinessModels
             public async Task<List<UserMessageDTO>> GetDialogAsync(long publicFriendId, int lastIndex)
             {
                 var messages = await _socialNetwork.Messages.GetAll().Where(m => m.FromUser.PublicId == _socialNetworkFunctionality.Users.PublicId && m.ToUser.PublicId == publicFriendId ||
-                                                                                             m.ToUser.PublicId == _socialNetworkFunctionality.Users.PublicId && m.FromUser.PublicId == publicFriendId).OrderBy(m => m.PostedDate).Skip(lastIndex).Take(10).ToListAsync();
+                                                                                             m.ToUser.PublicId == _socialNetworkFunctionality.Users.PublicId && m.FromUser.PublicId == publicFriendId).OrderByDescending(m => m.PostedDate).Skip(lastIndex).Take(10).ToListAsync();
 
                 return _socialNetworkFunctionality.Mapper.Map<IEnumerable<UserMessage>, List<UserMessageDTO>>(messages);
             }

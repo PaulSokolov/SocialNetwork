@@ -211,15 +211,15 @@ namespace WEB.Controllers
         public async Task<ActionResult> Search(string search, int? ageFrom, int? ageTo, long? cityId, long? countryId, string activityConcurence, string aboutConcurence, int? sex, short? sort)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            //await soc.Friends.Counters.FriendsCounters();
+            //#region Parallel operations
+            //var unread = soc.Messages.GetUnreadAsync();
+            //var newFriends = soc.Friends.Counters.CountRequestsAync();
+            //var myPublicId = soc.Users.GetPublicIdAsync();
+            //#endregion
 
-            #region Parallel operations
-            var unread = soc.Messages.GetUnreadAsync();
-            var newFriends = soc.Friends.Counters.CountRequestsAync();
-            var myPublicId = soc.Users.GetPublicIdAsync();
-            #endregion
 
-
-            var users = await soc.Users.SearchAsync(search, ageFrom, ageTo, cityId, countryId, activityConcurence, aboutConcurence, sex, sort);
+            var users = await soc.Users.SearchAsync(search, activityConcurence: activityConcurence, aboutConcurence: aboutConcurence);
             var models = users.AsParallel().Select(user => new UserDeleteModel
             {
                 Name = user.Name,
@@ -229,11 +229,11 @@ namespace WEB.Controllers
                 PublicId = user.PublicId
             });
 
-            await Task.WhenAll(unread, newFriends, myPublicId);
+            //await Task.WhenAll(unread, newFriends, myPublicId);
 
-            ViewBag.Unread = unread.Result;
-            ViewBag.NewFriends = newFriends.Result;
-            ViewBag.MyPublicId = myPublicId.Result;
+            //ViewBag.Unread = unread.Result;
+            //ViewBag.NewFriends = newFriends.Result;
+            //ViewBag.MyPublicId = myPublicId.Result;
 
             return PartialView("Partial/Users", models);
         }
