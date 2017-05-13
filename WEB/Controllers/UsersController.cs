@@ -93,21 +93,21 @@ namespace WEB.Controllers
 
             await Task.WhenAll(friends, followers, followed);
             
-            var userModels = users.AsParallel();
+            var parallelQuery = users.AsParallel();
             switch (sort)
             {
                 case 0:
-                    userModels = userModels.OrderByDescending(user => user.ActivatedDate);
+                    parallelQuery = parallelQuery.OrderByDescending(user => user.ActivatedDate);
                     break;
                 case 1:
-                    userModels =
-                        userModels.OrderByDescending(user => user.ActivatedDate);
+                    parallelQuery =
+                        parallelQuery.OrderByDescending(user => user.ActivatedDate);
                     break;
             }
 
 
 
-            userModels.Select(user =>
+            var userModels = parallelQuery.Select(user =>
             {
                 var userSM = new UserSearchModel
                 {

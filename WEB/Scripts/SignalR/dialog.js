@@ -1,4 +1,36 @@
-﻿$(function () {
+﻿$(document).ready(function () {
+    $('#chat').scroll(function () {
+        var scrtop = $('#chat').scrollTop();
+        var docHeight = $(document).height();
+        var win = $('#chat').height();
+        if ($('#chat').scrollTop() === 0) {
+            var data = {
+                lastIndex: $('div.message.dialog_last_message').length,
+                id: $('#recipientId').val()
+            };
+            takeMesagesOnScroll(data);
+        }
+    });
+});
+function takeMesagesOnScroll(data) {
+    $.ajax({
+        type: "POST",
+        url: "/Messages/Get",
+        data: JSON.stringify(data),
+        dataType: "html",
+        contentType: "application/json; charset=utf-8",
+        success: function (data) {
+            $("#chat").prepend(data);
+        },
+        beforeSend: function () { beforeSend('chat') },
+        complete: function () { complete('chat') },
+        failure: function () {
+            alert("error");
+        }
+    });
+}
+
+$(function () {
     var dialog = $.connection.connectionHub;
 
     dialog.client.addMessage = function (message) {

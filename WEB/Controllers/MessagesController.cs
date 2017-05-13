@@ -82,7 +82,7 @@ namespace WEB.Controllers
 
             
 
-            var messages = await soc.Messages.GetDialogAsync(id);
+            var messages = await soc.Messages.GetDialogAsync(id, 0);
 
             var dialog = messages.AsParallel().Select(mes =>
             {
@@ -116,6 +116,40 @@ namespace WEB.Controllers
             ViewBag.NewFriends = newFriends.Result;
 
             return View(dialog.OrderBy(m => m.PostedTime));
+        }
+
+        [HttpPost,AjaxOnly]
+        public async Task<ActionResult> Get(long id, int lastIndex)
+        {
+            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+
+            var messages = await soc.Messages.GetDialogAsync(id, lastIndex);
+
+            var dialog = messages.AsParallel().OrderBy(mes=>mes.PostedDate).Select(mes =>
+            {
+                var message = new MessageModel
+                {
+                    Id = mes.Id,
+                    Avatar = mes.FromUser.Avatar,
+                    Body = mes.Body,
+                    Name = mes.FromUser.Name,
+                    PostedTime = mes.PostedDate,
+                    Surname = mes.FromUser.LastName,
+                    PublicId = mes.FromUser.PublicId,
+                    IsRead = mes.IsRead
+                };
+                if (mes.FromUserId == soc.Id)
+                {
+                    message.IsMy = true;
+                }
+                if (!mes.IsRead && mes.FromUserId != soc.Id)
+                {
+                    message.IsRead = (soc.Messages.Read(mes.Id)).IsRead;
+                }
+                return message;
+            });
+
+            return PartialView("Partial/Messages",dialog);
         }
 
         [HttpPost, AjaxOnly]

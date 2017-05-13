@@ -365,6 +365,7 @@
     <Content Include="Views\Error\Forbidden.cshtml" />
     <Content Include="Views\Friend\Partial\Friends.cshtml" />
     <Content Include="Views\Users\Partial\Users.cshtml" />
+    <Content Include="Views\Messages\Partial\Messages.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
