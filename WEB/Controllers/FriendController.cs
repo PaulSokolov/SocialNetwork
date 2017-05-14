@@ -123,13 +123,21 @@ namespace WEB.Controllers
             var user = await soc.Users.GetAsync(soc.Id);
             await soc.Friends.Counters.FriendsCounters();
 
+            #region Parallel operations
+            var userPublicId = soc.Users.GetPublicIdAsync();
+            var followers = soc.Friends.Counters.CountFollowersAync();
+            var friends = soc.Friends.Counters.CountFriendsAync();
+            var followed = soc.Friends.Counters.CountFollowedAync();
+            var newfriends = soc.Friends.Counters.CountRequestsAync(); 
+            #endregion
 
+            await Task.WhenAll(userPublicId);
             var model = new FriendNotificationModel
             {
                 Avatar = soc.Users.Avatar,
                 Name = user.Name,
                 Surname = user.LastName,
-                PublicId = soc.Users.PublicId,
+                PublicId = userPublicId.Result,
                 Status = "followed you"
             };
 
@@ -143,10 +151,7 @@ namespace WEB.Controllers
             var ffriends = friendSoc.Friends.Counters.CountFriendsAync();
             var ffollowed = friendSoc.Friends.Counters.CountFollowedAync();
             var fnewfriends = friendSoc.Friends.Counters.CountRequestsAync();
-            var followers = soc.Friends.Counters.CountFollowersAync();
-            var friends = soc.Friends.Counters.CountFriendsAync();
-            var followed = soc.Friends.Counters.CountFollowedAync();
-            var newfriends = soc.Friends.Counters.CountRequestsAync();
+            
             #endregion
             await Task.WhenAll(followers, friends, followed, newfriends, ffollowers, ffriends, ffollowed, fnewfriends);
             UpdateCounters(friendSoc.Id,Json(
@@ -175,13 +180,24 @@ namespace WEB.Controllers
 
             var friend = await soc.Friends.ConfirmAsync(publicId);
             var user = await soc.Users.GetAsync(soc.Id);
+            await soc.Friends.Counters.FriendsCounters();
 
+            #region Parallel operations
+
+            var userPublicId = soc.Users.GetPublicIdAsync();
+            var newfriends = soc.Friends.Counters.CountRequestsAync();
+            var followers = soc.Friends.Counters.CountFollowersAync();
+            var friends = soc.Friends.Counters.CountFriendsAync();
+            var followed = soc.Friends.Counters.CountFollowedAync(); 
+            #endregion
+
+            await Task.WhenAll(userPublicId);
             var model = new FriendNotificationModel
             {
                 Avatar = soc.Users.Avatar,
                 Name = user.Name,
                 Surname = user.LastName,
-                PublicId = soc.Users.PublicId,
+                PublicId = userPublicId.Result,
                 Status = "confirmed your request"
             };
 
@@ -189,7 +205,6 @@ namespace WEB.Controllers
 
             var friendSoc = new SocialNetworkFunctionalityUser(friend.FriendId);
             await friendSoc.Friends.Counters.FriendsCounters();
-            await soc.Friends.Counters.FriendsCounters();
             #region Parallel operations
 
             var friendNewFriends = friendSoc.Friends.Counters.CountRequestsAync();
@@ -197,10 +212,6 @@ namespace WEB.Controllers
             var friendFriends = friendSoc.Friends.Counters.CountFriendsAync();
             var friendFollowed = friendSoc.Friends.Counters.CountFollowedAync();
 
-            var newfriends = soc.Friends.Counters.CountRequestsAync();
-            var followers = soc.Friends.Counters.CountFollowersAync();
-            var friends = soc.Friends.Counters.CountFriendsAync();
-            var followed = soc.Friends.Counters.CountFollowedAync();
             #endregion
 
             await Task.WhenAll(followers, friends, followed, newfriends, friendFollowers, friendFriends, friendFollowed,
@@ -228,7 +239,6 @@ namespace WEB.Controllers
         public async Task<ActionResult> Delete(long publicId)
         {
             List<Task> paralelCountersInitializingTasks = new List<Task>();
-            List<Task<long>> parallelFriendCounntingTasks = new List<Task<long>>();
 
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
             var friend = await soc.Friends.DeleteAsync(publicId);
@@ -240,41 +250,50 @@ namespace WEB.Controllers
             var user = await soc.Users.GetAsync(soc.Id);
 
             await Task.WhenAll(paralelCountersInitializingTasks);
+            #region Parallel operations
 
-            parallelFriendCounntingTasks.AddRange(new List<Task<long>>
-            {
-                soc.Friends.Counters.CountFollowersAync(),
-                soc.Friends.Counters.CountFriendsAync(),
-                soc.Friends.Counters.CountFollowedAync(),
-                soc.Friends.Counters.CountRequestsAync(),
-                friendSoc.Friends.Counters.CountFollowersAync(),
-                friendSoc.Friends.Counters.CountFriendsAync(),
-                friendSoc.Friends.Counters.CountFollowedAync(),
-                friendSoc.Friends.Counters.CountRequestsAync()
-            });
-            await Task.WhenAll(parallelFriendCounntingTasks);
+            var userPublicId = soc.Users.GetPublicIdAsync();
+            var newfriends = soc.Friends.Counters.CountRequestsAync();
+            var followers = soc.Friends.Counters.CountFollowersAync();
+            var friends = soc.Friends.Counters.CountFriendsAync();
+            var followed = soc.Friends.Counters.CountFollowedAync();
+            var friendNewFriends = friendSoc.Friends.Counters.CountRequestsAync();
+            var friendFollowers = friendSoc.Friends.Counters.CountFollowersAync();
+            var friendFriends = friendSoc.Friends.Counters.CountFriendsAync();
+            var friendFollowed = friendSoc.Friends.Counters.CountFollowedAync();
+
+            #endregion
+
+            await Task.WhenAll(followers,friends,followed,newfriends);
+
             UpdateCounters(soc.Id,Json(
                 new
                 {
-                    followers = parallelFriendCounntingTasks[0].Result,
-                    friends = parallelFriendCounntingTasks[1].Result,
-                    followed = parallelFriendCounntingTasks[2].Result,
-                    newfriends = parallelFriendCounntingTasks[3].Result
+                    followers = followers.Result,
+                    friends = friends.Result,
+                    followed = followed.Result,
+                    newfriends = newfriends.Result
                 }).Data);
+
+            await Task.WhenAll(friendFollowers, friendFriends, friendFollowed, friendNewFriends);
+
             UpdateCounters(friendSoc.Id,Json(
                 new
                 {
-                    followers = parallelFriendCounntingTasks[4].Result,
-                    friends = parallelFriendCounntingTasks[5].Result,
-                    followed = parallelFriendCounntingTasks[6].Result,
-                    newfriends = parallelFriendCounntingTasks[7].Result
+                    followers = friendFollowers.Result,
+                    friends = friendFriends.Result,
+                    followed = friendFollowed.Result,
+                    newfriends = friendNewFriends.Result
                 }).Data);
+
+            await Task.WhenAll(userPublicId);
+
             var model = new FriendNotificationModel
             {
                 Avatar = soc.Users.Avatar,
                 Name = user.Name,
                 Surname = user.LastName,
-                PublicId = soc.Users.PublicId,
+                PublicId = userPublicId.Result,
                 Status = "deleted you from friends"
             };
 

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
 using BusinessLayer.DTO;
 using DataLayer.Entities;
 using DataLayer.Interfaces;
@@ -16,18 +18,30 @@ namespace BusinessLayer.BusinessModels
         {
             #region Private fields
             private readonly SocialNetworkFunctionalityUser _socialNetworkFunctionality;
-            private readonly ISocialNetwork _socialNetwork;
+            //private readonly ISocialNetwork _socialNetwork;
             private string _avatar;
-            private long? _publicId; 
+            private long? _publicId;
+            private SemaphoreSlim Semaphore => _socialNetworkFunctionality._semaphore;
+            private IMapper Mapper => _socialNetworkFunctionality._mapper;
+            private string Id => _socialNetworkFunctionality.Id;
+            private DateTime Now => _socialNetworkFunctionality._now();
+            private ISocialNetwork SocialNetwork => _socialNetworkFunctionality._socialNetwork ??
+                                                    (_socialNetworkFunctionality._socialNetwork =
+                                                        new SocialNetwork(Connection));
             #endregion
+            
 
-            public string Avatar => _avatar ?? (_avatar = _socialNetwork.UserProfiles.Get(_socialNetworkFunctionality.Id).Avatar);
+            public string Avatar => _avatar ?? (_avatar = SocialNetwork.UserProfiles.Get(Id).Avatar);
 
             public long PublicId
             {
                 get
                 {
-                    _publicId = _socialNetwork.UserProfiles.GetAll().Where(u => u.Id == _socialNetworkFunctionality.Id).Select(u => u.PublicId).FirstOrDefault();
+                    _publicId = SocialNetwork.UserProfiles
+                        .GetAll()
+                        .Where(u => u.Id == Id)
+                        .Select(u => u.PublicId)
+                        .FirstOrDefault();
 
                     if (_publicId == null)
                         throw new UserNotFoundException();
@@ -38,18 +52,37 @@ namespace BusinessLayer.BusinessModels
 
             public async Task<string> GetAvatarAsync()
             {
-                using (var context = new SocialNetwork(_socialNetworkFunctionality._connection))
+                if (Semaphore.CurrentCount == Threads)
+                {
+                    await Semaphore.WaitAsync();
+                    var res = _avatar ?? (_avatar = (await SocialNetwork.UserProfiles
+                                  .GetAsync(Id)).Avatar);
+                    Semaphore.Release();
+                    return res;
+                }
+                using (var context = new SocialNetwork(Connection))
                 {
                     return _avatar ?? (_avatar = (await context.UserProfiles
-                               .GetAsync(_socialNetworkFunctionality.Id)).Avatar);
+                               .GetAsync(Id)).Avatar);
                 }
             }
 
             public async Task<long> GetPublicIdAsync()
             {
-                using (var context = new SocialNetwork(_socialNetworkFunctionality._connection))
+                if (Semaphore.CurrentCount == Threads)
                 {
-                    _publicId = await context.UserProfiles.GetAll().Where(u => u.Id == _socialNetworkFunctionality.Id)
+                    await Semaphore.WaitAsync();
+                    _publicId = await SocialNetwork.UserProfiles.GetAll().Where(u => u.Id == Id)
+                        .Select(u => u.PublicId).FirstOrDefaultAsync();
+                    Semaphore.Release();
+                    if (_publicId == null)
+                        throw new UserNotFoundException();
+
+                    return (long)_publicId;
+                }
+                using (var context = new SocialNetwork(Connection))
+                {
+                    _publicId = await context.UserProfiles.GetAll().Where(u => u.Id == Id)
                         .Select(u => u.PublicId).FirstOrDefaultAsync();
 
                     if (_publicId == null)
@@ -62,38 +95,38 @@ namespace BusinessLayer.BusinessModels
             public UsersCategory(SocialNetworkFunctionalityUser socialNetworkFunctionality)
             {
                 _socialNetworkFunctionality = socialNetworkFunctionality;
-                _socialNetwork = new SocialNetwork(_socialNetworkFunctionality._connection);
+                //_socialNetwork = new SocialNetwork(Connection);
             }
 
             public async Task<UserProfileDTO> GetAsync(string id)
             {
-                using (var context = new SocialNetwork(_socialNetworkFunctionality._connection))
+                using (var context = new SocialNetwork(Connection))
                 {
                     UserProfile userProfile = await context.UserProfiles.GetAsync(id);
 
                     if (userProfile == null)
                         throw new UserNotFoundException("There is no such user.");
 
-                    return _socialNetworkFunctionality.Mapper.Map<UserProfile, UserProfileDTO>(userProfile);
+                    return Mapper.Map<UserProfile, UserProfileDTO>(userProfile);
                 }
                
             }
 
             public async Task<UserProfileDTO> GetByPublicIdAsync(long publicId)
             {
-                UserProfile userProfile = await _socialNetwork.UserProfiles.GetAll().FirstOrDefaultAsync(u => u.PublicId == publicId);
+                UserProfile userProfile = await SocialNetwork.UserProfiles.GetAll().FirstOrDefaultAsync(u => u.PublicId == publicId);
 
                 if (userProfile == null)
                     throw new UserNotFoundException("There is no such user.");
 
-                return _socialNetworkFunctionality.Mapper.Map<UserProfile, UserProfileDTO>(userProfile);
+                return Mapper.Map<UserProfile, UserProfileDTO>(userProfile);
             }
 
             public async Task<UserProfileDTO> UpdateAsync(UserProfileDTO user)
             {
-                UserProfile up = await _socialNetwork.UserProfiles.GetAsync(user.Id);
+                UserProfile up = await SocialNetwork.UserProfiles.GetAsync(user.Id);
 
-                up.ModifiedDate = _socialNetworkFunctionality._now();
+                up.ModifiedDate = Now;
                 up.Avatar = user.Avatar;
                 up.About = user.About;
                 up.AboutIsHidden = user.AboutIsHidden;
@@ -107,25 +140,25 @@ namespace BusinessLayer.BusinessModels
                 up.EmailIsHidden = user.EmailIsHidden;
                 up.LastName = user.LastName;
                 up.Name = user.Name;
-                up.Sex = _socialNetworkFunctionality.Mapper.Map<Sex>(user.Sex);
+                up.Sex = Mapper.Map<Sex>(user.Sex);
 
-                up = await _socialNetwork.UserProfiles.UpdateAsync(up);
-                await _socialNetwork.CommitAsync();
+                up = await SocialNetwork.UserProfiles.UpdateAsync(up);
+                await SocialNetwork.CommitAsync();
 
-                return _socialNetworkFunctionality.Mapper.Map<UserProfileDTO>(up);
+                return Mapper.Map<UserProfileDTO>(up);
             }
 
             public async Task<List<UserProfileDTO>> SearchAsync(string name)
             {
-                var users = await _socialNetwork.UserProfiles.GetAll().Where(u => u.Name.Contains(name) || u.LastName.Contains(name)).ToListAsync();
+                var users = await SocialNetwork.UserProfiles.GetAll().Where(u => u.Name.Contains(name) || u.LastName.Contains(name)).ToListAsync();
 
-                return _socialNetworkFunctionality.Mapper.Map<List<UserProfileDTO>>(users);
+                return Mapper.Map<List<UserProfileDTO>>(users);
             }
             
             public async Task<List<UserProfileDTO>> SearchAsync(string search = null, int? ageFrom = null, int? ageTo = null, long? cityId = null, long? countryId = null, string activityConcurence = null, string aboutConcurence = null, int? sex = null, short? sort = 0, int? lastIndex = 0)
             {
-                var time = _socialNetworkFunctionality._now().Year;
-                var query = _socialNetwork.UserProfiles.GetAll();
+                var time = Now.Year;
+                var query = SocialNetwork.UserProfiles.GetAll();
 
                 activityConcurence = activityConcurence == string.Empty ? null : activityConcurence;
                 aboutConcurence = aboutConcurence == string.Empty ? null : aboutConcurence;
@@ -136,7 +169,7 @@ namespace BusinessLayer.BusinessModels
                 if (ageFrom != null)
                     query = query.Where(u => time - ((DateTime)u.BirthDate).Year > ageFrom);
                 if (ageTo != null)
-                    query = query.Where(u => (time - ((DateTime)u.BirthDate).Year) < ageTo);
+                    query = query.Where(u => time - ((DateTime)u.BirthDate).Year < ageTo);
                 if (countryId != null)
                     query = query.Where(u => u.City.CountryId == countryId);
                 if (cityId != null)
@@ -156,15 +189,21 @@ namespace BusinessLayer.BusinessModels
                     }
                 }
 
-                var users = await query.Skip((int)lastIndex).Take(10).ToListAsync();
+                if (!lastIndex.HasValue)
+                {
+                    throw new UserNotFoundException();
+                }
 
-                if (users.Count != 0) return _socialNetworkFunctionality.Mapper.Map<List<UserProfileDTO>>(users);
+                var users = await query.Skip(lastIndex.Value).Take(10).ToListAsync();
+
+                if (users.Count != 0) return Mapper.Map<List<UserProfileDTO>>(users);
 
                 if (activityConcurence != null)
                 {
                     string[] activities = activityConcurence.Split(' ');
                     query = query.Where(u => activities.Any(s => u.Activity.Contains(s)));
                 }
+
                 if (aboutConcurence != null)
                 {
                     string[] about = aboutConcurence.Split(' ');
@@ -173,14 +212,14 @@ namespace BusinessLayer.BusinessModels
 
                 users = await query.Skip((int)lastIndex).Take(10).ToListAsync();
 
-                return _socialNetworkFunctionality.Mapper.Map<List<UserProfileDTO>>(users);
+                return Mapper.Map<List<UserProfileDTO>>(users);
             }
 
             public async Task<List<CountryDTO>> GetCountriesWithUsersAsync()
             {
-                var counties = await _socialNetwork.UserProfiles.GetAll().GroupBy(u => u.City.Country).Select(s => s.Key).ToListAsync();
+                var counties = await SocialNetwork.UserProfiles.GetAll().GroupBy(u => u.City.Country).Select(s => s.Key).ToListAsync();
 
-                return _socialNetworkFunctionality.Mapper.Map<List<CountryDTO>>(counties);
+                return Mapper.Map<List<CountryDTO>>(counties);
             }
 
 
