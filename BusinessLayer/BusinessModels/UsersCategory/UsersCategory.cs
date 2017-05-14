@@ -28,8 +28,11 @@ namespace BusinessLayer.BusinessModels
             private ISocialNetwork SocialNetwork => _socialNetworkFunctionality._socialNetwork ??
                                                     (_socialNetworkFunctionality._socialNetwork =
                                                         new SocialNetwork(Connection));
+            private ILocalization Localization => _socialNetworkFunctionality._localizationConnection ??
+                                                  (_socialNetworkFunctionality._localizationConnection =
+                                                      new Localization(Connection));
             #endregion
-            
+
 
             public string Avatar => _avatar ?? (_avatar = SocialNetwork.UserProfiles.Get(CurrentUserId).Avatar);
 
@@ -55,6 +58,21 @@ namespace BusinessLayer.BusinessModels
             {
                 _socialNetworkFunctionality = socialNetworkFunctionality;
                 //_socialNetwork = new SocialNetwork(Connection);
+            }
+
+            public async Task<UserProfileDTO> AddLanguageAsync(long publicId, long languageId)
+            {
+                await Semaphore.WaitAsync();
+
+                var languageToAdd = await SocialNetwork.Languages.GetAsync(languageId);
+                var user = await SocialNetwork.UserProfiles.GetAsync(publicId);
+                user.Languages.Add(languageToAdd);
+                var res = await SocialNetwork.UserProfiles.UpdateAsync(user);
+                await SocialNetwork.CommitAsync();
+
+                Semaphore.Release();
+
+                return Mapper.Map<UserProfileDTO>(res);
             }
 
             public async Task<string> GetAvatarAsync()

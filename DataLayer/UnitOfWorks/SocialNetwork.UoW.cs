@@ -16,6 +16,7 @@ namespace DataLayer.UnitOfWorks
         private IFriendRepository _friendRepository;
         private IUserMessageRepository _userMessageRepository;
         private IUserProfileRepository _userProfileRepository;
+        private ILanguageRepository _languageRepository;
         private readonly UserProfileContext _context;
         #endregion
         public SocialNetwork(string connection)
@@ -30,6 +31,8 @@ namespace DataLayer.UnitOfWorks
                 _userMessageRepository.Dispose();
             if (_userProfileRepository != null)
                 _userProfileRepository.Dispose();
+            if (_languageRepository != null)
+                _languageRepository.Dispose();
 
         }
         #region ISocialNetwork
@@ -41,9 +44,14 @@ namespace DataLayer.UnitOfWorks
 
         public IFriendRepository Friends => _friendRepository ?? (_friendRepository = new FriendRepository(_context));
 
-        public IUserMessageRepository Messages => _userMessageRepository ?? (_userMessageRepository = new UserMessageRepository(_context));
+        public IUserMessageRepository Messages => _userMessageRepository ??
+                                                  (_userMessageRepository = new UserMessageRepository(_context));
 
-        public IUserProfileRepository UserProfiles => _userProfileRepository ?? (_userProfileRepository = new UserProfileRepository(_context));
+        public IUserProfileRepository UserProfiles => _userProfileRepository ??
+                                                      (_userProfileRepository = new UserProfileRepository(_context));
+
+        public ILanguageRepository Languages => _languageRepository ??
+                                                (_languageRepository = new LanguageRepository(_context));
         #endregion
         #region ITransaction
         public void Commit()

@@ -11,6 +11,7 @@ namespace DataLayer.EF
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<Friend> Friends { get; set; }
         public DbSet<UserMessage> UserMessages { get; set; }
+        public DbSet<Language> Languages { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

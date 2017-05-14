@@ -8,6 +8,7 @@ namespace DataLayer.Interfaces
         IFriendRepository Friends { get; }
         IUserMessageRepository Messages { get; }
         IUserProfileRepository UserProfiles { get; }
+        ILanguageRepository Languages { get; }
         bool LazyLoad { get; set; }
 
     }
