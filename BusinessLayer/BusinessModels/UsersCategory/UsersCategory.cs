@@ -37,17 +37,24 @@ namespace BusinessLayer.BusinessModels
             {
                 get
                 {
+                    Semaphore.Wait();
                     _publicId = SocialNetwork.UserProfiles
                         .GetAll()
                         .Where(u => u.Id == CurrentUserId)
                         .Select(u => u.PublicId)
                         .FirstOrDefault();
-
+                    Semaphore.Release();
                     if (_publicId == null)
                         throw new UserNotFoundException();
 
                     return (long)_publicId;
                 }
+            }
+
+            public UsersCategory(SocialNetworkFunctionalityUser socialNetworkFunctionality)
+            {
+                _socialNetworkFunctionality = socialNetworkFunctionality;
+                //_socialNetwork = new SocialNetwork(Connection);
             }
 
             public async Task<string> GetAvatarAsync()
@@ -92,12 +99,6 @@ namespace BusinessLayer.BusinessModels
                 }
             }
 
-            public UsersCategory(SocialNetworkFunctionalityUser socialNetworkFunctionality)
-            {
-                _socialNetworkFunctionality = socialNetworkFunctionality;
-                //_socialNetwork = new SocialNetwork(Connection);
-            }
-
             public async Task<UserProfileDTO> GetAsync(string id)
             {
                 using (var context = new SocialNetwork(Connection))
@@ -114,7 +115,11 @@ namespace BusinessLayer.BusinessModels
 
             public async Task<UserProfileDTO> GetByPublicIdAsync(long publicId)
             {
+                await Semaphore.WaitAsync();
+
                 UserProfile userProfile = await SocialNetwork.UserProfiles.GetAll().FirstOrDefaultAsync(u => u.PublicId == publicId);
+
+                Semaphore.Release();
 
                 if (userProfile == null)
                     throw new UserNotFoundException("There is no such user.");
@@ -124,6 +129,8 @@ namespace BusinessLayer.BusinessModels
 
             public async Task<UserProfileDTO> UpdateAsync(UserProfileDTO user)
             {
+                await Semaphore.WaitAsync();
+
                 UserProfile up = await SocialNetwork.UserProfiles.GetAsync(user.Id);
 
                 up.ModifiedDate = Now;
@@ -145,12 +152,18 @@ namespace BusinessLayer.BusinessModels
                 up = await SocialNetwork.UserProfiles.UpdateAsync(up);
                 await SocialNetwork.CommitAsync();
 
+                Semaphore.Release();
+
                 return Mapper.Map<UserProfileDTO>(up);
             }
 
             public async Task<List<UserProfileDTO>> SearchAsync(string name)
             {
+                await Semaphore.WaitAsync();
+
                 var users = await SocialNetwork.UserProfiles.GetAll().Where(u => u.Name.Contains(name) || u.LastName.Contains(name)).ToListAsync();
+
+                Semaphore.Release();
 
                 return Mapper.Map<List<UserProfileDTO>>(users);
             }
@@ -194,7 +207,11 @@ namespace BusinessLayer.BusinessModels
                     throw new UserNotFoundException();
                 }
 
+                await Semaphore.WaitAsync();
+
                 var users = await query.Skip(lastIndex.Value).Take(10).ToListAsync();
+
+                Semaphore.Release();
 
                 if (users.Count != 0) return Mapper.Map<List<UserProfileDTO>>(users);
 
@@ -210,14 +227,22 @@ namespace BusinessLayer.BusinessModels
                     query = query.Where(u => about.Any(s => u.Activity.Contains(s)));
                 }
 
-                users = await query.Skip((int)lastIndex).Take(10).ToListAsync();
+                await Semaphore.WaitAsync();
+
+                users = await query.Skip(lastIndex.Value).Take(10).ToListAsync();
+
+                Semaphore.Release();
 
                 return Mapper.Map<List<UserProfileDTO>>(users);
             }
 
             public async Task<List<CountryDTO>> GetCountriesWithUsersAsync()
             {
+                await Semaphore.WaitAsync();
+
                 var counties = await SocialNetwork.UserProfiles.GetAll().GroupBy(u => u.City.Country).Select(s => s.Key).ToListAsync();
+
+                Semaphore.Release();
 
                 return Mapper.Map<List<CountryDTO>>(counties);
             }

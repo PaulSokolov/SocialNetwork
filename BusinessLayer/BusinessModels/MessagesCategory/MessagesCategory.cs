@@ -162,10 +162,12 @@ namespace BusinessLayer.BusinessModels
             {
                 await Semaphore.WaitAsync();
 
+                var currentUserPublicId = await _socialNetworkFunctionality.Users.GetPublicIdAsync();
+
                 var messages = await SocialNetwork.Messages.GetAll().Where(
-                        m => m.FromUser.PublicId == _socialNetworkFunctionality.Users.PublicId &&
+                        m => m.FromUser.PublicId == currentUserPublicId &&
                              m.ToUser.PublicId == publicFriendId ||
-                             m.ToUser.PublicId == _socialNetworkFunctionality.Users.PublicId &&
+                             m.ToUser.PublicId == currentUserPublicId &&
                              m.FromUser.PublicId == publicFriendId).OrderByDescending(m => m.PostedDate).Skip(lastIndex)
                     .Take(10).ToListAsync();
 

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using DataLayer.Entities;
 
@@ -13,6 +14,7 @@ namespace BusinessLayer.BusinessModels
         {
             public class FriendCounters
             {
+                private SemaphoreSlim Semaphore => _friendsCategory.Semaphore;
                 private readonly FriendsCategory _friendsCategory;
                 private ICollection<Friend> _friends;
                 private string CurrentUserId => _friendsCategory.CurrentUserId;
@@ -32,10 +34,12 @@ namespace BusinessLayer.BusinessModels
 
                 public async Task FriendsCounters()
                 {
+                    await Semaphore.WaitAsync();
                     _friends = await _friendsCategory.SocialNetwork.UserProfiles.GetAll()
                         .Where(u => u.Id == CurrentUserId)
                         .Select(u => u.Friends)
                         .FirstOrDefaultAsync();
+                    Semaphore.Release();
                 }
                 public async Task<long> CountFriendsAync()
                 {
