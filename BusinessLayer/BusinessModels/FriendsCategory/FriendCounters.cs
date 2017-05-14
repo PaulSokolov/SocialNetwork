@@ -15,14 +15,15 @@ namespace BusinessLayer.BusinessModels
             {
                 private readonly FriendsCategory _friendsCategory;
                 private ICollection<Friend> _friends;
+                private string CurrentUserId => _friendsCategory.CurrentUserId;
 
                 public long Friends => _friends.Count(f => f.Confirmed && f.Deleted == false);
 
-                public long Followers => _friends.Count(f => (f.Confirmed == false || f.Deleted) && f.RequestUserId != _friendsCategory._socialNetworkFunctionality.Id);
+                public long Followers => _friends.Count(f => (f.Confirmed == false || f.Deleted) && f.RequestUserId != CurrentUserId);
 
-                public long Followed => _friends.Count(f => (f.Confirmed == false || f.Deleted) && f.RequestUserId == _friendsCategory._socialNetworkFunctionality.Id);
+                public long Followed => _friends.Count(f => (f.Confirmed == false || f.Deleted) && f.RequestUserId == CurrentUserId);
 
-                public long Requests => _friends.Count(f => f.Confirmed == false && f.Deleted == false && f.RequestUserId != _friendsCategory._socialNetworkFunctionality.Id);
+                public long Requests => _friends.Count(f => f.Confirmed == false && f.Deleted == false && f.RequestUserId != CurrentUserId);
 
                 public FriendCounters(FriendsCategory parent)
                 {
@@ -31,8 +32,8 @@ namespace BusinessLayer.BusinessModels
 
                 public async Task FriendsCounters()
                 {
-                    _friends = await _friendsCategory._socialNetwork.UserProfiles.GetAll()
-                        .Where(u => u.Id == _friendsCategory._socialNetworkFunctionality.Id)
+                    _friends = await _friendsCategory.SocialNetwork.UserProfiles.GetAll()
+                        .Where(u => u.Id == CurrentUserId)
                         .Select(u => u.Friends)
                         .FirstOrDefaultAsync();
                 }

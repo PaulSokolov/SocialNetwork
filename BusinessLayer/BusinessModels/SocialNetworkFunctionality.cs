@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using AutoMapper;
 using DataLayer.Interfaces;
 using DataLayer.UnitOfWorks;
@@ -12,13 +13,16 @@ namespace BusinessLayer.BusinessModels
 
         #region Private fields
         private readonly IMapper _mapper;
-        private  ISocialNetwork _socialNetwork;
+        private ISocialNetwork _socialNetwork;
         private ILocalization _localizationConnection;
         private FriendsCategory _friends;
         private UsersCategory _users;
         private MessagesCategory _messages;
         private DatabaseCategory _database;
         private readonly Func<DateTime> _now;
+        private SemaphoreSlim _semaphore;
+        private const int Threads = 1;
+        private const int MaxThreads = 1;
         #endregion
 
         public string Id { get; }
@@ -72,7 +76,7 @@ namespace BusinessLayer.BusinessModels
             Id = userId;            
             _mapper = CustomMapper.Configurate();
             _now = () => DateTime.Now;
-            _socialNetwork = new SocialNetwork(Connection);
+            _semaphore = new SemaphoreSlim(Threads, MaxThreads);
         }
 
         public SocialNetworkFunctionalityUser(string userId, ISocialNetwork socialNetworkUoW, ILocalization localizationUoW, Func<DateTime> now)

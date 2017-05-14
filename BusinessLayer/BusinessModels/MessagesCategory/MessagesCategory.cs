@@ -58,21 +58,32 @@ namespace BusinessLayer.BusinessModels
 
             public async Task<UserMessageDTO> GetAsync(long id)
             {
+                await Semaphore.WaitAsync();
+
                 var mes = await SocialNetwork.Messages.GetAsync(id);
                 if (mes == null)
                     throw new Exception();
+
+                Semaphore.Release();
+
                 return Mapper.Map<UserMessageDTO>(mes);
             }
 
             public async Task<List<UserMessageDTO>> GetAllMessagesByUserIdAsync(string id)
             {
+                await Semaphore.WaitAsync();
+
                 var messages = await SocialNetwork.Messages.GetAllSent(id).ToListAsync();
+
+                Semaphore.Release();
 
                 return Mapper.Map<List<UserMessage>, List<UserMessageDTO>>(messages);
             }
 
             public async Task<UserMessageDTO> ModerateAsync(long id, string body)
             {
+                await Semaphore.WaitAsync();
+
                 var mes = await SocialNetwork.Messages.GetAsync(id);
 
                 mes.Body = body;
@@ -81,16 +92,22 @@ namespace BusinessLayer.BusinessModels
                 var res = await SocialNetwork.Messages.UpdateAsync(mes);
                 await SocialNetwork.CommitAsync();
 
+                Semaphore.Release();
+
                 return Mapper.Map<UserMessageDTO>(res);
             }
 
             public async Task<bool> DeleteAsync(long id)
             {
+                await Semaphore.WaitAsync();
+
                 var mes = await SocialNetwork.Messages.GetAsync(id);
 
                 if (mes == null) return false;
                 await SocialNetwork.Messages.DeleteAsync(mes);
                 await SocialNetwork.CommitAsync();
+
+                Semaphore.Release();
 
                 return true;
             }
@@ -98,6 +115,8 @@ namespace BusinessLayer.BusinessModels
 
             public async Task<UserMessageDTO> SendAsync(long recipientId, string body)
             {
+                await Semaphore.WaitAsync();
+
                 var recipient = await SocialNetwork.UserProfiles.GetAll().Where(u => u.PublicId == recipientId).Select(u => u.Id).FirstOrDefaultAsync();
 
                 if (recipient == null)
@@ -115,6 +134,8 @@ namespace BusinessLayer.BusinessModels
                     });
 
                 await SocialNetwork.CommitAsync();
+
+                Semaphore.Release();
 
                 return Mapper.Map<UserMessageDTO>(result);
             }
@@ -139,6 +160,8 @@ namespace BusinessLayer.BusinessModels
 
             public async Task<List<UserMessageDTO>> GetDialogAsync(long publicFriendId, int lastIndex)
             {
+                await Semaphore.WaitAsync();
+
                 var messages = await SocialNetwork.Messages.GetAll().Where(
                         m => m.FromUser.PublicId == _socialNetworkFunctionality.Users.PublicId &&
                              m.ToUser.PublicId == publicFriendId ||
@@ -146,11 +169,15 @@ namespace BusinessLayer.BusinessModels
                              m.FromUser.PublicId == publicFriendId).OrderByDescending(m => m.PostedDate).Skip(lastIndex)
                     .Take(10).ToListAsync();
 
+                Semaphore.Release();
+
                 return Mapper.Map<IEnumerable<UserMessage>, List<UserMessageDTO>>(messages);
             }
 
             public async Task<List<UserMessageDTO>> GetLastMessagesAsync()
             {
+                await Semaphore.WaitAsync();
+
                 var repository = SocialNetwork.Messages;
 
                 var messages = (await repository.GetAll().Where(m => (m.FromUserId == CurrentUserId ||
@@ -158,6 +185,8 @@ namespace BusinessLayer.BusinessModels
                         .ToListAsync())
                     .GroupBy(d => new {d.FromUserId, d.ToUserId})
                     .Select(d => d.Select(m => m).LastOrDefault()).ToList();
+
+                Semaphore.Release();
 
                 var fromMe = messages.Where(m => m.FromUserId == CurrentUserId).ToList();
                 var toMe = messages.Where(m => m.ToUserId == CurrentUserId).ToList();
@@ -183,6 +212,21 @@ namespace BusinessLayer.BusinessModels
             
             public UserMessageDTO Read(long id)
             {
+                if (Semaphore.CurrentCount == Threads)
+                {
+                    Semaphore.Wait();
+                    UserMessage message = SocialNetwork.Messages.Get(id);
+                    if (message.FromUserId == CurrentUserId)
+                        return Mapper.Map<UserMessageDTO>(message);
+                    message.IsRead = true;
+                    //mes.Result.IsRead = true;
+                    var result = SocialNetwork.Messages.Update(message);
+                    SocialNetwork.Commit();
+
+                    Semaphore.Release();
+
+                    return Mapper.Map<UserMessageDTO>(result);
+                }
                 using (var context = new SocialNetwork(Connection))
                 {
 
@@ -202,6 +246,8 @@ namespace BusinessLayer.BusinessModels
 
             public async Task<UserMessageDTO> ReadAsync(long id)
             {
+                await Semaphore.WaitAsync();
+
                 UserMessage message = await SocialNetwork.Messages.GetAsync(id);
                 if(message.FromUserId == CurrentUserId && message.IsRead == true)
                     return Mapper.Map<UserMessageDTO>(message);
@@ -210,6 +256,7 @@ namespace BusinessLayer.BusinessModels
                 var result = await SocialNetwork.Messages.UpdateAsync(message);
                 await SocialNetwork.CommitAsync();
 
+                Semaphore.Release();
 
                 return Mapper.Map<UserMessageDTO>(result);
 

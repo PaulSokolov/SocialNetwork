@@ -23,7 +23,7 @@ namespace BusinessLayer.BusinessModels
             private long? _publicId;
             private SemaphoreSlim Semaphore => _socialNetworkFunctionality._semaphore;
             private IMapper Mapper => _socialNetworkFunctionality._mapper;
-            private string Id => _socialNetworkFunctionality.Id;
+            private string CurrentUserId => _socialNetworkFunctionality.Id;
             private DateTime Now => _socialNetworkFunctionality._now();
             private ISocialNetwork SocialNetwork => _socialNetworkFunctionality._socialNetwork ??
                                                     (_socialNetworkFunctionality._socialNetwork =
@@ -31,7 +31,7 @@ namespace BusinessLayer.BusinessModels
             #endregion
             
 
-            public string Avatar => _avatar ?? (_avatar = SocialNetwork.UserProfiles.Get(Id).Avatar);
+            public string Avatar => _avatar ?? (_avatar = SocialNetwork.UserProfiles.Get(CurrentUserId).Avatar);
 
             public long PublicId
             {
@@ -39,7 +39,7 @@ namespace BusinessLayer.BusinessModels
                 {
                     _publicId = SocialNetwork.UserProfiles
                         .GetAll()
-                        .Where(u => u.Id == Id)
+                        .Where(u => u.Id == CurrentUserId)
                         .Select(u => u.PublicId)
                         .FirstOrDefault();
 
@@ -56,14 +56,14 @@ namespace BusinessLayer.BusinessModels
                 {
                     await Semaphore.WaitAsync();
                     var res = _avatar ?? (_avatar = (await SocialNetwork.UserProfiles
-                                  .GetAsync(Id)).Avatar);
+                                  .GetAsync(CurrentUserId)).Avatar);
                     Semaphore.Release();
                     return res;
                 }
                 using (var context = new SocialNetwork(Connection))
                 {
                     return _avatar ?? (_avatar = (await context.UserProfiles
-                               .GetAsync(Id)).Avatar);
+                               .GetAsync(CurrentUserId)).Avatar);
                 }
             }
 
@@ -72,7 +72,7 @@ namespace BusinessLayer.BusinessModels
                 if (Semaphore.CurrentCount == Threads)
                 {
                     await Semaphore.WaitAsync();
-                    _publicId = await SocialNetwork.UserProfiles.GetAll().Where(u => u.Id == Id)
+                    _publicId = await SocialNetwork.UserProfiles.GetAll().Where(u => u.Id == CurrentUserId)
                         .Select(u => u.PublicId).FirstOrDefaultAsync();
                     Semaphore.Release();
                     if (_publicId == null)
@@ -82,7 +82,7 @@ namespace BusinessLayer.BusinessModels
                 }
                 using (var context = new SocialNetwork(Connection))
                 {
-                    _publicId = await context.UserProfiles.GetAll().Where(u => u.Id == Id)
+                    _publicId = await context.UserProfiles.GetAll().Where(u => u.Id == CurrentUserId)
                         .Select(u => u.PublicId).FirstOrDefaultAsync();
 
                     if (_publicId == null)

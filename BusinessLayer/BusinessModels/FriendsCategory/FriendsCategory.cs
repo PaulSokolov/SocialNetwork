@@ -22,7 +22,7 @@ namespace BusinessLayer.BusinessModels
 
             private SemaphoreSlim Semaphore => _socialNetworkFunctionality._semaphore;
             private IMapper Mapper => _socialNetworkFunctionality._mapper;
-            private string Id => _socialNetworkFunctionality.Id;
+            private string CurrentUserId => _socialNetworkFunctionality.Id;
             private DateTime Now => _socialNetworkFunctionality._now();
             private ISocialNetwork SocialNetwork => _socialNetworkFunctionality._socialNetwork ??
                                                     (_socialNetworkFunctionality._socialNetwork =
@@ -48,10 +48,10 @@ namespace BusinessLayer.BusinessModels
                     {
                         AddedDate = Now,
                         RequestDate = Now,
-                        RequestUserId = Id,
+                        RequestUserId = CurrentUserId,
                         FriendId = userToAddId,
                         Confirmed = false,
-                        UserId = Id
+                        UserId = CurrentUserId
                     });
 
                 await SocialNetwork.CommitAsync();
@@ -61,6 +61,8 @@ namespace BusinessLayer.BusinessModels
 
             public async Task<FriendDTO> AddAsync(long userToAddPublicId)
             {
+                await Semaphore.WaitAsync();
+
                 var user = await SocialNetwork.UserProfiles.GetAll().FirstOrDefaultAsync(u => u.PublicId == userToAddPublicId);
 
                 if (user == null)
@@ -72,10 +74,10 @@ namespace BusinessLayer.BusinessModels
                 {
                     AddedDate = Now,
                     RequestDate = Now,
-                    RequestUserId = Id,
+                    RequestUserId = CurrentUserId,
                     FriendId = user.Id,
                     Confirmed = false,
-                    UserId = Id
+                    UserId = CurrentUserId
                 });
 
                 await friendRepository.AddAsync(
@@ -83,25 +85,31 @@ namespace BusinessLayer.BusinessModels
                     {
                         AddedDate = Now,
                         RequestDate = Now,
-                        RequestUserId = Id,
-                        FriendId = Id,
+                        RequestUserId = CurrentUserId,
+                        FriendId = CurrentUserId,
                         Confirmed = false,
                         UserId = user.Id
                     });
                 await SocialNetwork.CommitAsync();
+
+                Semaphore.Release();
 
                 return Mapper.Map<Friend, FriendDTO>(friend);
             }
 
             public async Task<FriendDTO> ConfirmAsync(long userToAddPublicId)
             {
+                await Semaphore.WaitAsync();
+
                 var userToAddId = await SocialNetwork.UserProfiles.GetAll().Where(u => u.PublicId == userToAddPublicId).Select(u => u.Id).FirstOrDefaultAsync();
+                
 
                 if (userToAddId == null)
                     throw new UserNotFoundException();
 
                 var friendRepository = SocialNetwork.Friends;
-                Friend friend = await friendRepository.GetFriend(userToAddId, Id);
+
+                Friend friend = await friendRepository.GetFriend(userToAddId, CurrentUserId);
 
                 friend.ConfirmDate = Now;
                 friend.Confirmed = true;
@@ -109,7 +117,7 @@ namespace BusinessLayer.BusinessModels
 
                 var task = SocialNetwork.Friends.UpdateAsync(friend);
 
-                Friend confirmedFriend = await friendRepository.GetFriend(Id, userToAddId);
+                Friend confirmedFriend = await friendRepository.GetFriend(CurrentUserId, userToAddId);
 
                 confirmedFriend.ConfirmDate = Now;
                 confirmedFriend.Confirmed = true;
@@ -120,18 +128,23 @@ namespace BusinessLayer.BusinessModels
                 await Task.WhenAll(task, res);
                 await SocialNetwork.CommitAsync();
 
+                Semaphore.Release();
+
                 return Mapper.Map<FriendDTO>(res.Result);
             }
 
             public async Task<FriendDTO> DeleteAsync(long userToDeletePublicId)
             {
+                await Semaphore.WaitAsync();
+
                 var userToDelete = await SocialNetwork.UserProfiles.GetAll()
                     .Where(u => u.PublicId == userToDeletePublicId).Select(u => u.Id).FirstOrDefaultAsync();
+
 
                 if (userToDelete == null)
                     throw new UserNotFoundException();
                 var friendRepository = SocialNetwork.Friends;
-                Friend friend = await friendRepository.GetFriend(Id, userToDelete);
+                Friend friend = await friendRepository.GetFriend(CurrentUserId, userToDelete);
 
                 if (friend == null)
                     throw new UserNotFoundException("There is no user to delete");
@@ -144,7 +157,7 @@ namespace BusinessLayer.BusinessModels
 
                 var resTask = SocialNetwork.Friends.UpdateAsync(friend);
 
-                Friend deletedFriend = await friendRepository.GetFriend(userToDelete, Id);
+                Friend deletedFriend = await friendRepository.GetFriend(userToDelete, CurrentUserId);
 
                 deletedFriend.Confirmed = true;
                 deletedFriend.Deleted = true;
@@ -154,18 +167,22 @@ namespace BusinessLayer.BusinessModels
                 await Task.WhenAll(resTask, updateTask);
                 await SocialNetwork.CommitAsync();
 
+                Semaphore.Release();
+
                 return Mapper.Map<FriendDTO>(resTask.Result);
             }
 
             public async Task UnsubscribeAsync(long unsubscribeId)
             {
+                await Semaphore.WaitAsync();
+
                 var userToDelete = await SocialNetwork.UserProfiles.GetAll().FirstOrDefaultAsync(u => u.PublicId == unsubscribeId);
 
                 if (userToDelete == null)
                     throw new UserNotFoundException();
                 var friendRepository = SocialNetwork.Friends;
 
-                Friend friend = await friendRepository.GetFriend(Id, userToDelete.Id);
+                Friend friend = await friendRepository.GetFriend(CurrentUserId, userToDelete.Id);
 
                 if (friend == null)
                     throw new UserNotFoundException("There is no user to delete");
@@ -174,12 +191,14 @@ namespace BusinessLayer.BusinessModels
                 await friendRepository.DeleteAsync(friend);
 
                 Friend deletedFriend =
-                    await friendRepository.GetFriend(userToDelete.Id, Id);
+                    await friendRepository.GetFriend(userToDelete.Id, CurrentUserId);
 
                 if (deletedFriend != null)
                     await friendRepository.DeleteAsync(deletedFriend);
 
                 await SocialNetwork.CommitAsync();
+
+                Semaphore.Release();
             }
 
             public async Task<ICollection<UserProfileDTO>> GetFriendsAsync()
@@ -188,7 +207,7 @@ namespace BusinessLayer.BusinessModels
                 if (Semaphore.CurrentCount == Threads)
                 {
                     await Semaphore.WaitAsync();
-                    var query = SocialNetwork.Friends.GetAll().Where(f => f.UserId == Id)
+                    var query = SocialNetwork.Friends.GetAll().Where(f => f.UserId == CurrentUserId)
                         .Where(u => u.Confirmed && u.Deleted == false).Select(u => u.FriendId);
 
                     friends = await SocialNetwork.UserProfiles.GetAll().Where(u => query.Any(f => f == u.Id)).ToListAsync();
@@ -198,7 +217,7 @@ namespace BusinessLayer.BusinessModels
                 }
                 using (var context = new SocialNetwork(Connection))
                 {
-                    var query = context.Friends.GetAll().Where(f => f.UserId == Id)
+                    var query = context.Friends.GetAll().Where(f => f.UserId == CurrentUserId)
                         .Where(u => u.Confirmed && u.Deleted == false).Select(u => u.FriendId);
 
                     friends = await context.UserProfiles.GetAll().Where(u => query.Any(f => f == u.Id)).ToListAsync();
@@ -215,9 +234,9 @@ namespace BusinessLayer.BusinessModels
                 {
                     await Semaphore.WaitAsync();
                     var query = SocialNetwork.Friends.GetAll()
-                        .Where(f => f.UserId == Id)
+                        .Where(f => f.UserId == CurrentUserId)
                         .Where(f => (f.Confirmed == false || f.Deleted) &&
-                                    f.RequestUserId == Id).Select(u => u.FriendId);
+                                    f.RequestUserId == CurrentUserId).Select(u => u.FriendId);
                     friends = await SocialNetwork.UserProfiles.GetAll()
                         .Where(u => query.Any(f => f == u.Id)).ToListAsync();
                     Semaphore.Release();
@@ -226,9 +245,9 @@ namespace BusinessLayer.BusinessModels
                 using (var context = new SocialNetwork(Connection))
                 {
                     var query = context.Friends.GetAll()
-                        .Where(f => f.UserId == Id)
+                        .Where(f => f.UserId == CurrentUserId)
                         .Where(f => (f.Confirmed == false || f.Deleted) &&
-                                    f.RequestUserId == Id).Select(u => u.FriendId);
+                                    f.RequestUserId == CurrentUserId).Select(u => u.FriendId);
                     friends = await context.UserProfiles.GetAll()
                         .Where(u => query.Any(f => f == u.Id)).ToListAsync();
 
@@ -243,9 +262,9 @@ namespace BusinessLayer.BusinessModels
                 {
                     await Semaphore.WaitAsync();
                     var query = SocialNetwork.Friends.GetAll()
-                        .Where(f => f.FriendId == Id)
+                        .Where(f => f.FriendId == CurrentUserId)
                         .Where(f => (f.Confirmed == false || f.Deleted) &&
-                                    f.RequestUserId != Id).Select(u => u.UserId);
+                                    f.RequestUserId != CurrentUserId).Select(u => u.UserId);
                     friends = await SocialNetwork.UserProfiles.GetAll()
                         .Where(u => query.Any(f => f == u.Id)).ToListAsync();
                     Semaphore.Release();
@@ -254,9 +273,9 @@ namespace BusinessLayer.BusinessModels
                 using (var context = new SocialNetwork(Connection))
                 {
                     var query = context.Friends.GetAll()
-                        .Where(f => f.FriendId == Id)
+                        .Where(f => f.FriendId == CurrentUserId)
                         .Where(f => (f.Confirmed == false || f.Deleted) &&
-                                    f.RequestUserId != Id).Select(u => u.UserId);
+                                    f.RequestUserId != CurrentUserId).Select(u => u.UserId);
                     friends = await context.UserProfiles.GetAll()
                         .Where(u => query.Any(f => f == u.Id)).ToListAsync();
 

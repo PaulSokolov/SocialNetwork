@@ -10,8 +10,8 @@ namespace DataLayer.UnitOfWorks
 {
     public class IdentityUnitOfWork : IIdentityUoF
     {
-        private IdentityContext _context;
-
+        private readonly IdentityContext _context;
+        private bool _disposed;
         public IdentityUnitOfWork(string connectionString)
 
         {
@@ -37,18 +37,17 @@ namespace DataLayer.UnitOfWorks
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        private bool disposed;
 
-        public virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
-            if (disposed) return;
+            if (_disposed) return;
             if (disposing)
             {
                 UserManager.Dispose();
                 RoleManager.Dispose();
                 ClientManager.Dispose();
             }
-            disposed = true;
+            _disposed = true;
         }
     }
 }

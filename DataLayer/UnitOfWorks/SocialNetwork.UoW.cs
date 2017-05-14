@@ -22,7 +22,7 @@ namespace DataLayer.UnitOfWorks
         {
             _context = new UserProfileContext(connection);
         }
-        public virtual void Dispose()
+        public void Dispose()
         {
             if (_friendRepository != null)
                 _friendRepository.Dispose();
