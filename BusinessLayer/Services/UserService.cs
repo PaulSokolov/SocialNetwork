@@ -154,6 +154,26 @@ namespace BusinessLayer.Services
             return new OperationDetails(true, "User removed from role successfully", "Role");
         }
 
+        public async Task<OperationDetails> ChangePassword(string userId,string oldPassword, string newPassword)
+        {
+            ApplicationUser user = await Database.UserManager.FindByIdAsync(userId);
+            if (user != null)
+            {
+                if (oldPassword != newPassword)
+                {
+                    IdentityResult result = await Database.UserManager.ChangePasswordAsync(user.Id, oldPassword, newPassword);
+                    if (result.Errors.Any())
+                        return new OperationDetails(false, result.Errors.FirstOrDefault(),"");
+                    await Database.SaveAsync();
+                    return new OperationDetails(true, "Password changed","");
+                }
+                else
+                    return new OperationDetails(false, "New password similar to the previous one", "NewPassword");
+            }
+            else
+                return new OperationDetails(false, "User doesn't exist", "UserName");
+        }
+
         public void Dispose()
         {
             Database.Dispose();

@@ -24,8 +24,11 @@ namespace WEB
                       "~/Scripts/respond.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
-                      "~/Content/bootstrap-theme.min.css",
-                      "~/Content/Site.css"));
+                "~/Content/bootstrap-theme.min.css",
+                "~/Content/Site.css",
+                "~/Content/bootstrap-tagsinput.css"));
+            bundles.Add(new StyleBundle("~/bundles/tagsinput").Include(
+                "~/Scripts/bootstrap-tagsinput.js"));
             //bundles.Add(new StyleBundle("~/Content/css").Include(
             //          "~/Content/bootstrap-theme.min.css"
             //          ,"~/Content/main.css"));

@@ -14,7 +14,7 @@ namespace SocialNetwork.Models
         public string Password { get; set; }
         [Required]
         [DataType(DataType.Password)]
-        [Compare("Password")]
+        [Compare("Password"),DisplayName("Confirm Password")]
         public string ConfirmPassword { get; set; }
         [Required]
         public string Name { get; set; }
@@ -29,7 +29,7 @@ namespace SocialNetwork.Models
         [Required]
         public  string Address { get; set; }
         [DataType(DataType.Date)]
-        [Required]
+        [Required, DisplayName("Birthdate")]
         public DateTime? BirthDate { get; set; }
         [Required]
         public SexDTO Sex { get; set; }

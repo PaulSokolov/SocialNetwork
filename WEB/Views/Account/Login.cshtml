@@ -1,27 +1,32 @@
 ﻿@model SocialNetwork.Models.LoginModel
 
-<div class="row">
-    <div class="col-md-4 col-md-offset-4">
-        
+    <div class="col-md-6 col-md-offset-3">
+
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        <form class="form-group" action="/Account/Login" method="post">
-            @Html.AntiForgeryToken()
-            <div class="row my_form">
-                <div class="col-md-12">
-                    @Html.EditorFor(model => model.Email, new { htmlAttributes = new { placeholder = "Email", @class = "form-control" } })
-                    @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+        <form class="form-horizontal" action="@Url.Action("Login")" method="post">
+            <fieldset>
+                <legend>Login</legend>
+                @Html.AntiForgeryToken()
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Email, new {@class = "col-md-2"})
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Email, new {htmlAttributes = new {placeholder = "Email", @class = "form-control"}})
+                        @Html.ValidationMessageFor(model => model.Email, "", new {@class = "text-danger"})
+                    </div>
                 </div>
-            </div>
-            <div class="row my_form">
-                <div class="col-md-12">
-                    @Html.EditorFor(model => model.Password, new { htmlAttributes = new { placeholder = "Password", @class = "form-control" } })
-                    @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Password, new {@class = "col-md-2"})
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Password, new {htmlAttributes = new {placeholder = "Password", @class = "form-control"}})
+                        @Html.ValidationMessageFor(model => model.Password, "", new {@class = "text-danger"})
+                    </div>
                 </div>
-            </div>
-            <div class="row my_form">
-                <button type="submit" class="btn btn-default col-md-6 my_login_btn">Login</button>
-                <a class="col-md-6 forget_pas" href="#">Forgot password?</a>
-            </div>
+                <div class="form-group">
+                    <div class="col-md-10 col-md-offset-2">
+                        <button type="submit" class="btn btn-default col-md-6 my_login_btn">Login</button>
+                    </div>
+                    @*<a class="col-md-6 forget_pas" href="#">Forgot password?</a>*@
+                </div>
+            </fieldset>
         </form>
     </div>
-</div>

@@ -6,9 +6,9 @@
             else
             {<span id="messageCounter" class="badge" style="display:none">@ViewBag.Unread</span> }</a></li>
         <li><a href="@Url.Action("Index","Friend")">Friends @if (ViewBag.NewFriends != 0)
-            {<span id="friendsCounter" class="counter">@ViewBag.NewFriends</span>}
+            {<span id="friendsCounter" class="badge">@ViewBag.NewFriends</span>}
             else
-            { <span id="friendsCounter" class="counter" style="display:none">@ViewBag.NewFriends</span>}</a></li>
+            { <span id="friendsCounter" class="badge" style="display:none">@ViewBag.NewFriends</span>}</a></li>
         <li><a href="@Url.Action("Settings","Home")">Settings</a></li>
     </ul>
     <footer>

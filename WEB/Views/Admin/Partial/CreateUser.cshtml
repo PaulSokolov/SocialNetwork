@@ -11,67 +11,89 @@
                 @Html.LabelFor(model => model.Name, new { @class = "col-md-2" })
                 <div class="col-md-10">
                     @Html.TextBoxFor(model => model.Name, new { placeholder = "Name", @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
                 </div>
-                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+
             </div>
             <div class="form-group">
                 @Html.LabelFor(model => model.Surname, new { @class = "col-md-2" })
                 <div class="col-md-10">
                     @Html.TextBoxFor(model => model.Surname, new { placeholder = "Surname", @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Surname, "", new { @class = "text-danger" })
                 </div>
-                @Html.ValidationMessageFor(model => model.Surname, "", new { @class = "text-danger" })
+
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(model => model.Password, new { @class = "col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextBoxFor(model => model.Password, new { placeholder = "Password", @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
+                </div>
+
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(model => model.ConfirmPassword, new { @class = "col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextBoxFor(model => model.ConfirmPassword, new { placeholder = "ConfirmPassword", @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.ConfirmPassword, "", new { @class = "text-danger" })
+                </div>
+
             </div>
             <div class="form-group">
                 @Html.LabelFor(model => model.Sex, new { @class = "col-md-2" })
                 <div class="col-md-10">
                     @Html.EnumDropDownListFor(model => model.Sex, new { placeholder = "Sex", @class = "form-control select" })
+                    @Html.ValidationMessageFor(model => model.Sex, "", new { @class = "text-danger" })
                 </div>
-                @Html.ValidationMessageFor(model => model.Sex, "", new { @class = "text-danger" })
+
             </div>
             <div class="form-group">
                 @Html.LabelFor(model => model.Email, new { @class = "col-md-2" })
                 <div class="col-md-10">
                     @Html.EditorFor(model => model.Email, new { htmlAttributes = new { placeholder = "Email", @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
                 </div>
-                @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+
             </div>
             @*<div class="row my_form">
-                    <div class="col-md-12">
-                        @Html.LabelFor(model => model.BirthDate)
-                        @Html.EditorFor(model => model.BirthDate, new { htmlAttributes = new { placeholder = "Birthdate", @class = "form-control" } })
-                        @Html.ValidationMessageFor(model => model.BirthDate, "", new { @class = "text-danger" })
-                    </div>
-                </div>*@
+                        <div class="col-md-12">
+                            @Html.LabelFor(model => model.BirthDate)
+                            @Html.EditorFor(model => model.BirthDate, new { htmlAttributes = new { placeholder = "Birthdate", @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.BirthDate, "", new { @class = "text-danger" })
+                        </div>
+                    </div>*@
             <div class="form-group">
                 @Html.LabelFor(model => model.Address, new { @class = "col-md-2" })
                 <div class="col-md-10">
                     @Html.TextBoxFor(model => model.Address, new { placeholder = "Address", @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger" })
                 </div>
-                @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger" })
+
             </div>
             <div class="form-group">
                 @Html.LabelFor(model => model.CountryId, new { @class = "col-md-2" })
                 <div class="col-md-10">
-                    @Html.DropDownListFor(model => model.CountryId, new SelectList(ViewBag.Countries, "Id", "Name"),"Select country", new { placeholder = "Countries", @class = "form-control select" })
+                    @Html.DropDownListFor(model => model.CountryId, new SelectList(ViewBag.Countries, "Id", "Name"), "Select country", new { placeholder = "Countries", @class = "form-control select" })
                 </div>
             </div>
             <div class="form-group">
                 @Html.LabelFor(model => model.CityId, new { @class = "col-md-2" })
                 <div class="col-md-10">
-                    @Html.DropDownListFor(model => model.CityId, new SelectList(ViewBag.Cities, "Id", "Name"),"Select city", new { placeholder = "Cities", @class = "form-control select" })
+                    @Html.DropDownListFor(model => model.CityId, new SelectList(ViewBag.Cities, "Id", "Name"), "Select city", new { placeholder = "Cities", @class = "form-control select" })
+                    @Html.ValidationMessageFor(model => model.CityId, "", new { @class = "text-danger" })
                 </div>
             </div>
-            @*<div class="row my_form">
-                    <div class="col-md-12">
-                        @Html.LabelFor(model => model.CityId)
-                        @Html.DropDownList("cities", new SelectList(ViewBag.Cities), new { htmlAttributes = new { @placeholder = "CityId", @class = "form-control select" } })
-                        @Html.ValidationMessageFor(model => model.CityId, "", new { @class = "text-danger" })
-                    </div>
-                </div>*@
+            <div class="form-group">
+                @Html.LabelFor(model => model.BirthDate, new { @class = "col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.BirthDate)
+                    @Html.ValidationMessageFor(model => model.BirthDate, "", new { @class = "text-danger" })
+                </div>
+            </div>
             <div class="form-group">
                 <div class="col-md-10 col-md-offset-2">
                     <button type="reset" class="btn btn-default">Cancel</button>
-                    <button type="submit" class="btn btn-success">Save</button>
+                    <button type="submit" class="btn btn-success">Create</button>
                 </div>
             </div>
         </fieldset>

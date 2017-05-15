@@ -17,12 +17,10 @@ namespace SocialNetwork.Models
         public string Address { get; set; }
         [Required,DisplayName("Hide birthdate")]
         public bool BirthDateIsHidden { get; set; }
-        [Required]
         [DataType(DataType.MultilineText)]
         public string About { get; set; }
         [Required, DisplayName("Hide about")]
         public bool AboutIsHidden { get; set; }
-        [Required]
         [DataType(DataType.MultilineText)]
         public string Activity { get; set; }
         [Required, DisplayName("Hide activities")]
@@ -39,6 +37,8 @@ namespace SocialNetwork.Models
         public bool EmailIsHidden { get; set; }
         [Required]
         public SexDTO? Sex { get; set; }
+
+        public List<LanguageDTO> Languages { get; set; }
     }
     public class CityViewModel
     {

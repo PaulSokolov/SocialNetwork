@@ -13,10 +13,12 @@
     <ul class="nav nav-pills nav-stacked friend-menu">
         <li> <a id="getFriends">My friends</a></li>
         <li>
-            <a id="followers">Followers</a> @if (ViewBag.Followers != 0)
+            <a id="followers">
+                Followers @if (ViewBag.Followers != 0)
             {<span id="followersCounter" class="badge">@ViewBag.Followers</span>}
             else
             { <span id="followersCounter" class="badge" style="display:none">@ViewBag.Followers</span>}
+            </a>
         </li>
         <li>
             <a id="followed">

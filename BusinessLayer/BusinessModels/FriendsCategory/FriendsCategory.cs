@@ -151,7 +151,7 @@ namespace BusinessLayer.BusinessModels
                     throw new UserNotFoundException("There is no user to delete");
 
                 var deletedDate = Now;
-
+                friend.RequestUserId = userToDelete;
                 friend.Confirmed = true;
                 friend.DeleteDate = deletedDate;
                 friend.Deleted = true;
@@ -160,6 +160,7 @@ namespace BusinessLayer.BusinessModels
 
                 Friend deletedFriend = await friendRepository.GetFriend(userToDelete, CurrentUserId);
 
+                deletedFriend.RequestUserId = userToDelete;
                 deletedFriend.Confirmed = true;
                 deletedFriend.Deleted = true;
                 deletedFriend.DeleteDate = deletedDate;

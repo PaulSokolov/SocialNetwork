@@ -8,9 +8,11 @@ using BusinessLayer.BusinessModels;
 using BusinessLayer.DTO;
 using BusinessLayer.Infrastructure;
 using BusinessLayer.Interfaces;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using SocialNetwork.Models;
+using WEB.Filters;
 
 namespace WEB.Controllers
 {
@@ -65,7 +67,7 @@ namespace WEB.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<ActionResult> Register(RegisterModel model)
         {
-            await SetInitialDataAsync();
+            //await SetInitialDataAsync();
 
             if (!ModelState.IsValid) return View(model);
 
@@ -80,18 +82,41 @@ namespace WEB.Controllers
                 BirthDate = model.BirthDate,
                 CityId = model.CityId,
                 Address = model.Address,
-                ActivatedDate = DateTime.Now
+                ActivatedDate = DateTime.Now,
+                Avatar = "/Images/imj.jpg",
+                Sex = model.Sex,
+                
 
             };
-
             OperationDetails operationDetails = await UserService.Create(userDto);
 
             if (operationDetails.Succedeed)
-                return View("SuccessRegister");
+            {
+                ClaimsIdentity claim = await UserService.Authenticate(userDto);
+                AuthenticationManager.SignIn(new AuthenticationProperties { IsPersistent = true }, claim);
+
+                return RedirectToAction("Profile", "Home");
+            }
 
             ModelState.AddModelError(operationDetails.Property, operationDetails.Message);
 
             return View(model);
+        }
+
+        [Authorize, HttpPost, AjaxOnly]
+        public async Task<ActionResult> ChangePassword(string oldPassword, string newPassword)
+        {
+            if (oldPassword == newPassword)
+            {
+                return Content("New password should differ from the old one");
+            }
+
+            OperationDetails details = await UserService.ChangePassword(User.Identity.GetUserId(), oldPassword, newPassword);
+
+            if (details.Succedeed)
+                return Content("Password was changed successfully");
+
+            return Content(details.Message);
         }
 
         private async Task SetInitialDataAsync()
