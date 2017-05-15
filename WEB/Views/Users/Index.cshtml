@@ -1,17 +1,14 @@
 ﻿@model SocialNetwork.Models.SearchPageModel
 
-
-<div class="row">
-    <div class="col-md-3">
-        @{ Html.RenderPartial("BorderMenu");}
-    </div>
-
-    <div id="result" class="col-md-6">
-        @{ Html.RenderPartial("Partial/Users", Model.Users);}        
-    </div>
-    <div class="col-md-3">
-        @{ Html.RenderPartial("Partial/Search");}
-    </div>
+@section BorderMenu
+      {
+    @{ Html.RenderPartial("BorderMenu");}
+}
+<div id="result" class="col-md-8 col-md-offset-1">
+    @{ Html.RenderPartial("Partial/Users", Model.Users);}
+</div>
+<div class="col-md-3">
+    @{ Html.RenderPartial("Partial/Search");}
 </div>
 
 @section Scripts

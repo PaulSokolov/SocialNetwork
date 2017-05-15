@@ -9,10 +9,6 @@
                 </a>
             </div>
             <div class="media-body">
-                <a href="@Url.Action("Profile","Home",new{ id = Model.PublicId})">
-                    <h5 class="media-heading">@($"{Model.Name} {Model.Surname}")</h5>
-                    <span>@Model.Address</span>
-                </a>
                 @if (Model.IsFriend)
                 {
                     <div id="@($"delete_{Model.PublicId}")" class="btn btn-danger" style="float: right;top: 0px" onclick="FriendRequest(@Model.PublicId,'Delete','delete','result')">Delete</div>
@@ -30,6 +26,11 @@
                 {
                     <div id="@($"friend_{Model.PublicId}")" class="btn btn-default" style="float: right;" onclick="FriendRequest(@Model.PublicId,'Add','friend','result')">Add Friend</div>
                 }
+                <a href="@Url.Action("Profile", "Home", new {id = Model.PublicId})">
+                    <h5 class="media-heading">@($"{Model.Name} {Model.Surname}")</h5>
+                    <span>@Model.Address</span>
+                </a>
+
             </div>
         </div>
     </div>

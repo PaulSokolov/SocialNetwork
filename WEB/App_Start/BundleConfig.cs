@@ -25,10 +25,10 @@ namespace WEB
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap-theme.min.css",
-                      "~/Content/site.css"));
-            bundles.Add(new StyleBundle("~/Content/css").Include(
-                      "~/Content/bootstrap-theme.min.css",
-                      "~/Content/main.css"));
+                      "~/Content/Site.css"));
+            //bundles.Add(new StyleBundle("~/Content/css").Include(
+            //          "~/Content/bootstrap-theme.min.css"
+            //          ,"~/Content/main.css"));
         }
     }
 }

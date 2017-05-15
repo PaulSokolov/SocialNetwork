@@ -1,48 +1,101 @@
 ﻿@model SocialNetwork.Models.RegisterModel
 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 <div>
-    @using (Ajax.BeginForm("CreateRole", new AjaxOptions { UpdateTargetId = "result", OnBegin = "", OnComplete = "", HttpMethod = "Post" }))
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    @using (Ajax.BeginForm("CreateUser", null, new AjaxOptions { HttpMethod = "Post" }, new { @class = "form-horizontal" }))
     {
-        @Html.AntiForgeryToken()
-        <div class="row my_form">
-            <div class="col-md-12">
-                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { placeholder = "Name", @class = "form-control" } })
+
+        <fieldset>
+            @Html.AntiForgeryToken()
+            <div class="form-group">
+                @Html.LabelFor(model => model.Name, new { @class = "col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextBoxFor(model => model.Name, new { placeholder = "Name", @class = "form-control" })
+                </div>
                 @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
             </div>
-        </div>
-        <div class="row my_form">
-            <div class="col-md-12">
-                @Html.EditorFor(model => model.Surname, new { htmlAttributes = new { placeholder = "Surname", @class = "form-control" } })
+            <div class="form-group">
+                @Html.LabelFor(model => model.Surname, new { @class = "col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextBoxFor(model => model.Surname, new { placeholder = "Surname", @class = "form-control" })
+                </div>
                 @Html.ValidationMessageFor(model => model.Surname, "", new { @class = "text-danger" })
             </div>
-        </div>
-            <div class="row my_form">
-                <div class="col-md-12">
+            <div class="form-group">
+                @Html.LabelFor(model => model.Sex, new { @class = "col-md-2" })
+                <div class="col-md-10">
+                    @Html.EnumDropDownListFor(model => model.Sex, new { placeholder = "Sex", @class = "form-control select" })
+                </div>
+                @Html.ValidationMessageFor(model => model.Sex, "", new { @class = "text-danger" })
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(model => model.Email, new { @class = "col-md-2" })
+                <div class="col-md-10">
                     @Html.EditorFor(model => model.Email, new { htmlAttributes = new { placeholder = "Email", @class = "form-control" } })
-                    @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+                </div>
+                @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+            </div>
+            @*<div class="row my_form">
+                    <div class="col-md-12">
+                        @Html.LabelFor(model => model.BirthDate)
+                        @Html.EditorFor(model => model.BirthDate, new { htmlAttributes = new { placeholder = "Birthdate", @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.BirthDate, "", new { @class = "text-danger" })
+                    </div>
+                </div>*@
+            <div class="form-group">
+                @Html.LabelFor(model => model.Address, new { @class = "col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextBoxFor(model => model.Address, new { placeholder = "Address", @class = "form-control" })
+                </div>
+                @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger" })
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(model => model.CountryId, new { @class = "col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownListFor(model => model.CountryId, new SelectList(ViewBag.Countries, "Id", "Name"),"Select country", new { placeholder = "Countries", @class = "form-control select" })
                 </div>
             </div>
-            <div class="row my_form">
-                <div class="col-md-12">
-                    @Html.EditorFor(model => model.Password, new { htmlAttributes = new { placeholder = "Password", @class = "form-control" } })
-                    @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
+            <div class="form-group">
+                @Html.LabelFor(model => model.CityId, new { @class = "col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownListFor(model => model.CityId, new SelectList(ViewBag.Cities, "Id", "Name"),"Select city", new { placeholder = "Cities", @class = "form-control select" })
                 </div>
             </div>
-            <div class="row my_form">
-                <div class="col-md-12">
-                    @Html.EditorFor(model => model.ConfirmPassword, new { htmlAttributes = new { placeholder = "Confirm password", @class = "form-control" } })
-                    @Html.ValidationMessageFor(model => model.ConfirmPassword, "", new { @class = "text-danger" })
+            @*<div class="row my_form">
+                    <div class="col-md-12">
+                        @Html.LabelFor(model => model.CityId)
+                        @Html.DropDownList("cities", new SelectList(ViewBag.Cities), new { htmlAttributes = new { @placeholder = "CityId", @class = "form-control select" } })
+                        @Html.ValidationMessageFor(model => model.CityId, "", new { @class = "text-danger" })
+                    </div>
+                </div>*@
+            <div class="form-group">
+                <div class="col-md-10 col-md-offset-2">
+                    <button type="reset" class="btn btn-default">Cancel</button>
+                    <button type="submit" class="btn btn-success">Save</button>
                 </div>
             </div>
-            <div class="row my_form">
-                <div class="col-md-12">
-                    @Html.EditorFor(model => model.BirthDate, new { htmlAttributes = new { placeholder = "Birthdate", @class = "form-control" } })
-                    @Html.ValidationMessageFor(model => model.BirthDate, "", new { @class = "text-danger" })
-                </div>
-            </div>
-            <div class="row my_form">
-                <button type="submit" class="btn btn-default col-md-12 my_register_btn">Create user</button>
-            </div>
+        </fieldset>
     }
-</div>
 
+</div>
+<script>
+    $(function () {
+        $("#CountryId").change(function () {
+            $.ajax({
+                type: "GET",
+                url: "/Home/Cities",
+                data: { countryId: $('#CountryId option:selected').val() },
+                dataType: "html",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $("#CityId").empty().prepend(data);
+                },
+                beforeSend: function () { beforeSend('result') },
+                complete: function () { complete('result') },
+                failure: function () {
+                    alert("error");
+                }
+            });
+        });
+    })
+</script>

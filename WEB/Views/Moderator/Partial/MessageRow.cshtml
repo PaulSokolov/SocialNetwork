@@ -23,13 +23,13 @@
                 <p>To:</p>
                 <div class="media">
                     <div class="media-left media-top">
-                        <a href="../Home/User/@Model.RecipientPublicId" style="position: relative;">
+                        <a href="@Url.Action("User","Home", Model.RecipientPublicId)" style="position: relative;">
                             <img class="media-object moderator_image_user" src="@Model.RecipientAvatar" alt="...">
                         </a>
                     </div>
                     <div class="media-body">
-                        <a href="../Home/Profile/@Model.RecipientPublicId">
-                            <span style="font-size:12px" class="media-heading">@string.Format("{0} {1}", Model.RecipientName, Model.RecipientSurname)</span>
+                        <a href="@Url.Action("User","Home", Model.RecipientPublicId)">
+                            <span style="font-size:12px" class="media-heading">@($"{Model.RecipientName} {Model.RecipientSurname}")</span>
                         </a>
                         @*<div id="@user.PublicId.ToString()" class="btn btn-default" style="float: right;top: 0px" onclick="UserDelete(user.PublicId)">@Ajax.ActionLink("Delete", "DeleteUser", new AjaxOptions { HttpMethod = "Post", Confirm="Are you sure?", UpdateTargetId=user.PublicId.ToString(),  })</div>*@
 

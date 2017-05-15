@@ -1,16 +1,15 @@
 ﻿@model IEnumerable<SocialNetwork.Models.DialogModel>
 
-<div class="row">
-    <div class="col-md-3">
-        @{ Html.RenderPartial("BorderMenu");}
-    </div>
+@section BorderMenu
+     {
+    @{ Html.RenderPartial("BorderMenu");}
+}
+<div class="col-md-12 col-md-offset-1">
+    @foreach (var dialog in Model)
+    {
+        Html.RenderPartial("Partial/Dialog", dialog);
+    }
 
-    <div class="col-md-9">
-        @foreach (var dialog in Model)
-            {
-                Html.RenderPartial("Partial/Dialog", dialog);
-            }
-    </div>
 </div>
 @section Scripts
 {

@@ -1,20 +1,15 @@
 ﻿@model SocialNetwork.Models.ProfileModel
-@{
-    ViewBag.Title = "ProfileInfo";
-}
 
-<div id="wait" class="row">
-    <div class="col-md-3">
-        @{ Html.RenderPartial("BorderMenu");}
-    </div>
-    <div class="col-md-3 border mid_bar">
+<div id="wait" class="">
+        @section BorderMenu{ @{ Html.RenderPartial("BorderMenu"); }}
+    <div class="col-md-4 col-md-offset-1 border mid_bar">
         <div id="avatar">
             <a href="#">
                 <img class="media-object" src="@Model.Avatar" alt="...">
             </a>
             @if (!Model.IsEditHidden)
             {
-                <button class="btn btn-default btn-profile" data-toggle="modal" data-target="#myModal">Edit</button>
+                <button class="btn btn-warning btn-profile" data-toggle="modal" data-target="#myModal">Edit</button>
             }
             else
             {
@@ -25,7 +20,7 @@
                 }
                 if (Model.IsFriend)
                 {
-                    <div id="@($"delete_{Model.PublicId}")" class="btn btn-danger btn-profile" onclick="FriendRequest(@Model.PublicId,'Delete','delete','wait')">Delete</div>
+                    <div id="@($"delete_{Model.PublicId}")" class="btn btn-default btn-danger btn-profile" onclick="FriendRequest(@Model.PublicId,'Delete','delete','wait')">Delete</div>
                 }
                 else if (Model.IsFollower)
                 {
@@ -33,7 +28,7 @@
                 }
                 else if (Model.IsFollowed)
                 {
-                    <div id="@($"followed_{Model.PublicId}")" class="btn btn-default btn-profile" onclick="FriendRequest(@Model.PublicId,'Unsubscribe','followed','wait')">Unsubscribe</div>
+                    <div id="@($"followed_{Model.PublicId}")" class="btn btn-default btn-danger btn-profile" onclick="FriendRequest(@Model.PublicId,'Unsubscribe','followed','wait')">Unsubscribe</div>
                 }
                 else if (ViewBag.MyPublicId == Model.PublicId) { }
                 else
@@ -80,24 +75,24 @@
             </div>
         }
     </div>
-    <div class="col-md-6">
+    <div class="col-md-7">
         <div class="border">
             <div class="row">
                 <div class="col-md-12">
-                    <h4>@($"{Model.Name} {Model.LastName}")</h4>
+                    <h2 class="user">@($"{Model.Name} {Model.LastName}")<span class="user">Online</span></h2>
                 </div>
                 <div id="info" class="col-md-12">
-                    <ul class="information">
+                    <ul class="list-group">
                         @if (!Model.BirthDateIsHidden)
                         {
-                            <li>Birthday<span style="float:right;">@Model.BirthDate.Value.ToShortDateString()</span></li>
+                            <li class="list-group-item">Birthday<span style="float:right;">@Model.BirthDate.Value.ToShortDateString()</span></li>
                         }
-                        <li>City<span style="float:right;">@Model.City.Name</span></li>
-                        <li>Languages<span style="float:right;">@string.Join(",", Model.Languages.Select(l => l.Name))</span></li>
-                        <li>Sex<span style="float:right;">@Model.Sex</span></li>
+                        <li class="list-group-item">City<span style="float:right;">@Model.City.Name</span></li>
+                        <li class="list-group-item">Languages<span style="float:right;">@string.Join(",", Model.Languages.Select(l => l.Name))</span></li>
+                        <li class="list-group-item">Sex<span style="float:right;">@Model.Sex</span></li>
                         @if (!Model.EmailIsHidden)
                         {
-                            <li>Email<span style="float:right;">@Model.Email</span></li>
+                            <li class="list-group-item">Email<span style="float:right;">@Model.Email</span></li>
                         }
                     </ul>
                 </div>

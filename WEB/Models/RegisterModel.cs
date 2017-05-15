@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using BusinessLayer.DTO;
 
 namespace SocialNetwork.Models
 {
@@ -30,5 +31,8 @@ namespace SocialNetwork.Models
         [DataType(DataType.Date)]
         [Required]
         public DateTime? BirthDate { get; set; }
+        [Required]
+        public SexDTO Sex { get; set; }
+
     }
 }

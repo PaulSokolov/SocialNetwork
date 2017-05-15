@@ -8,12 +8,15 @@ using DataLayer.Entities;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
+using AutoMapper;
 
 namespace BLLTests
 {
     [TestFixture]
     public class SocialNetworkFriendsCategoryTests
     {
+        private IMapper Mapper { get; set; }
         SocialNetworkFunctionalityUser socialNetwork;
         List<UserProfile> userProfiles;
         List<Friend> friends;
@@ -23,26 +26,52 @@ namespace BLLTests
         List<UserMessage> messages;
 
         public TestContext testContext;
-        Mock<ISocialNetwork> moqSocialNetwork;
-        Mock<ILocalization> moqLocalization;
-        #region SocialNetwork Repos` moqs
-        Mock<IFriendRepository> moqFriendRepository;
-        Mock<IUserMessageRepository> moqUserMessageRepository;
-        Mock<IUserProfileRepository> moqUserProfileRepository;
-        #endregion
-        #region Localization Repos` moqs
-        Mock<ICountryRepository> moqCountryRepository;
-        Mock<ICityRepository> moqCityRepository;
-        Mock<ILanguageRepository> moqLanguageRepository;
-        #endregion
+        //Mock<ISocialNetwork> moqSocialNetwork;
+        //Mock<ILocalization> moqLocalization;
+        //#region SocialNetwork Repos` moqs
+        //Mock<IFriendRepository> moqFriendRepository;
+        //Mock<IUserMessageRepository> moqUserMessageRepository;
+        //Mock<IUserProfileRepository> moqUserProfileRepository;
+        //#endregion
+        //#region Localization Repos` moqs
+        //Mock<ICountryRepository> moqCountryRepository;
+        //Mock<ICityRepository> moqCityRepository;
+        //Mock<ILanguageRepository> moqLanguageRepository;
+        //#endregion
         static readonly DateTime time = new DateTime(2011, 11, 11);
         static readonly Entity entity;
         static readonly string userId = "1";
-        static readonly string userToAddId = "userToAddId";
-        Friend friend;
+        
         [OneTimeSetUp]
         public void Init()
         {
+            Mapper = CustomMapper.Configurate();
+            friends = new List<Friend> {
+                new Friend{
+                    AddedDate = time,
+                    RequestDate = time,
+                    RequestUserId = "1",
+                    FriendId = "2",
+                    Confirmed = false,
+                    UserId = "1",
+                },
+                new Friend{
+                    AddedDate = time,
+                    RequestDate = time,
+                    RequestUserId = "2",
+                    FriendId = "4",
+                    Confirmed = false,
+                    UserId = "2",
+                },
+                new Friend{
+                    AddedDate = time,
+                    RequestDate = time,
+                    RequestUserId = "2",
+                    FriendId = "4",
+                    Confirmed = false,
+                    UserId = "2",
+                }
+            };
             InitTestData();
             MoqConfigurateRepositories();
             MoqConfigurateUoW();
@@ -50,20 +79,37 @@ namespace BLLTests
 
         }
         [Test]
-        public void FriendsCategory_Add_AsExpected()
+        public async void FriendsCategory_Add_AsExpected()
         {
-
-            FriendDTO result = socialNetwork.Friends.Add(userToAddId);
-            var expected = socialNetwork.Mapper.Map<Friend, FriendDTO>(friend);
+            var moqFriendRepository = new Mock<IFriendRepository>();
+            moqFriendRepository.Setup(m => m.Add(It.IsAny<Friend>())).Returns<Friend>(res => res);
+            var moqSocialNetwork = new Mock<ISocialNetwork>();
+            moqSocialNetwork.Setup(m => m.Friends).Returns(moqFriendRepository.Object);
+            string userToAddId = "userToAddId";
+            Friend friend = new Friend
+            {
+                AddedDate = time,
+                RequestDate = time,
+                RequestUserId = userId,
+                FriendId = userToAddId,
+                Confirmed = false,
+                UserId = userId,
+            };
+            FriendDTO result = await socialNetwork.Friends.AddAsync(userToAddId);
+            var expected = Mapper.Map<Friend, FriendDTO>(friend);
 
             Assert.AreEqual(expected, result);
         }
         [Test]
-        public void FriendsCategory_Get_GetFriendsOfCuurentUser()
+        public async void FriendsCategory_Get_GetFriendsOfCuurentUser()
         {
+            var moqFriendRepository = new Mock<IFriendRepository>();
+            moqFriendRepository.Setup(m => m.GetAll()).Returns(friends.AsQueryable());
+            var moqSocialNetwork = new Mock<ISocialNetwork>();
+            moqSocialNetwork.Setup(m => m.Friends.GetAll()).Returns(moqFriendRepository.Object);
 
-            var result = socialNetwork.Friends.Get().ToList();
-            var expected = socialNetwork.Mapper.Map<ICollection<UserProfile>, List<UserProfileDTO>>(userProfiles.Where(u=>u.Id=="2").ToList());
+            var result = await socialNetwork.Friends.GetFriendsAsync();
+            var expected = Mapper.Map<ICollection<UserProfile>, List<UserProfileDTO>>(userProfiles.Where(u=>u.Id=="2").ToList());
             var e = result[0];//.Friends.ToList()[0];
             var r = expected[0];
             if(result.SequenceEqual(expected))
@@ -88,7 +134,7 @@ namespace BLLTests
                 RequestDate = friend.RequestDate
             };
             var result = socialNetwork.Friends.Confirm("1");
-            var expected = socialNetwork.Mapper.Map<FriendDTO>(expectedConfirmed);
+            var expected = Mapper.Map<FriendDTO>(expectedConfirmed);
 
             moqFriendRepository.Verify(x => x.Update(It.IsAny<Friend>()));
             moqFriendRepository.Verify(x => x.Add(It.IsAny<Friend>()));
@@ -235,32 +281,7 @@ namespace BLLTests
                 //Friends = friends.Where(f => f.UserId == "4").ToList()
             };
 
-            friends = new List<Friend> {
-                new Friend{
-                    AddedDate = time,
-                    RequestDate = time,
-                    RequestUserId = "1",
-                    FriendId = "2",
-                    Confirmed = false,
-                    UserId = "1",
-                },
-                new Friend{
-                    AddedDate = time,
-                    RequestDate = time,
-                    RequestUserId = "2",
-                    FriendId = "4",
-                    Confirmed = false,
-                    UserId = "2",
-                },
-                new Friend{
-                    AddedDate = time,
-                    RequestDate = time,
-                    RequestUserId = "2",
-                    FriendId = "4",
-                    Confirmed = false,
-                    UserId = "2",
-                }
-            };
+            
             languages = new List<Language> {
                 new Language{
                     Id = 1,
@@ -451,16 +472,6 @@ namespace BLLTests
                     SentMessages=messages.Where(m=>m.FromUserId=="4").ToList(),
                     Friends=friends.Where(f=>f.UserId == "4").ToList()
                 }
-            };
-
-            friend = new Friend
-            {
-                AddedDate = time,
-                RequestDate = time,
-                RequestUserId = userId,
-                FriendId = userToAddId,
-                Confirmed = false,
-                UserId = userId,
             };
 
         }

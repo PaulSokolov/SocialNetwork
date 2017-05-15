@@ -3,13 +3,14 @@
     <div class="dialog">
         <div class="media">
             <div class="media-left media-top">
-                <a href="#">
+                <a href="@Url.Action("User","Home",new{id=Model.PublicId})">
                     <img class="media-object dialog_image_user" src="@Model.SenderAvatar" alt="...">
                 </a>
             </div>
             <div class="media-body">
-                <a href="/Messages/Dialog/@Model.PublicId">
-                    <h5 class="media-heading">@string.Format("{0} {1}", Model.Name, Model.Surname) <span class="dialog_message_time">@Model.LastMessageTime.ToString("HH:mm")</span></h5>
+                <a href="@Url.Action("Dialog","Messages",new{id=Model.PublicId})">
+                    <h5 class="media-heading">
+                        @($"{Model.Name} {Model.Surname}") <span class="dialog_message_time">@Model.LastMessageTime.ToString("HH:mm")</span></h5>
 
                     <div class="media dialog_message">
                         @if (Model.MyAvatar != null)
@@ -20,7 +21,7 @@
                         }
                         @if (!Model.IsRead)
                         {
-                        <div class="media-body dialog_last_message" style="background-color: rgba(128, 128, 128, 0.15);">
+                        <div class="media-body dialog_last_message unread">
                             <span class="">@Model.Body</span>
                         </div>
                         }

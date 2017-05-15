@@ -1,24 +1,323 @@
-﻿body {
+﻿/*body {
     padding-top: 50px;
     padding-bottom: 20px;
-}
+}*/
 
 /* Set padding to keep content from hitting the edges */
-.body-content {
+/*.body-content {
     padding-left: 15px;
     padding-right: 15px;
-}
+}*/
 
 /* Override the default bootstrap behavior where horizontal description lists 
    will truncate terms that are too long to fit in the left column 
 */
-.dl-horizontal dt {
+/*.dl-horizontal dt {
     white-space: normal;
-}
+}*/
 
 /* Set width on the form input elements since they're 100% wide by default */
-input,
+/*input,
 select,
 textarea {
     max-width: 280px;
+}*/
+
+ul.information {
+    margin-bottom: 31.5px;
+    margin-right: 10px;
+}
+
+
+html {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    /*background-color: white;*/
+}
+.body-content{
+    max-width: 960px;
+    margin-top: 72px;
+}
+/*---------Nav bar--------*/
+header{
+    position: fixed;
+    width: 100%;
+    z-index: 9999;
+}
+.nav_bar{
+    margin-top: 10px;
+}
+li.nav_bar{
+    margin-top: 0;
+}
+nav.navbar{
+}
+navbar_drop_down {
+    /*display: inline-block;*/
+}
+
+.navbar_user_image {
+    height: 30px;
+    width: 30px;
+}
+
+div.navbar-collapse li.dropdown{
+}
+/*------Border menu-------*/
+.border-menu{
+    margin-left: 0;
+    max-width: 230px;
+    position: fixed;
+    margin-top: 62px;
+    padding: 0;
+    padding-top: 20px;
+    height: 100%;
+    background-color: rgba(78, 93, 108, 0.39);
+}
+ul.nav.nav-pills.nav-stacked{
+    width: 230px;
+}
+
+span.badge{
+    float: right;
+}
+/*-------Middle bar------*/
+
+h2.user{
+    margin-top: 0;
+}
+span.user{
+    float: right;
+    font-size: 14px;
+    font-style: normal;
+}
+#avatar img{
+    min-width: 100%;
+    min-height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+}
+img.friends_panel_images {
+    height: 60px;
+    width: 60px;
+}
+img+p{
+    text-align: center;
+}
+.btn-profile{
+    margin-top: 2px;
+    margin-bottom: 2px;
+    width: 100%;
+}
+/*-----------Footer------------*/
+footer{
+    margin-left: 0px;
+    margin-top: 50px;
+    position: absolute;
+    width: 230px
+}
+footer ul.list-inline {
+    cursor: default;
+    margin-left: 10px;
+}
+footer a:link {    
+    text-decoration: none;
+}
+
+footer a:visited {
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: none;
+    cursor: pointer;
+    
+}
+
+footer a:active {
+    text-decoration: none;
+}
+p.footer{
+    text-align: center;
+    width: 230px;
+}
+/*---Dialog page---*/
+.dialog_image_from_user{
+    height: 45px;
+    width: 45px;
+}
+.dialog_image_user{
+    width: 90px;
+    height: 90px;
+}
+.dialog{
+    margin-bottom: 10px;
+    background-color: /*rgb(142, 99, 37);*/rgba(78, 93, 108, 0.39);
+    padding: 20px;
+    height: 130px;
+}
+.dialog:hover{
+    background-color:transparent; /*#F0AD4E; */
+}
+.dialog_message{
+    padding: 5px;
+}
+h5.media-heading{
+    color: #EBEBEB;
+    font-size: 19px;
+}
+h5.media-heading span{
+    float: right;
+}
+/*h5.media-heading:hover{
+    color: #8E6325;
+}*/
+.dialog_last_message{
+    padding: 10px;
+}
+a:link {    
+    text-decoration: none;
+}
+
+a:visited {
+    text-decoration: none;
+}
+div.dialog_last_message{
+    font-size: 18px;
+    color: #EBEBEB;
+}
+div.unread{    
+    background-color: #4E5D6C;
+}
+/*span.unread{
+    color: #8E6325;
+}*/
+/*div.dialog:hover div.media div.media-body a h5.media-heading{
+    color: #8E6325;
+}
+div.dialog:hover div.media div.media-body a div.dialog_message span{
+    color: #8E6325;
+}*/
+div.dialog:hover .dialog_last_message{
+    background-color: rgba(128, 128, 128, 0.15);
+}
+div.dialog:hover .dialog_last_message.unread{
+    background-color: #4E5D6C;
+}
+.message_content {
+    height: inherit;
+    overflow: auto;
+}
+.message_input {
+    width: 100%;
+    padding: 10px 15px 10px 15px;
+    background-color: rgb(78, 93, 108);
+    /*overflow-y: auto;*/
+    /*border-image: none;*/
+}
+
+div.message_input textarea {
+    resize: none;
+    width: 83%;
+    border: 0;
+    padding-left: 10px;
+   
+}
+#sendForm {
+    height: 46px;
+}
+div.message_input button {
+    width: 15%;
+    float: right;
+    margin-right: 0;
+    height: 46px;
+    border: 3px;
+}
+.dialog_message_header {
+    font-weight: bold;
+    font-size: 18px;
+}
+.dialog_message {
+    line-height: 30px;
+    margin-top: 10px;
+}
+
+.dialog_message_time {
+    font-weight: normal;
+    float: right;
+}
+div#chat.message_content div.unread {
+    background-color: #384a5b;
+}
+/*-------Friends-------*/
+.friends{
+    margin-bottom: 10px;
+    background-color: rgba(78, 93, 108, 0.39);
+    padding: 10px;
+}
+.friend-menu{
+    margin-right: 0;
+    padding-right: 0;
+    
+}
+ul.friend-menu li{
+    width: 300px;
+    
+}
+ul.nav.nav-pills.nav-stacked.friend-menu {
+    background-color: rgba(78, 93, 108, 0.39);
+    width: 300px;
+    cursor: pointer;
+}
+/*-------Autocomplete-------------*/
+div.media.autocomplete {
+    width: 175px;
+}
+
+    div.media.autocomplete:hover {
+        color: #2B3E50;
+    }
+h5.media-heading.autocomplete {
+    font-size: 14px;
+}
+
+img.media-object.autocomplete {
+    width: 55px;
+    height: 55px;
+}
+/*.ui-widget-content a {
+    color: #ebebeb;
+}*/
+li.ui-menu-item {
+    background-color: #4E5D6C;
+    color: #ebebeb;
+    border-bottom: 1px solid white;
+}
+div.media.autocomplete div.media-body div.media div.media-body span {
+    color: #ebebeb;
+    font-size: 11px;
+}
+li.ui-menu-item a:hover{
+    text-decoration: none;
+}
+li.ui-menu-item a:link {
+    border: none;
+    background: none;
+    text-decoration: none;
+}
+li.ui-menu-item:hover {
+    background-color: #2B3E50;
+}
+ul.ui-menu {
+    border: none;
+}
+/*-----Moderator Panel---------*/
+.moderator_image_user {
+    height: 30px;
+    width: 30px;
 }

@@ -20,69 +20,70 @@
 
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-default">
-            <div class="container-fluid">
-                <!-- Brand and toggle get grouped for better mobile display -->
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" href="#">Brand</a>
-                </div>
+<header>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header nav_bar">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Brand</a>
+            </div>
 
-                <!-- Collect the nav links, forms, and other content for toggling -->
-                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                    @if (User.Identity.IsAuthenticated)
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                @if (User.Identity.IsAuthenticated)
+                {
+                    using (Html.BeginForm("Index", "Users", FormMethod.Get, new { @class = "navbar-form navbar-left" }))
                     {
-                        using (Html.BeginForm("Index", "Users", FormMethod.Get, new { @class = "navbar-form navbar-left" }))
-                        {
 
-                            <div class="form-group ">
-                                <input id="search" type="text" name="search" class="form-control" placeholder="Search" source='/Users/AutocompleteSearch'>
-                            </div>
-                            <button id="searchButton" type="submit" class="btn btn-default">Search</button>
-                        }
+                        <div class="form-group ">
+                            <input id="search" type="text" name="search" class="form-control nav_bar" placeholder="Search" source='/Users/AutocompleteSearch'>
+                        </div>
+                        <button id="searchButton" type="submit" class="btn btn-default nav_bar">Search</button>
                     }
-                    @if (User.Identity.IsAuthenticated)
-                    {
-                        <div class="nav navbar-nav navbar-right">
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                                    <div class="media navbar_drop_down">
+                }
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <div class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                <div class="media navbar_drop_down">
 
-                                        <p style="line-height: 37px; float: left;">@User.Identity.Name</p>
+                                    <p style="line-height: 37px; float: left;">@User.Identity.Name</p>
 
-                                        <div class="media-right media-middle">
-                                            <img class="media-object navbar_user_image" src="@ViewBag.Avatar" alt="...">
-                                        </div>
+                                    <div class="media-right media-middle">
+                                        <img class="media-object navbar_user_image" src="@ViewBag.Avatar" alt="...">
                                     </div>
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="@Url.Action("Profile","Home")">My profile</a></li>
-                                    <li><a href="@Url.Action("Settings", "Home")">Edit</a></li>
-                                    @if (User.IsInRole("admin"))
-                                    {
+                                </div>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="@Url.Action("Profile","Home")">My profile</a></li>
+                                <li><a href="@Url.Action("Settings", "Home")">Edit</a></li>
+                                @if (User.IsInRole("admin"))
+                                {
                                     <li><a href="@Url.Action("Index","Admin")">Admin panel</a></li>
                                     <li><a href="@Url.Action("Index","Moderator")">Moderator panel</a></li>
-                                    }
-                                    else if (User.IsInRole("moderator"))
-                                    {
-                                        <li><a href="@Url.Action("Index","Moderator")">Moderator panel</a></li>
-                                    }
-                                    <li role="separator" class="divider"></li>
-                                    <li><a href="@Url.Action("LogOut","Account")">Logout</a></li>
-                                </ul>
-                            </li>
-                        </div>
-                    }
-                </div><!-- /.navbar-collapse -->
-            </div><!-- /.container-fluid -->
-        </nav>
-    </header>
+                                }
+                                else if (User.IsInRole("moderator"))
+                                {
+                                    <li><a href="@Url.Action("Index","Moderator")">Moderator panel</a></li>
+                                }
+                                <li role="separator" class="divider"></li>
+                                <li><a href="@Url.Action("LogOut","Account")">Logout</a></li>
+                            </ul>
+                        </li>
+                    </div>
+                }
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+    </nav>
+</header>
+@RenderSection("BorderMenu", false)
     <div class="container body-content">
         @RenderBody()
         @{Html.RenderPartial("MessageNotification", new MessageModel { Body = "", Avatar = "", Name = "asdas", PublicId = 0, Surname = "asdasd", PostedTime = DateTime.Now }); }

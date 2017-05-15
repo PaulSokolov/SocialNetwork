@@ -1,19 +1,24 @@
-﻿<div class="border menu">
-    <ul>
-        <li><span class="fa fa-home icons"></span> <span><a href="@Url.Action("Profile","Home")">My profile</a></span></li>
-        <li>
-            <span class="fa fa-envelope icons"></span> <span><a href="@Url.Action("Index","Messages")">Messages</a></span>@if (ViewBag.UnRead != 0)
-            {<span id="messageCounter" class="counter">@ViewBag.Unread</span>}
+﻿<div class="col-md-3 border-menu">
+    <ul class="nav nav-pills nav-stacked">
+        <li><a href="@Url.Action("Profile","Home")">My profile</a></li>
+        <li><a href="@Url.Action("Index","Messages")">Messages @if (ViewBag.UnRead != 0)
+            {<span id="messageCounter" class="badge">@ViewBag.Unread</span>}
             else
-            {<span id="messageCounter" class="counter" style="display:none">@ViewBag.Unread</span> }
-        </li>
-        <li>
-            <span class="fa fa-user icons"></span> <span><a href="@Url.Action("Index","Friend")">Friends</a></span> @if (ViewBag.NewFriends != 0)
+            {<span id="messageCounter" class="badge" style="display:none">@ViewBag.Unread</span> }</a></li>
+        <li><a href="@Url.Action("Index","Friend")">Friends @if (ViewBag.NewFriends != 0)
             {<span id="friendsCounter" class="counter">@ViewBag.NewFriends</span>}
             else
-            { <span id="friendsCounter" class="counter" style="display:none">@ViewBag.NewFriends</span>}
-        </li>
-        <li><span class="fa fa-cog icons"></span> <span><a href="@Url.Action("Settings","Home")">Settings</a></span></li>
+            { <span id="friendsCounter" class="counter" style="display:none">@ViewBag.NewFriends</span>}</a></li>
+        <li><a href="@Url.Action("Settings","Home")">Settings</a></li>
     </ul>
-</div>
+    <footer>
+        <ul class="list-inline">
+            <li class="col-md-4"><a >Help</a></li>
+            <li class="col-md-4"><a>About us</a></li>
 
+        </ul>
+        <br/>
+        <hr/>
+        <p class="footer"><a>© 2017 – приложение ASP.NET</a></p>
+    </footer>
+</div>

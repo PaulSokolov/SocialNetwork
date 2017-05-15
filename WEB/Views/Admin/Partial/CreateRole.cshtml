@@ -4,15 +4,19 @@
     @using (Ajax.BeginForm("CreateRole", new AjaxOptions { UpdateTargetId = "result", OnBegin = "beforeSend('result')", OnComplete = "complete('result')", HttpMethod = "Post" }))
     {
         @Html.AntiForgeryToken()
-        <div class="row my_form">
-            <div class="col-md-12">
-                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { placeholder = "Name", @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+        <div class="form-group">
+            <div class="col-md-10">
+                @Html.LabelFor(m => m.Name, new { @class = "col-md-2 control-label" })
+                <div class="col-md-8">
+                    <div class="col-md-10"></div>
+                    @Html.TextBoxFor(model => model.Name, new { placeholder = "Name", @class = "form-control" })
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-success">Add role</button>
+                </div>
             </div>
-        </div>
-        <div class="row my_form">
-            <button type="submit" class="btn btn-default col-md-12 my_register_btn">Add role</button>
+            @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
         </div>
     }
-        
+
 </div>

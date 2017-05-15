@@ -1,11 +1,11 @@
 ﻿<div class="row">
-    @using (Ajax.BeginForm("Search", "Admin",null, new AjaxOptions { UpdateTargetId= "searchResult", OnBegin = "beforeSend('searchResult')", OnComplete = "complete('searchResult')", HttpMethod = "Post" }, new { @class = "navbar-form navbar-left" }))
+    @using (Ajax.BeginForm("Search", "Admin", null, new AjaxOptions { UpdateTargetId = "searchResult", OnBegin = "beforeSend('searchResult')", OnComplete = "complete('searchResult')", HttpMethod = "Post" }, new { @class = "navbar-form navbar-left" }))
     {
 
-    <div class="form-group ">
-        <input id="searchDelete" type="text" name="search" class="form-control" placeholder="Search" source='/Users/AutocompleteSearch'>
-    </div>
-    <button id="searchButton" type="submit" class="btn btn-default">Search</button>
+        <div class="form-group ">
+            <input id="searchDelete" type="text" name="search" class="form-control" placeholder="Search" source='/Users/AutocompleteSearch'>
+        </div>
+        <button id="searchButton" type="submit" class="btn btn-default">Search</button>
     }
 </div>
 <div class="row" style="overflow:auto; height:320px">
@@ -35,3 +35,17 @@
         });
     }
 </script>
+<ul id="ui-id-1" tabindex="0" class="ui-menu ui-widget ui-widget-content ui-autocomplete ui-front" style="top: 49.5px; left: 95.4219px; width: 2920px; display: none;">
+    <li class="ui-menu-item"><a href="/Home/User/2" id="ui-id-9" tabindex="-1" class="ui-menu-item-wrapper">
+        <div class="media autocomplete">
+            <div class="media-left media-top"><img class="media-object autocomplete" src="/Images/avatar14c31b71-275a-44e5-aacf-f2c0b29ddeb0.jpg">
+            </div>
+            <div class="media-body"><h5 class="media-heading autocomplete">Paul Sokolo</h5>
+                <div class="media">
+                    <div class="media-body"><span>ул. Спортивная, д.30, кв.75</span>
+                    </div>
+                </div>
+            </div>
+        </div></a>
+    </li>
+</ul>

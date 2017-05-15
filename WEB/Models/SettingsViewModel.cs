@@ -27,10 +27,10 @@ namespace SocialNetwork.Models
         public string Activity { get; set; }
         [Required, DisplayName("Hide activities")]
         public bool ActivityIsHidden { get; set; }
-        [Required]
+        [Required, DisplayName("City")]
         public long? CityId { get; set; }
         public IEnumerable<CityViewModel> Cities{get;set;}
-        [Required]
+        [Required, DisplayName("Country")]
         public long? CountryId { get; set; }
         public IEnumerable<CountryViewModel> Countries { get; set; }
         [Required]

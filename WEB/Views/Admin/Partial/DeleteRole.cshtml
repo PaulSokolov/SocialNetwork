@@ -25,13 +25,13 @@
                 @style = "warning";
             }*@
         <tr class="">
-            <td>@i</td>
-            <td>@role.Name</td>
+            <td style="line-height: 35px;">@i</td>
+            <td style="line-height: 35px;">@role.Name</td>
             <td>
                 @using (Ajax.BeginForm("DeleteRole", new AjaxOptions {OnBegin = "beforeSend('rolesTable')", OnComplete = "complete('rolesTable')", HttpMethod = "Post"}))
                 {
                     @Html.Hidden("role", role.Name)
-                    <button type="submit">Delete</button>
+                    <button type="submit" class="btn btn-danger" style="font-size: 12px">Delete</button>
                 }
             </td>
         </tr>

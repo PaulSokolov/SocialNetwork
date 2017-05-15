@@ -5,7 +5,7 @@ $(function () {
         target.autocomplete({
             source: target.attr("source"),
             focus: function (event, ui) {
-                $("#search").val(ui.item.name + " " + lastName);
+                $("#search").val(ui.item.name + " " + ui.item.lastName);
                 return false;
             },
             select: function (event, ui) {
@@ -25,7 +25,7 @@ function autocomplete() {
         target.autocomplete({
             source: target.attr("source"),
             focus: function (event, ui) {
-                $("#searchDelete").val(ui.item.name + " " + lastName);
+                $("#searchDelete").val(ui.item.name + " " + ui.item.lastName);
                 return false;
             },
             select: function (event, ui) {

@@ -227,6 +227,32 @@ namespace BusinessLayer.BusinessModels
                 }
             }
 
+            public async Task<ICollection<UserProfileDTO>> GetFriendsAsync(int count)
+            {
+                List<UserProfile> friends;
+                if (Semaphore.CurrentCount == Threads)
+                {
+                    await Semaphore.WaitAsync();
+                    var query = SocialNetwork.Friends.GetAll().Where(f => f.UserId == CurrentUserId)
+                        .Where(u => u.Confirmed && u.Deleted == false).Select(u => u.FriendId);
+
+                    friends = await SocialNetwork.UserProfiles.GetAll().Where(u => query.Any(f => f == u.Id)).Take(count).ToListAsync();
+
+                    Semaphore.Release();
+                    return Mapper.Map<List<UserProfile>, List<UserProfileDTO>>(friends);
+                }
+                using (var context = new SocialNetwork(Connection))
+                {
+                    var query = context.Friends.GetAll().Where(f => f.UserId == CurrentUserId)
+                        .Where(u => u.Confirmed && u.Deleted == false).Select(u => u.FriendId);
+
+                    friends = await context.UserProfiles.GetAll().Where(u => query.Any(f => f == u.Id)).Take(count).ToListAsync();
+
+
+                    return Mapper.Map<List<UserProfile>, List<UserProfileDTO>>(friends);
+                }
+            }
+
             public async Task<ICollection<UserProfileDTO>> GetFollowedAsync()
             {
                 List<UserProfile> friends;

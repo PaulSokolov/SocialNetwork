@@ -28,13 +28,16 @@ namespace WEB.Controllers
         }
 
         [HttpGet, AjaxOnly]
-        public ActionResult CreateUser()
+        public async Task<ActionResult> CreateUser()
         {
+            var soc = new SocialNetworkFunctionalityUser("");
+            ViewBag.Countries = await soc.Database.GetAllCountriesAsync();
+            ViewBag.Cities = new List<CityDTO>();
             return PartialView("Partial/CreateUser");
         }
 
         [HttpGet, AjaxOnly]
-        public ActionResult DeleteUser()
+        public  ActionResult DeleteUser()
         {
             return PartialView("Partial/DeleteUser");
         }
@@ -147,7 +150,6 @@ namespace WEB.Controllers
         public async Task<ActionResult> CreateUser(RegisterModel model)
         {
             if (!ModelState.IsValid) return PartialView("Partial/CreateUser", model);
-
             var userDto = new UserProfileDTO
             {
 
@@ -157,7 +159,8 @@ namespace WEB.Controllers
                 LastName = model.Surname,
                 Role = "user",
                 BirthDate = model.BirthDate,
-                ActivatedDate = DateTime.Now
+                ActivatedDate = DateTime.Now,
+                CityId = model.CityId
 
             };
             OperationDetails operationDetails = await UserService.Create(userDto);

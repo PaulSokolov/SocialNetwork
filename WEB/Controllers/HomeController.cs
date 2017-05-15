@@ -68,7 +68,7 @@ namespace WEB.Controllers
             var unread = soc.Messages.GetUnreadAsync();
             var avatar = soc.Users.GetAvatarAsync();
             var myPublicId = soc.Users.GetPublicIdAsync();
-            var friends = soc.Friends.GetFriendsAsync(); 
+            var friends = soc.Friends.GetFriendsAsync(6); 
             #endregion
 
             await Task.WhenAll(friends, newFriendsTask, friendsTask, unread, avatar, myPublicId);
@@ -106,11 +106,13 @@ namespace WEB.Controllers
         public async Task<ActionResult> UserInfo(long id)
         {
             var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
-
-            var userTask = soc.Users.GetByPublicIdAsync(id);
-
+            UserProfileDTO user = await soc.Users.GetByPublicIdAsync(id);
+            if (user.Id == soc.Id)
+                return RedirectToAction("Profile");
             await soc.Friends.Counters.FriendsCounters();
+
             #region Parallel operations
+
             var newFriends = soc.Friends.Counters.CountRequestsAync();
             var friendsCountTask = soc.Friends.Counters.CountFriendsAync();
             var unread = soc.Messages.GetUnreadAsync();
@@ -119,13 +121,13 @@ namespace WEB.Controllers
             var friendsTask = soc.Friends.GetFriendsAsync();
             var followers = soc.Friends.GetFollowersAsync();
             var followed = soc.Friends.GetFollowedAsync();
+
             #endregion
 
-            await Task.WhenAll(userTask);
-            UserProfileDTO user = userTask.Result;
+            
 
             var userSoc = new SocialNetworkFunctionalityUser(user.Id);
-            var friends = userSoc.Friends.GetFriendsAsync();
+            var friends = userSoc.Friends.GetFriendsAsync(6);
             var profileModel = new ProfileModel
             {
                 PublicId = user.PublicId,

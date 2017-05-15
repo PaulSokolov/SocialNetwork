@@ -279,6 +279,7 @@
     <None Include="Properties\PublishProfiles\WEB20170508034432 - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <None Include="Scripts\jquery-3.1.1-vsdoc.js" />
+    <Content Include="Images\img.jpg" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\jquery-3.1.1.js" />
@@ -366,10 +367,11 @@
     <Content Include="Views\Friend\Partial\Friends.cshtml" />
     <Content Include="Views\Users\Partial\Users.cshtml" />
     <Content Include="Views\Messages\Partial\Messages.cshtml" />
+    <Content Include="Views\Shared\AdminMenu.cshtml" />
+    <Content Include="Views\Shared\ModeratorMenu.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Images\" />
     <Folder Include="Views\Account\Partial\" />
   </ItemGroup>
   <ItemGroup>

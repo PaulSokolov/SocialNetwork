@@ -3,7 +3,7 @@
         var scrtop = $('#chat').scrollTop();
         var docHeight = $(document).height();
         var win = $('#chat').height();
-        if ($('#chat').scrollTop() === 0) {
+        if ($('#chat').scrollTop() === 1) {
             var data = {
                 lastIndex: $('div.message.dialog_last_message').length,
                 id: $('#recipientId').val()
