@@ -2,12 +2,13 @@
 using System.IO;
 using System.Threading;
 using AutoMapper;
+using BusinessLayer.Interfaces;
 using DataLayer.Interfaces;
 using DataLayer.UnitOfWorks;
 
 namespace BusinessLayer.BusinessModels
 {
-    public partial class SocialNetworkManager
+    public partial class SocialNetworkManager:ISocialNetworkManager
     {
         private const string Connection = "name=SocialNetwork";
 
@@ -15,18 +16,18 @@ namespace BusinessLayer.BusinessModels
         private readonly IMapper _mapper;
         private ISocialNetwork _socialNetwork;
         private ILocalization _localizationConnection;
-        private FriendsCategory _friends;
-        private UsersCategory _users;
-        private MessagesCategory _messages;
-        private DatabaseCategory _database;
+        private IFriendsCategory _friends;
+        private IUsersCategory _users;
+        private IMessagesCategory _messages;
+        private IDatabaseCategory _database;
         private readonly Func<DateTime> _now;
         private SemaphoreSlim _semaphore;
         private const int Threads = 1;
         private const int MaxThreads = 1;
         #endregion
 
-        public string Id { get; }
-        public FriendsCategory Friends
+        public string Id { get; set; }
+        public IFriendsCategory Friends
         {
             get
             {
@@ -35,9 +36,8 @@ namespace BusinessLayer.BusinessModels
                 _friends = new FriendsCategory(this);
                 return _friends;
             }
-            private set => _friends = value;
         }
-        public UsersCategory Users
+        public IUsersCategory Users
         {
             get
             {
@@ -45,9 +45,8 @@ namespace BusinessLayer.BusinessModels
                 _users = new UsersCategory(this);
                 return _users;
             }
-            private set => _users = value;
         }
-        public MessagesCategory Messages
+        public IMessagesCategory Messages
         {
             get
             {
@@ -56,9 +55,8 @@ namespace BusinessLayer.BusinessModels
                 _messages = new MessagesCategory(this);
                 return _messages;
             }
-            private set => _messages = value;
         }
-        public DatabaseCategory Database
+        public IDatabaseCategory Database
         {
             get
             {
@@ -66,10 +64,14 @@ namespace BusinessLayer.BusinessModels
                 _database = new DatabaseCategory(this);
                 return _database;
             }
-            private set => _database = value;
         }
 
-        
+        public SocialNetworkManager()
+        {
+            _mapper = CustomMapper.Configurate();
+            _now = () => DateTime.Now;
+            _semaphore = new SemaphoreSlim(Threads, MaxThreads);
+        }
 
         public SocialNetworkManager(string userId)
         {

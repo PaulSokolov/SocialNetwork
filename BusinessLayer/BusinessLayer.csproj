@@ -94,8 +94,16 @@
     <Compile Include="DTO\UserMessageDTO.cs" />
     <Compile Include="DTO\UserProfileDTO.cs" />
     <Compile Include="Infrastructure\OperationDetails.cs" />
+    <Compile Include="Interfaces\IAdmin.cs" />
+    <Compile Include="Interfaces\IDatabaseCategory.cs" />
+    <Compile Include="Interfaces\IFriendCounter.cs" />
+    <Compile Include="Interfaces\IFriendsCategory.cs" />
+    <Compile Include="Interfaces\IMessagesCategory.cs" />
+    <Compile Include="Interfaces\IModerator.cs" />
     <Compile Include="Interfaces\IServiceCreator.cs" />
+    <Compile Include="Interfaces\ISocialNetworkManager.cs" />
     <Compile Include="Interfaces\IUserManagerCreator.cs" />
+    <Compile Include="Interfaces\IUsersCategory.cs" />
     <Compile Include="Interfaces\IUserService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BusinessModels\Exceptions\UserNotFoundException.cs" />

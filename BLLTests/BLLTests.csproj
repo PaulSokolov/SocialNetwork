@@ -68,8 +68,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SocialNetworkFriendsCategoryTests.cs" />
-    <Compile Include="SocialNetworkUsersCategoryTests.cs" />
+    <Compile Include="SocialNetwork.FriendsCategory.Tests.cs" />
+    <Compile Include="SocialNetwork.UsersCategory.Tests.cs" />
     <Compile Include="TestDbAsyncQueryProvider.cs" />
   </ItemGroup>
   <ItemGroup>

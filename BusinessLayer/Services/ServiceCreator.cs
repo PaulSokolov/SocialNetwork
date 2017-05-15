@@ -5,9 +5,11 @@ namespace BusinessLayer.Services
 {
     public class ServiceCreator : IServiceCreator
     {
-        public IUserService CreateUserService(string connection)
+        public const string Connection = "name=SocialNetwork";
+        public IUserService CreateUserService()
         {
-            return new UserService(new IdentityUnitOfWork(connection));
+            return new UserService(new IdentityUnitOfWork(Connection));
         }
+        
     }
 }

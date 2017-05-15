@@ -134,13 +134,6 @@ namespace BusinessLayer.Services
             await Create(adminDto);
         }
 
-
-
-        public void Dispose()
-        {
-            Database.Dispose();
-        }
-
         public async Task<OperationDetails> AddToRoleAsync(string userId, string role)
         {
             if (!await Database.RoleManager.RoleExistsAsync(role))
@@ -160,5 +153,12 @@ namespace BusinessLayer.Services
 
             return new OperationDetails(true, "User removed from role successfully", "Role");
         }
+
+        public void Dispose()
+        {
+            Database.Dispose();
+        }
+
+       
     }
 }

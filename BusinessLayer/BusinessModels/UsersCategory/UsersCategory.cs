@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using BusinessLayer.DTO;
+using BusinessLayer.Interfaces;
 using DataLayer.Entities;
 using DataLayer.Interfaces;
 using DataLayer.UnitOfWorks;
@@ -14,7 +15,7 @@ namespace BusinessLayer.BusinessModels
 {
     public partial class SocialNetworkManager
     {
-        public class UsersCategory
+        public class UsersCategory: IUsersCategory
         {
             #region Private fields
             private readonly SocialNetworkManager _socialNetworkFunctionality;
@@ -196,7 +197,8 @@ namespace BusinessLayer.BusinessModels
                 return Mapper.Map<List<UserProfileDTO>>(users);
             }
             
-            public async Task<List<UserProfileDTO>> SearchAsync(string search = null, int? ageFrom = null, int? ageTo = null, long? cityId = null, long? countryId = null, string activityConcurence = null, string aboutConcurence = null, int? sex = null, short? sort = 0, int? lastIndex = 0)
+            public async Task<List<UserProfileDTO>> SearchAsync(string search = null, int? ageFrom = null, int? ageTo = null, long? cityId = null,
+                long? countryId = null, string activityConcurence = null, string aboutConcurence = null, int? sex = null, short? sort = 0, int? lastIndex = 0)
             {
                 var time = Now.Year;
                 var query = SocialNetwork.UserProfiles.GetAll();

@@ -26,7 +26,7 @@ namespace WEB.App_Start
 
         private IUserService CreateUserService()
         {
-            return _serviceCreator.CreateUserService("name=SocialNetwork"/*@"data source=(LocalDb)\MSSQLLocalDB;initial catalog=SocialNetwork;integrated security=True;MultipleActiveResultSets=True;App=EntityFramework"*/);
+            return _serviceCreator.CreateUserService();
         }
     }
 }

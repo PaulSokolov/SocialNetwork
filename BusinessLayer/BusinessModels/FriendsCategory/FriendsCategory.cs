@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using BusinessLayer.DTO;
+using BusinessLayer.Interfaces;
 using DataLayer.Entities;
 using DataLayer.Interfaces;
 using DataLayer.UnitOfWorks;
@@ -14,7 +15,7 @@ namespace BusinessLayer.BusinessModels
 {
     public partial class SocialNetworkManager
     {
-        public partial class FriendsCategory
+        public partial class FriendsCategory: IFriendsCategory
         {
             #region Private fields
             private FriendCounters _counters;
@@ -29,7 +30,7 @@ namespace BusinessLayer.BusinessModels
                                                         new SocialNetwork(Connection));
             #endregion
 
-            public FriendCounters Counters => _counters ?? (_counters = new FriendCounters(this));
+            public IFriendCounter Counters => _counters ?? (_counters = new FriendCounters(this));
 
             public FriendsCategory(SocialNetworkManager socialNetworkFunctionality)
             {

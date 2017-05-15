@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using BusinessLayer.DTO;
+using BusinessLayer.Interfaces;
 using DataLayer.Entities;
 using DataLayer.Interfaces;
 using DataLayer.UnitOfWorks;
@@ -20,7 +21,7 @@ namespace BusinessLayer.BusinessModels
     public partial class SocialNetworkManager
     {
 
-        public class MessagesCategory
+        public class MessagesCategory: IMessagesCategory
         {
             private readonly SocialNetworkManager _socialNetworkFunctionality;
             private SemaphoreSlim Semaphore => _socialNetworkFunctionality._semaphore;
@@ -111,7 +112,6 @@ namespace BusinessLayer.BusinessModels
 
                 return true;
             }
-            
 
             public async Task<UserMessageDTO> SendAsync(long recipientId, string body)
             {
@@ -210,7 +210,6 @@ namespace BusinessLayer.BusinessModels
                 
                 return Mapper.Map<List<UserMessage>, List<UserMessageDTO>>(dialogs.ToList());
             }
-            
             
             public UserMessageDTO Read(long id)
             {

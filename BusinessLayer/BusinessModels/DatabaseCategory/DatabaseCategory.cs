@@ -10,12 +10,13 @@ using DataLayer.Interfaces;
 using DataLayer.UnitOfWorks;
 using System.Threading.Tasks;
 using AutoMapper;
+using BusinessLayer.Interfaces;
 
 namespace BusinessLayer.BusinessModels
 {
     public partial class SocialNetworkManager
     {
-        public class DatabaseCategory
+        public class DatabaseCategory : IDatabaseCategory
         {
             private SemaphoreSlim _semaphore;
             private SemaphoreSlim Semophore => _semaphore ?? (_semaphore = new SemaphoreSlim(Threads, MaxThreads));

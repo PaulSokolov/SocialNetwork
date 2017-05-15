@@ -3,6 +3,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BusinessLayer.Interfaces;
 using DataLayer.Entities;
 
 namespace BusinessLayer.BusinessModels
@@ -12,7 +13,7 @@ namespace BusinessLayer.BusinessModels
     {
         public partial class FriendsCategory
         {
-            public class FriendCounters
+            public class FriendCounters:IFriendCounter
             {
                 private SemaphoreSlim Semaphore => _friendsCategory.Semaphore;
                 private readonly FriendsCategory _friendsCategory;
