@@ -1,0 +1,26 @@
+﻿<div class="col-md-5 border-menu" style="max-width: 350px">
+    <div class="row" style="margin-bottom: 40px;">
+        @using (Ajax.BeginForm("Search", "Moderator", null, new AjaxOptions { UpdateTargetId = "users", OnBegin = "beforeSend('moderatorPanel')", OnComplete = "complete('moderatorPanel')", HttpMethod = "Post" }, new { @class = "navbar-form navbar-left" }))
+            {
+
+            <div class="form-group ">
+                <input id="searchDelete" type="text" name="search" class="form-control" placeholder="Search" source='/Users/AutocompleteSearch'>
+            </div>
+                <button id="searchButton" type="submit" class="btn btn-default">Search</button>
+        }
+    </div>
+    <div id="users" class="row" style="overflow:auto; height:300px;padding:15px; padding-top: 0;width: 365px;">
+
+    </div>
+    <footer>
+        <ul class="list-inline">
+            <li class="col-md-4"><a>Help</a></li>
+            <li class="col-md-4"><a>About us</a></li>
+
+        </ul>
+        <br />
+        <hr />
+        <p class="footer"><a>© 2017 – приложение ASP.NET</a></p>
+    </footer>
+</div>
+

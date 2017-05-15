@@ -1,0 +1,6 @@
+﻿@model List<SocialNetwork.Models.UserSearchModel>
+
+@foreach (var user in Model)
+{
+    Html.RenderPartial("Partial/User", user);
+}
