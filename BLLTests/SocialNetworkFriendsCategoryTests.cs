@@ -70,7 +70,7 @@ namespace BLLTests
 
         }
         [Test]
-        public async Task FriendsCategory_Add_AsExpected()
+        public async Task AddFriend_Add_AsExpected()
         {
             string userToAddId = "userToAddId";
             var moqUserProfileRepository = new Mock<IUserProfileRepository>();
@@ -116,10 +116,10 @@ namespace BLLTests
         }
 
         [Test]
-        public void FriendsCategory_Confirm_UserNotFountException()
+        public void ConfirmRequest_UserNotFountException()
         {
             var data = new List<UserProfile>().AsQueryable();
-            var mockSetForUserProfile = MoqSetCreator(data);
+            var mockSetForUserProfile = TestAsyncQueryManger.MoqSetCreator(data);
 
             var moqUserProfileRepository = new Mock<IUserProfileRepository>();
             moqUserProfileRepository.Setup(m => m.GetAll()).Returns(mockSetForUserProfile.Object);
@@ -130,7 +130,7 @@ namespace BLLTests
             Assert.Throws(typeof(UserNotFoundException),  () =>  socialNetwork.Friends.ConfirmAsync(It.IsAny<long>()).GetAwaiter().GetResult());
         }
         [Test]
-        public async Task FriendsCategory_GetFriendsAsync_GetFriendsAsExpected()
+        public async Task GetCurrentUserFriends_GetFriendsAsync_GetFriendsAsExpected()
         {
             var expected = new UserProfile
             {
@@ -175,8 +175,8 @@ namespace BLLTests
             var usersQuery = userProfiles.AsQueryable();
             var friendsQuery = friends.AsQueryable();
 
-            var mockSetForUserProfiles = MoqSetCreator(usersQuery);
-            var mockSetForFriends = MoqSetCreator(friendsQuery);
+            var mockSetForUserProfiles = TestAsyncQueryManger.MoqSetCreator(usersQuery);
+            var mockSetForFriends = TestAsyncQueryManger.MoqSetCreator(friendsQuery);
 
             
 
@@ -198,7 +198,7 @@ namespace BLLTests
         }
 
         [Test]
-        public async Task FriendsCategory_GetFollowersAsync_GetFriendsAsExpected()
+        public async Task GetCurrentUserFollowers_GetFollowersAsync_GetFriendsAsExpected()
         {
             var expected = new UserProfile
             {
@@ -243,8 +243,8 @@ namespace BLLTests
             var usersQuery = userProfiles.AsQueryable();
             var friendsQuery = friends.AsQueryable();
 
-            var mockSetForUserProfiles = MoqSetCreator(usersQuery);
-            var mockSetForFriends = MoqSetCreator(friendsQuery);
+            var mockSetForUserProfiles = TestAsyncQueryManger.MoqSetCreator(usersQuery);
+            var mockSetForFriends = TestAsyncQueryManger.MoqSetCreator(friendsQuery);
 
 
 
@@ -266,7 +266,7 @@ namespace BLLTests
         }
 
         [Test]
-        public async Task FriendsCategory_GetFollowedAsync_GetFriendsAsExpected()
+        public async Task GetCurrentUserFollowedUsers_GetFollowedAsync_GetFriendsAsExpected()
         {
             var expected = new UserProfile
             {
@@ -311,8 +311,8 @@ namespace BLLTests
             var usersQuery = userProfiles.AsQueryable();
             var friendsQuery = friends.AsQueryable();
 
-            var mockSetForUserProfiles = MoqSetCreator(usersQuery);
-            var mockSetForFriends = MoqSetCreator(friendsQuery);
+            var mockSetForUserProfiles = TestAsyncQueryManger.MoqSetCreator(usersQuery);
+            var mockSetForFriends = TestAsyncQueryManger.MoqSetCreator(friendsQuery);
 
 
 
@@ -333,100 +333,8 @@ namespace BLLTests
             Assert.AreEqual(Mapper.Map<UserProfileDTO>(expected),result.First());
         }
 
-        public Mock<DbSet<T>> MoqSetCreator<T>(IQueryable<T> users) where T:class 
-        {
-            var mockSet = new Mock<DbSet<T>>();
-            mockSet.As<IDbAsyncEnumerable<T>>()
-                .Setup(m => m.GetAsyncEnumerator())
-                .Returns(new TestDbAsyncEnumerator<T>(users.GetEnumerator()));
-            mockSet.As<IQueryable<UserProfile>>()
-                .Setup(m => m.Provider)
-                .Returns(new TestDbAsyncQueryProvider<T>(users.Provider));
-            mockSet.As<IQueryable<T>>().Setup(m => m.Expression).Returns(users.Expression);
-            mockSet.As<IQueryable<T>>().Setup(m => m.ElementType).Returns(users.ElementType);
-            mockSet.As<IQueryable<T>>().Setup(m => m.GetEnumerator()).Returns(users.GetEnumerator());
-            return mockSet;
-        }
-        //private void MoqConfigurateUoW()
-        //{
-        //    #region UnitOfWorks` Moqs
-        //    #region SocialNetwork.UoW
-        //    moqSocialNetwork = new Mock<ISocialNetwork>();
-        //    moqSocialNetwork.Setup(m => m.GetFriendRepository()).Returns(moqFriendRepository.Object);
-        //    moqSocialNetwork.Setup(m => m.GetUserMessageRepository()).Returns(moqUserMessageRepository.Object);
-        //    moqSocialNetwork.Setup(m => m.GetUserProfileRepository()).Returns(moqUserProfileRepository.Object);
-
-        //    moqSocialNetwork.Setup(m => m.Add(It.IsAny<Entity>())).Returns<Entity>(res => entity);
-        //    moqSocialNetwork.Setup(m => m.AddRange(It.IsAny<IEnumerable<Entity>>())).Returns<IEnumerable<Entity>>(res => res);
-        //    moqSocialNetwork.Setup(m => m.Commit());
-        //    moqSocialNetwork.Setup(m => m.Remove(It.IsAny<Entity>()));
-        //    moqSocialNetwork.Setup(m => m.RemoveRange(It.IsAny<IEnumerable<Entity>>()));
-        //    #endregion
-        //    #region Localization.UoW
-        //    moqLocalization = new Mock<ILocalization>();
-        //    moqLocalization.Setup(m => m.GetCityRepository()).Returns<ICityRepository>(v => moqCityRepository.Object);
-        //    moqLocalization.Setup(m => m.GetCountryRepository()).Returns<ICountryRepository>(v => moqCountryRepository.Object);
-        //    moqLocalization.Setup(m => m.GetLanguageRepository()).Returns<ILanguageRepository>(v => moqLanguageRepository.Object);
-
-        //    moqLocalization.Setup(m => m.Add(It.IsAny<Entity>())).Returns<Entity>(res => entity);
-        //    moqLocalization.Setup(m => m.AddRange(It.IsAny<IEnumerable<Entity>>())).Returns<IEnumerable<Entity>>(res => res);
-        //    moqLocalization.Setup(m => m.Commit());
-        //    moqLocalization.Setup(m => m.Remove(It.IsAny<Entity>()));
-        //    moqLocalization.Setup(m => m.RemoveRange(It.IsAny<IEnumerable<Entity>>()));
-        //    #endregion
-        //    #endregion
-
-
-        //}
-        ////Firstly configurate Repositories` moqs
-        //private void MoqConfigurateRepositories()
-        //{
-        //    #region SocialNetwork.UoW
-        //    #region FriendRepository
-        //    moqFriendRepository = new Mock<IFriendRepository>();
-        //    moqFriendRepository.Setup(m => m.Add(It.IsAny<Friend>())).Returns<Friend>(res => res);
-        //    moqFriendRepository.Setup(m => m.Get(It.IsAny<int>())).Returns<Friend>(res => res);
-        //    moqFriendRepository.Setup(m => m.GetAllByUserId(It.IsAny<string>())).Returns(friends.Where(f=>f.UserId=="1").AsQueryable());
-        //    moqFriendRepository.Setup(m => m.GetFriend(It.IsAny<string>(), It.IsAny<string>())).Returns(friends.Where(f => f.UserId == "1" && f.FriendId == "2").First());
-        //    #endregion
-        //    #region UserMessageRepository
-        //    moqUserMessageRepository = new Mock<IUserMessageRepository>();
-        //    moqUserMessageRepository.Setup(m => m.Add(It.IsAny<UserMessage>())).Returns<UserMessage>(res => res);
-        //    moqUserMessageRepository.Setup(m => m.GetAll()).Returns(messages.AsQueryable());
-        //    moqUserMessageRepository.Setup(m => m.GetAllByUserId(It.IsAny<string>())).Returns(messages.Where(u=>u.FromUserId=="1").AsQueryable());
-        //    moqUserMessageRepository.Setup(m => m.Update(It.IsAny<UserMessage>())).Returns<UserMessage>(res => res);
-
-        //    #endregion
-        //    #region UserProfileRepository
-        //    moqUserProfileRepository = new Mock<IUserProfileRepository>();
-        //    moqUserProfileRepository.Setup(m => m.Add(It.IsAny<UserProfile>())).Returns<UserProfile>(res => res);
-        //    moqUserProfileRepository.Setup(m => m.GetAll()).Returns(userProfiles.AsQueryable());
-        //    moqUserProfileRepository.Setup(m => m.Get(It.IsAny<string>())).Returns(userProfiles[0]);
-        //    #endregion
-        //    #endregion
-        //    #region Localization.UoW
-        //    #region CityRepository
-        //    moqCityRepository = new Mock<ICityRepository>();
-        //    moqCityRepository.Setup(m => m.Add(It.IsAny<City>())).Returns<City>(res => res);
-        //    moqCityRepository.Setup(m => m.GetAll()).Returns(cities.AsQueryable());
-        //    #endregion
-        //    #region CountryRepository
-
-        //    #endregion
-        //    #region LanguageRepository
-
-        //    #endregion
-        //    #endregion
-
-
-        //    //IQueryable<UserProfile> querableUserProfiles = userProfiles.AsQueryable();
-        //    //moqFriendRepository = new Mock<IFriendRepository>();
-        //    //moqFriendRepository.Setup(m => m.Add(It.IsAny<Friend>())).Returns<Friend>(res => res);
-        //    //moqUserProfileRepository = new Mock<IUserProfileRepository>();
-        //    //moqUserProfileRepository.Setup(m => m.Get(It.IsAny<string>())).Returns(new UserProfile()/*It.IsAny<UserProfile>()*/);
-        //    //moqUserProfileRepository.Setup(m => m.GetAll()).Returns(querableUserProfiles);
-        //    //moqUserMessageRepository = new Mock<IUserMessageRepository>();
-        //}
+        
+      
 
         private void InitTestData()
         {

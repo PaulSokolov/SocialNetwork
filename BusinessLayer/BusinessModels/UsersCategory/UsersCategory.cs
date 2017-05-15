@@ -119,6 +119,16 @@ namespace BusinessLayer.BusinessModels
 
             public async Task<UserProfileDTO> GetAsync(string id)
             {
+                if (Semaphore.CurrentCount == Threads)
+                {
+                    await Semaphore.WaitAsync();
+                    UserProfile userProfile = await SocialNetwork.UserProfiles.GetAsync(id);
+                    Semaphore.Release();
+                    if (userProfile == null)
+                        throw new UserNotFoundException("There is no such user.");
+
+                    return Mapper.Map<UserProfile, UserProfileDTO>(userProfile);
+                }
                 using (var context = new SocialNetwork(Connection))
                 {
                     UserProfile userProfile = await context.UserProfiles.GetAsync(id);
@@ -198,9 +208,9 @@ namespace BusinessLayer.BusinessModels
                 if (search != null)
                     query = query.Where(u => u.Name.Contains(search) || u.LastName.Contains(search));
                 if (ageFrom != null)
-                    query = query.Where(u => time - ((DateTime)u.BirthDate).Year > ageFrom);
+                    query = query.Where(u => time - ((DateTime)u.BirthDate).Year >= ageFrom);
                 if (ageTo != null)
-                    query = query.Where(u => time - ((DateTime)u.BirthDate).Year < ageTo);
+                    query = query.Where(u => time - ((DateTime)u.BirthDate).Year <= ageTo);
                 if (countryId != null)
                     query = query.Where(u => u.City.CountryId == countryId);
                 if (cityId != null)
