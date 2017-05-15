@@ -16,14 +16,14 @@ namespace WEB.Controllers
 
         public async Task<ActionResult> Index()
         {
-            ViewBag.Avatar = await new SocialNetworkFunctionalityUser(User.Identity.GetUserId()).Users.GetAvatarAsync();
+            ViewBag.Avatar = await new SocialNetworkManager(User.Identity.GetUserId()).Users.GetAvatarAsync();
             return View();
         }
 
         [HttpPost,AjaxOnly]
         public async Task<ActionResult> UserMessages(long? publicId)
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
             
             ViewBag.PublicId = publicId;
 
@@ -62,7 +62,7 @@ namespace WEB.Controllers
         [HttpPost,AjaxOnly]
         public async Task<ActionResult> UpdateMessage(long? id, string body)
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
 
             var updatedMessage = await soc.Messages.ModerateAsync((long)id, body);
             var model = new MessageModeratorModel
@@ -88,7 +88,7 @@ namespace WEB.Controllers
         [HttpGet,AjaxOnly]
         public async Task<ActionResult> DeleteMessage(long? id)
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
 
             var deleted = id != null && await soc.Messages.DeleteAsync((long)id);
             if (deleted)
@@ -99,7 +99,7 @@ namespace WEB.Controllers
         [HttpPost,AjaxOnly]
         public async Task<ActionResult> SearchMessages(long? publicId, string body)
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
 
             var user = await soc.Users.GetByPublicIdAsync((long)publicId);
             var messages = (await soc.Messages.GetAllMessagesByUserIdAsync(user.Id)).Where(m => m.Body.ToLower().Contains(body.ToLower()));
@@ -125,7 +125,7 @@ namespace WEB.Controllers
 
         public async Task<ActionResult> AutocompleteSearchMessages(string term)
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
 
             var searchResult = await soc.Users.SearchAsync(term);
             var users = searchResult.Select(u => new { name = u.Name, avatar = u.Avatar, lastName = u.LastName, publicId = u.PublicId, address = u.Address.Length > 30 ? u.Address.Substring(0, 30) : u.Address }).ToList();
@@ -136,7 +136,7 @@ namespace WEB.Controllers
         [HttpPost,AjaxOnly]
         public async Task<ActionResult> Search(string search, int? ageFrom, int? ageTo, long? cityId, long? countryId, string activityConcurence, string aboutConcurence, int? sex, short? sort)
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
 
             var users = await soc.Users.SearchAsync(search, activityConcurence: activityConcurence, aboutConcurence: aboutConcurence);
 

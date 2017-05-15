@@ -17,12 +17,12 @@ namespace BusinessLayer.BusinessModels
         public UserMessage FromMe { get; set; }
         public UserMessage ToMe { get; set; }
     }
-    public partial class SocialNetworkFunctionalityUser
+    public partial class SocialNetworkManager
     {
 
         public class MessagesCategory
         {
-            private readonly SocialNetworkFunctionalityUser _socialNetworkFunctionality;
+            private readonly SocialNetworkManager _socialNetworkFunctionality;
             private SemaphoreSlim Semaphore => _socialNetworkFunctionality._semaphore;
             private IMapper Mapper => _socialNetworkFunctionality._mapper;
             private string CurrentUserId => _socialNetworkFunctionality.Id;
@@ -34,7 +34,7 @@ namespace BusinessLayer.BusinessModels
             public int UnRead => SocialNetwork.Messages
                 .GetAll().Count(m => m.ToUserId == CurrentUserId && m.IsRead == false);
 
-            public MessagesCategory(SocialNetworkFunctionalityUser socialNetworkFunctionality)
+            public MessagesCategory(SocialNetworkManager socialNetworkFunctionality)
             {
                 _socialNetworkFunctionality = socialNetworkFunctionality;
             }

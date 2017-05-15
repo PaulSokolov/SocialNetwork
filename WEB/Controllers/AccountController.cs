@@ -56,7 +56,7 @@ namespace WEB.Controllers
 
         public async Task<ActionResult> Register()
         {
-            var soc = new SocialNetworkFunctionalityUser("");
+            var soc = new SocialNetworkManager("");
             ViewBag.Countries = await soc.Database.GetAllCountriesAsync();
             ViewBag.Cities = new List<CityDTO>();
             return View();

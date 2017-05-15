@@ -12,13 +12,13 @@ using DataLayer.UnitOfWorks;
 
 namespace BusinessLayer.BusinessModels
 {
-    public partial class SocialNetworkFunctionalityUser
+    public partial class SocialNetworkManager
     {
         public partial class FriendsCategory
         {
             #region Private fields
             private FriendCounters _counters;
-            private readonly SocialNetworkFunctionalityUser _socialNetworkFunctionality;
+            private readonly SocialNetworkManager _socialNetworkFunctionality;
 
             private SemaphoreSlim Semaphore => _socialNetworkFunctionality._semaphore;
             private IMapper Mapper => _socialNetworkFunctionality._mapper;
@@ -31,7 +31,7 @@ namespace BusinessLayer.BusinessModels
 
             public FriendCounters Counters => _counters ?? (_counters = new FriendCounters(this));
 
-            public FriendsCategory(SocialNetworkFunctionalityUser socialNetworkFunctionality)
+            public FriendsCategory(SocialNetworkManager socialNetworkFunctionality)
             {
                 _socialNetworkFunctionality = socialNetworkFunctionality;
             }

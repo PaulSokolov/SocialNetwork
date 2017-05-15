@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace BusinessLayer
 {
     [Serializable]
-    internal class UserNotFoundException : Exception
+    public class UserNotFoundException : Exception
     {
         public UserNotFoundException()
         {

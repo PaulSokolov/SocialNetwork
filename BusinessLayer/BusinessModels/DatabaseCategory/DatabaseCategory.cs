@@ -13,13 +13,13 @@ using AutoMapper;
 
 namespace BusinessLayer.BusinessModels
 {
-    public partial class SocialNetworkFunctionalityUser
+    public partial class SocialNetworkManager
     {
         public class DatabaseCategory
         {
             private SemaphoreSlim _semaphore;
             private SemaphoreSlim Semophore => _semaphore ?? (_semaphore = new SemaphoreSlim(Threads, MaxThreads));
-            private readonly SocialNetworkFunctionalityUser _socialNetworkFunctionality;
+            private readonly SocialNetworkManager _socialNetworkFunctionality;
             //private readonly ILocalization _localization;
             private ILocalization Localization => _socialNetworkFunctionality._localizationConnection ??
                                                   (_socialNetworkFunctionality._localizationConnection =
@@ -27,7 +27,7 @@ namespace BusinessLayer.BusinessModels
 
             private IMapper Mapper => _socialNetworkFunctionality._mapper;
 
-            public DatabaseCategory(SocialNetworkFunctionalityUser socialNetworkFunctionality)
+            public DatabaseCategory(SocialNetworkManager socialNetworkFunctionality)
             {
                 _socialNetworkFunctionality = socialNetworkFunctionality;
             }

@@ -12,12 +12,12 @@ using DataLayer.UnitOfWorks;
 
 namespace BusinessLayer.BusinessModels
 {
-    public partial class SocialNetworkFunctionalityUser
+    public partial class SocialNetworkManager
     {
         public class UsersCategory
         {
             #region Private fields
-            private readonly SocialNetworkFunctionalityUser _socialNetworkFunctionality;
+            private readonly SocialNetworkManager _socialNetworkFunctionality;
             //private readonly ISocialNetwork _socialNetwork;
             private string _avatar;
             private long? _publicId;
@@ -54,7 +54,7 @@ namespace BusinessLayer.BusinessModels
                 }
             }
 
-            public UsersCategory(SocialNetworkFunctionalityUser socialNetworkFunctionality)
+            public UsersCategory(SocialNetworkManager socialNetworkFunctionality)
             {
                 _socialNetworkFunctionality = socialNetworkFunctionality;
                 //_socialNetwork = new SocialNetwork(Connection);

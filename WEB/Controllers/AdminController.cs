@@ -23,14 +23,14 @@ namespace WEB.Controllers
 
         public async Task<ActionResult> Index()
         {
-            ViewBag.Avatar = await new SocialNetworkFunctionalityUser(User.Identity.GetUserId()).Users.GetAvatarAsync();
+            ViewBag.Avatar = await new SocialNetworkManager(User.Identity.GetUserId()).Users.GetAvatarAsync();
             return View();
         }
 
         [HttpGet, AjaxOnly]
         public async Task<ActionResult> CreateUser()
         {
-            var soc = new SocialNetworkFunctionalityUser("");
+            var soc = new SocialNetworkManager("");
             ViewBag.Countries = await soc.Database.GetAllCountriesAsync();
             ViewBag.Cities = new List<CityDTO>();
             return PartialView("Partial/CreateUser");
@@ -63,7 +63,7 @@ namespace WEB.Controllers
         [HttpGet, AjaxOnly]
         public async Task<ActionResult> ManageRoles()
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
 
             var usersWithRoles = new List<ManageUserRolesModel>();
             foreach (var user in await soc.Users.SearchAsync())
@@ -105,7 +105,7 @@ namespace WEB.Controllers
         [HttpPost, AjaxOnly]
         public async Task<ActionResult> AddToRole(long publicId, string role)
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
 
             var user = await soc.Users.GetByPublicIdAsync(publicId);
             await UserService.AddToRoleAsync(user.Id, role);
@@ -127,7 +127,7 @@ namespace WEB.Controllers
         [HttpPost, AjaxOnly]
         public async Task<ActionResult> RemoveFromRole(long publicId, string role)
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
 
             var user = await soc.Users.GetByPublicIdAsync(publicId);
             await UserService.RemoveFromRoleAsync(user.Id, role);
@@ -174,7 +174,7 @@ namespace WEB.Controllers
         [HttpPost, AjaxOnly]
         public async Task<ActionResult> DeleteUser(long? publicId)
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
 
             if (!ModelState.IsValid) return HttpNotFound();
 
@@ -213,7 +213,7 @@ namespace WEB.Controllers
         [HttpPost, AjaxOnly]
         public async Task<ActionResult> Search(string search, int? ageFrom, int? ageTo, long? cityId, long? countryId, string activityConcurence, string aboutConcurence, int? sex, short? sort)
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
             //await soc.Friends.Counters.FriendsCounters();
             //#region Parallel operations
             //var unread = soc.Messages.GetUnreadAsync();

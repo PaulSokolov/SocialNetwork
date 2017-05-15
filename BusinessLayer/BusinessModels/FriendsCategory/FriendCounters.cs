@@ -8,7 +8,7 @@ using DataLayer.Entities;
 namespace BusinessLayer.BusinessModels
 {
 
-    public partial class SocialNetworkFunctionalityUser
+    public partial class SocialNetworkManager
     {
         public partial class FriendsCategory
         {

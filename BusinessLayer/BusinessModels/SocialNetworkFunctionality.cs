@@ -7,7 +7,7 @@ using DataLayer.UnitOfWorks;
 
 namespace BusinessLayer.BusinessModels
 {
-    public partial class SocialNetworkFunctionalityUser
+    public partial class SocialNetworkManager
     {
         private const string Connection = "name=SocialNetwork";
 
@@ -71,7 +71,7 @@ namespace BusinessLayer.BusinessModels
 
         
 
-        public SocialNetworkFunctionalityUser(string userId)
+        public SocialNetworkManager(string userId)
         {
             Id = userId;            
             _mapper = CustomMapper.Configurate();
@@ -79,15 +79,13 @@ namespace BusinessLayer.BusinessModels
             _semaphore = new SemaphoreSlim(Threads, MaxThreads);
         }
 
-        public SocialNetworkFunctionalityUser(string userId, ISocialNetwork socialNetworkUoW, ILocalization localizationUoW, Func<DateTime> now)
+        public SocialNetworkManager(string userId, ISocialNetwork socialNetworkUoW, ILocalization localizationUoW, Func<DateTime> now)
         {
             Id = userId;
             _socialNetwork = socialNetworkUoW;
             _localizationConnection = localizationUoW;
             _mapper = CustomMapper.Configurate();
-            Friends = new FriendsCategory(this);
-            Users = new UsersCategory(this);
-            Messages = new MessagesCategory(this);
+            _semaphore = new SemaphoreSlim(Threads, MaxThreads);
             _now = now;
         }
     }

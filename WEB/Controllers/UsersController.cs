@@ -18,7 +18,7 @@ namespace WEB.Controllers
         [HttpGet]
         public async Task<ActionResult> Index(string search)
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
             await soc.Friends.Counters.FriendsCounters();
 
 
@@ -76,7 +76,7 @@ namespace WEB.Controllers
         [HttpPost]
         public async Task<ActionResult> Search(string search, int? ageFrom, int? ageTo, long? cityId, long? countryId, string activityConcurence, string aboutConcurence, int? sex, short? sort, int? lastIndex)
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
             await soc.Friends.Counters.FriendsCounters();
             #region Parallel operations
             var friends = soc.Friends.GetFriendsAsync();
@@ -138,7 +138,7 @@ namespace WEB.Controllers
 
         public async Task<ActionResult> AutocompleteSearch(string term)
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
 
             var searchResult = await soc.Users.SearchAsync(term);
             var users = searchResult.Select(u => new { name = u.Name, avatar = u.Avatar, lastName = u.LastName, publicId = u.PublicId, address = u.Address.Length > 30 ? u.Address.Substring(0, 30):u.Address }).ToList();

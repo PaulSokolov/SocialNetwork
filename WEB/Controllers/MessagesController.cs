@@ -21,7 +21,7 @@ namespace WEB.Controllers
 
         public async Task<ActionResult> Index()
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
             await soc.Friends.Counters.FriendsCounters();
 
             #region Parallel operations
@@ -71,7 +71,7 @@ namespace WEB.Controllers
 
         public async Task<ActionResult> Dialog(long id)
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
 
             await soc.Friends.Counters.FriendsCounters();
             #region Parallel operations
@@ -121,7 +121,7 @@ namespace WEB.Controllers
         [HttpPost,AjaxOnly]
         public async Task<ActionResult> Get(long id, int lastIndex)
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
 
             var messages = await soc.Messages.GetDialogAsync(id, lastIndex);
 
@@ -157,7 +157,7 @@ namespace WEB.Controllers
         {
             Dictionary<string,Task<UserProfileDTO>> getUsersParallel = new Dictionary<string,Task<UserProfileDTO>>();
 
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
 
             var mes = await soc.Messages.SendAsync(recipientId, message);
 
@@ -186,7 +186,7 @@ namespace WEB.Controllers
             SendMessage(mes.ToUser.Id, messageContent);
             ShowMessageNotification(mes.ToUser.Id, RenderRazorViewToString("../Shared/MessageNotification", messageModel));
 
-            var recipient = new SocialNetworkFunctionalityUser(mes.ToUser.Id);
+            var recipient = new SocialNetworkManager(mes.ToUser.Id);
 
             UpdateMessageCounter(mes.ToUser.Id, await recipient.Messages.GetUnreadAsync());
 
@@ -196,12 +196,12 @@ namespace WEB.Controllers
         [HttpPost, AjaxOnly]
         public async Task<ActionResult> Read(long messageId)
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
             var mes = await soc.Messages.ReadAsync(messageId);
             //SignalR methods
             ReadMessage(mes.FromUserId, mes.Id);
 
-            var recipient = new SocialNetworkFunctionalityUser(mes.ToUserId);
+            var recipient = new SocialNetworkManager(mes.ToUserId);
 
             UpdateMessageCounter(mes.ToUserId, await recipient.Messages.GetUnreadAsync());
 

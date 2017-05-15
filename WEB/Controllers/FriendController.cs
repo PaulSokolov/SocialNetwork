@@ -19,7 +19,7 @@ namespace WEB.Controllers
 
         public async Task<ActionResult> Index()
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
 
 
 
@@ -60,7 +60,7 @@ namespace WEB.Controllers
         [HttpPost, AjaxOnly]
         public async Task<ActionResult> Friends()
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
 
             var friendModels = (await soc.Friends.GetFriendsAsync()).AsParallel().Select(friend => new FriendModel
             {
@@ -78,7 +78,7 @@ namespace WEB.Controllers
         [HttpPost, AjaxOnly]
         public async Task<ActionResult> Followed()
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
 
             var friendModels = (await soc.Friends.GetFollowedAsync()).AsParallel().Select(friend => new FriendModel
             {
@@ -96,7 +96,7 @@ namespace WEB.Controllers
         [HttpPost, AjaxOnly]
         public async Task<ActionResult> Followers()
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
 
             var friendModels = new List<FriendModel>();
             Parallel.ForEach(await soc.Friends.GetFollowersAsync(), (friend) =>
@@ -117,7 +117,7 @@ namespace WEB.Controllers
         [HttpPost, AjaxOnly]
         public async Task<ActionResult> Add(long publicId)
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
 
             var friend = await soc.Friends.AddAsync(publicId);
             var user = await soc.Users.GetAsync(soc.Id);
@@ -143,7 +143,7 @@ namespace WEB.Controllers
 
             AddFriend(friend.FriendId, RenderRazorViewToString("../Shared/FriendNotification", model));
 
-            var friendSoc = new SocialNetworkFunctionalityUser(friend.UserId);
+            var friendSoc = new SocialNetworkManager(friend.UserId);
             await friendSoc.Friends.Counters.FriendsCounters();
 
             #region Parallel operations
@@ -176,7 +176,7 @@ namespace WEB.Controllers
         [HttpPost, AjaxOnly]
         public async Task<ActionResult> Confirm(long publicId)
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
 
             var friend = await soc.Friends.ConfirmAsync(publicId);
             var user = await soc.Users.GetAsync(soc.Id);
@@ -203,7 +203,7 @@ namespace WEB.Controllers
 
             AddFriend(friend.FriendId, RenderRazorViewToString("../Shared/FriendNotification", model));
 
-            var friendSoc = new SocialNetworkFunctionalityUser(friend.FriendId);
+            var friendSoc = new SocialNetworkManager(friend.FriendId);
             await friendSoc.Friends.Counters.FriendsCounters();
             #region Parallel operations
 
@@ -240,12 +240,12 @@ namespace WEB.Controllers
         {
             List<Task> paralelCountersInitializingTasks = new List<Task>();
 
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
             var friend = await soc.Friends.DeleteAsync(publicId);
 
             paralelCountersInitializingTasks.Add(soc.Friends.Counters.FriendsCounters());
 
-            var friendSoc = new SocialNetworkFunctionalityUser(friend.FriendId);
+            var friendSoc = new SocialNetworkManager(friend.FriendId);
             paralelCountersInitializingTasks.Add(friendSoc.Friends.Counters.FriendsCounters());
             var user = await soc.Users.GetAsync(soc.Id);
 
@@ -305,7 +305,7 @@ namespace WEB.Controllers
         [HttpPost, AjaxOnly]
         public async Task<ActionResult> Unsubscribe(long publicId)
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
             await soc.Friends.UnsubscribeAsync(publicId);
             await soc.Friends.Counters.FriendsCounters();
 

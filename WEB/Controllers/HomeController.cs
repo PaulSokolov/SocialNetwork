@@ -25,7 +25,7 @@ namespace WEB.Controllers
         [HttpPost, Authorize]
         public async Task<ActionResult> Index(HttpPostedFileBase file)
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
 
             ViewBag.Avatar = soc.Users.Avatar;
 
@@ -57,7 +57,7 @@ namespace WEB.Controllers
         [Authorize, ActionName("Profile")]
         public async Task<ActionResult> ProfileInfo()
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
 
             UserProfileDTO user = await soc.Users.GetAsync(soc.Id);
 
@@ -105,7 +105,7 @@ namespace WEB.Controllers
         [Authorize, HttpGet, ActionName("User")]
         public async Task<ActionResult> UserInfo(long id)
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
             UserProfileDTO user = await soc.Users.GetByPublicIdAsync(id);
             if (user.Id == soc.Id)
                 return RedirectToAction("Profile");
@@ -126,7 +126,7 @@ namespace WEB.Controllers
 
             
 
-            var userSoc = new SocialNetworkFunctionalityUser(user.Id);
+            var userSoc = new SocialNetworkManager(user.Id);
             var friends = userSoc.Friends.GetFriendsAsync(6);
             var profileModel = new ProfileModel
             {
@@ -174,7 +174,7 @@ namespace WEB.Controllers
         {
            
 
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
             UserProfileDTO user = await soc.Users.GetAsync(soc.Id);
             await soc.Friends.Counters.FriendsCounters();
 
@@ -225,7 +225,7 @@ namespace WEB.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
 
             UserProfileDTO user = await soc.Users.GetAsync(soc.Id);
 
@@ -270,7 +270,7 @@ namespace WEB.Controllers
         [AjaxOnly]
         public async Task<ActionResult> Cities(long countryId)
         {
-            var soc = new SocialNetworkFunctionalityUser(User.Identity.GetUserId());
+            var soc = new SocialNetworkManager(User.Identity.GetUserId());
 
             Mapper.Initialize(cnf =>
             {
