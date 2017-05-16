@@ -9,7 +9,16 @@ namespace WEB
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
-
+            routes.MapRoute(
+                name: "Error403",
+                url: "Error/403",
+                defaults: new { controller = "Error", action = "Forbidden" }
+            );
+            routes.MapRoute(
+                name: "Error404",
+                url: "Error/404",
+                defaults: new { controller = "Error", action = "NotFound" }
+            );
             routes.MapRoute(
                 name: "Login",
                 url: "Login",

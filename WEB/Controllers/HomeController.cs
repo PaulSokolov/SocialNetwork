@@ -16,9 +16,11 @@ namespace WEB.Controllers
 {
     public class HomeController : Controller
     {
-        
-        public ActionResult Index()
+        [AuthorizedIndex]
+        public async Task<ActionResult> Index()
         {
+            ViewBag.Countries = await new SocialNetworkManager().Database.GetAllCountriesAsync();
+            ViewBag.Cities = new List<CityDTO>();
             return View();
         }
 

@@ -21,4 +21,18 @@ namespace WEB.Filters
             }
         }
     }
+    public class AuthorizedIndexAttribute : ActionFilterAttribute
+    {
+        public override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            if (!filterContext.HttpContext.Request.IsAuthenticated)
+                base.OnActionExecuting(filterContext);
+            else
+            {
+                filterContext.Result =
+                    new RedirectToRouteResult(
+                        new RouteValueDictionary(new { controller = "Home", action = "Profile" }));
+            }
+        }
+    }
 }
